@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "Circle.h"
-
+//xuan
 circle::circle() {
     c.setX(0);
     c.setY(0);
