@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "Circle.h"
-
+//dananh
 circle::circle() {
     c.setX(0);
     c.setY(0);
