@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Circle.h"
 //Ngoc Han
+// hellooooo
 circle::circle() {
     c.setX(0);
     c.setY(0);
