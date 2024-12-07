@@ -55,7 +55,8 @@
 #include "Line.h"
 #include "Group.h"
 #include "Figure.h"
-#include "path.h"
+#include "Path.h"
+#include "Lib.h"
 #include <unordered_map>
 
 class FileProcess {

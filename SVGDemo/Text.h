@@ -7,7 +7,7 @@ using namespace std;
 
 class text : public Shape {
 private:
-    float fontSize;
+    float fontSize, dx, dy;
     point textPos;
     string content;
     string fontFamily;
@@ -17,7 +17,7 @@ private:
 public:
     // Constructor mặc định
     text();
-    text(float x, float y, string txt, float fSize, string fFamily, string anchor, string fStyle);
+    text(float x, float y, float dx, float dy, string txt, float fSize, string fFamily, string anchor, string fStyle);
 
     // Getter
     float getFontSize() const;
@@ -26,6 +26,8 @@ public:
     string getFontFamily() const;
     string getTextAnchor() const;
     string getFontStyle() const;
+    float getDx();
+    float getDy();
 
     // Setter
     void setFontSize(float fSize);
@@ -34,6 +36,8 @@ public:
     void setFontFamily(const string& fFamily);
     void setTextAnchor(const string& anchor);
     void setFontStyle(const string& fStyle);
+    void setDx(float);
+    void setDy(float);
 
     void calculateBoundingBox() override;
 };
