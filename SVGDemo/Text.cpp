@@ -2,11 +2,11 @@
 #include "Text.h"
 text::text()
     : fontSize(16), textPos({ 0.0f, 0.0f }),
-    content(""), fontFamily("Times New Roman"), textAnchor("start"), fontStyle("normal") {}
+    content(""), dx(0), dy(0), fontFamily("Times New Roman"), textAnchor("start"), fontStyle("normal") {}
 
-text::text(float x, float y, string txt, float fSize, string fFamily, string anchor, string fStyle)
+text::text(float x, float y, float dx_, float dy_, string txt, float fSize, string fFamily, string anchor, string fStyle)
     : fontSize(fSize), textPos(point(x, y)), content(txt),
-    fontFamily(fFamily), textAnchor(anchor), fontStyle(fStyle) {
+    fontFamily(fFamily), textAnchor(anchor), fontStyle(fStyle), dx(dx_), dy(dy_) {
     calculateBoundingBox();
 }
 float text::getFontSize() const { 
@@ -46,7 +46,20 @@ void text::setTextAnchor(const string& anchor) {
 void text::setFontStyle(const string& fStyle) { 
     fontStyle = fStyle; 
 }
+void text::setDx(float dx) {
+    this->dx = dx;
+}
 
+void text::setDy(float dy) {
+    this->dy = dy;
+}
+float text::getDx() {
+    return this->dx;
+}
+
+float text::getDy() {
+    return this->dy;
+}
 void text::calculateBoundingBox() {
     float textWidth = content.length() * (fontSize * 0.5);
     xmin = textPos.getX();

@@ -22,7 +22,7 @@ void Draw::drawRectangle(Graphics& graphics, rectangle* rect) {
 
 	graphics.FillRectangle(&fillBrush, rect->getRecX(), rect->getRecY(), rect->getWidth(), rect->getHeight());
 
-	graphics.DrawRectangle(&pen, rect->getRecX(), rect->getRecY(), rect->getWidth(), rect->getHeight());
+	if (rect->getStrokeWidth() != 0) graphics.DrawRectangle(&pen, rect->getRecX(), rect->getRecY(), rect->getWidth(), rect->getHeight());
 	graphics.Restore(save);
 
 }
@@ -36,29 +36,21 @@ void Draw::drawCircle(Graphics& graphics, circle* cir) {
 	graphics.SetSmoothingMode(SmoothingModeAntiAlias);
 	graphics.FillEllipse(&fillBrush, cir->getCx() - cir->getRadius(), cir->getCy() - cir->getRadius(), cir->getRadius() * 2, cir->getRadius() * 2);
 
-	graphics.DrawEllipse(&pen, cir->getCx() - cir->getRadius(), cir->getCy() - cir->getRadius(), cir->getRadius() * 2, cir->getRadius() * 2);
+	if (cir->getStrokeWidth() != 0) graphics.DrawEllipse(&pen, cir->getCx() - cir->getRadius(), cir->getCy() - cir->getRadius(), cir->getRadius() * 2, cir->getRadius() * 2);
 	graphics.Restore(save);
 }
 
 void Draw::drawText(Graphics& graphics, text* text) {
 	GraphicsState save = graphics.Save();
 	text->applyTransform(graphics);
-
+	//text->setFontSize(30);
 	wstring_convert<codecvt_utf8<wchar_t>> converter;
 	wstring wContent = converter.from_bytes(text->getContent());
 	wstring wFontFamily = converter.from_bytes(text->getFontFamily());
 	FontFamily fontFamily(wFontFamily.c_str());
 
 	int gdiFontStyle = FontStyleRegular;
-	if (text->getFontStyle() == "bold") {
-		gdiFontStyle = FontStyleBold;
-	}
-	else if (text->getFontStyle() == "italic") {
-		gdiFontStyle = FontStyleItalic;
-	}
-	else{
-		gdiFontStyle = FontStyleRegular;
-	}
+	
 	Font font(&fontFamily, text->getFontSize(), gdiFontStyle, UnitPixel);
 	PointF textPosition;
 
@@ -67,29 +59,32 @@ void Draw::drawText(Graphics& graphics, text* text) {
 	RectF layoutRect;
 	graphics.MeasureString(wContent.c_str(), -1, &font, PointF(0, 0), &layoutRect);
 	if (text->getTextAnchor() == "middle") {
-		textPosition = PointF(text->getTextPos().getX() - text->getFontSize() / 25, text->getTextPos().getY() - text->getFontSize() / 4 - layoutRect.Height * 0.7);
+		textPosition = PointF(text->getTextPos().getX() + text->getDx()  - text->getFontSize() / 25, text->getTextPos().getY() + text->getDy()  - text->getFontSize() / 4 - layoutRect.Height * 0.7);
 		stringFormat.SetAlignment(StringAlignmentCenter);
 		stringFormat.SetLineAlignment(StringAlignmentCenter);
 	}
 	else if (text->getTextAnchor() == "end") {
-		textPosition = PointF(text->getTextPos().getX() + text->getFontSize() / 6.5, text->getTextPos().getY() + text->getFontSize() / 2.8 - layoutRect.Height * 0.7);
+		textPosition = PointF(text->getTextPos().getX() + text->getDx()+  text->getFontSize() / 6.5, text->getTextPos().getY() + text->getDy()+  text->getFontSize() / 2.8 - layoutRect.Height * 0.7);
 		stringFormat.SetAlignment(StringAlignmentFar);
 		stringFormat.SetLineAlignment(StringAlignmentFar);
 	}
 	else {
-		textPosition = PointF(text->getTextPos().getX() - text->getFontSize() / 7,
-			text->getTextPos().getY() - layoutRect.Height * 0.7);
+		textPosition = PointF(text->getTextPos().getX() + text->getDx() - text->getFontSize() / 7,
+			text->getTextPos().getY() + text->getDy() - layoutRect.Height * 0.7);
 		stringFormat.SetAlignment(StringAlignmentNear);
 		stringFormat.SetLineAlignment(StringAlignmentNear);
 	}
+	GraphicsPath path;
+	if (text->getFontStyle() == "italic")
+		path.AddString(wContent.c_str(), -1, &fontFamily, FontStyleItalic, text->getFontSize() / 1.05, textPosition, &stringFormat);
+	else if (text->getFontStyle() == "bold")
+		path.AddString(wContent.c_str(), -1, &fontFamily, FontStyleBold, text->getFontSize() / 1.05, textPosition, &stringFormat);
+	else path.AddString(wContent.c_str(), -1, &fontFamily, FontStyleRegular, text->getFontSize() / 1.05, textPosition, &stringFormat);
 
 	SolidBrush fillBrush(Color(text->getFillColor().getOpacity() * 255,
 		text->getFillColor().getRed(),
 		text->getFillColor().getGreen(),
 		text->getFillColor().getBlue()));
-	GraphicsPath path;
-	path.AddString(wContent.c_str(), -1, &fontFamily, gdiFontStyle, text->getFontSize(), textPosition, &stringFormat);
-
 	Pen outlinePen(Color(text->getStrokeColor().getOpacity() * 255,
 		text->getStrokeColor().getRed(),
 		text->getStrokeColor().getGreen(),
@@ -97,9 +92,9 @@ void Draw::drawText(Graphics& graphics, text* text) {
 		text->getStrokeWidth());
 
 	graphics.SetSmoothingMode(SmoothingModeAntiAlias);
-	outlinePen.SetLineJoin(LineJoinRound); 
-	graphics.DrawPath(&outlinePen, &path);
-	graphics.DrawString(wContent.c_str(), -1, &font, textPosition, &stringFormat, &fillBrush);
+	
+	graphics.FillPath(&fillBrush, &path);
+	if(text->getStrokeWidth() != 0) graphics.DrawPath(&outlinePen, &path);
 	graphics.Restore(save);
 }
 
@@ -129,7 +124,7 @@ void Draw::drawPolyline(Graphics& graphics, polyline* polyline) {
 		polyline->getStrokeColor().getBlue()),
 		polyline->getStrokeWidth()); 
 
-	graphics.DrawLines(&pen, gdiPoints, numPoints);
+	if (polyline->getStrokeWidth() != 0) graphics.DrawLines(&pen, gdiPoints, numPoints);
 	graphics.Restore(save);
 
 	delete[] gdiPoints;
@@ -149,7 +144,7 @@ void Draw::drawPolygon(Graphics& graphics, polygon* polygon) {
 	graphics.SetSmoothingMode(SmoothingModeAntiAlias);
 
 	graphics.FillPolygon(&fillBrush, gdiPoints, points.size());
-	graphics.DrawPolygon(&pen, gdiPoints, points.size());
+	if (polygon->getStrokeWidth() != 0) graphics.DrawPolygon(&pen, gdiPoints, points.size());
 	graphics.Restore(save);
 
 	delete[] gdiPoints;
@@ -165,7 +160,7 @@ void Draw::drawEllipse(Graphics& graphics, ellipse* ellipse) {
 	graphics.SetSmoothingMode(SmoothingModeAntiAlias);
 
 	graphics.FillEllipse(&fillBrush, x, y , ellipse->getRx() * 2, ellipse->getRy() * 2);
-	graphics.DrawEllipse(&pen, x, y , ellipse->getRx() * 2, ellipse->getRy() * 2);
+	if (ellipse->getStrokeWidth() != 0)graphics.DrawEllipse(&pen, x, y , ellipse->getRx() * 2, ellipse->getRy() * 2);
 	graphics.Restore(save);
 }
 void Draw::drawLine(Graphics& graphics, line* line) {
@@ -175,7 +170,7 @@ void Draw::drawLine(Graphics& graphics, line* line) {
 	Pen pen(Color(line->getStrokeColor().getOpacity() * 255, line->getStrokeColor().getRed(), line->getStrokeColor().getGreen(), line->getStrokeColor().getBlue()), line->getStrokeWidth());
 	graphics.SetSmoothingMode(SmoothingModeAntiAlias);
 
-	graphics.DrawLine(&pen, line->getX1(), line->getY1(), line->getX2(), line->getY2());
+	if (line->getStrokeWidth() != 0) graphics.DrawLine(&pen, line->getX1(), line->getY1(), line->getX2(), line->getY2());
 	graphics.Restore(save);
 }
 
@@ -254,29 +249,13 @@ void Draw::drawPath(Graphics& graphics, path* path) {
 
 void Draw::drawGroup(Graphics& graphics, group* g) {
 	GraphicsState save = graphics.Save();
-	/*for (auto& command : g->getTransform()) {
-		if (command.getName() == "translate") {
-			graphics.TranslateTransform(command.getTransX(), command.getTransY());
-		}
-		else if (command.getName() == "rotate") {
-			graphics.RotateTransform(command.getAngle());
-
-		}
-		else if (command.getName() == "scale") {
-			graphics.ScaleTransform(command.getScaleX(), command.getScaleY());
-		}
-	}*/
 	g->applyTransform(graphics);
 
 	//if (g->getChildren().size() == 0) {
 	//	Pen pen(Color(255, 0, 0, 0));
 	//	graphics.DrawRectangle(&pen, 0, 0, 200, 100);
 	//}
-	/*for (Shape* child : g->getChildren()) {
-		child->setFillColor(g->getFillColor());
-		child->setStrokeColor(g->getStrokeColor());
-		child->setStrokeWidth(g->getStrokeWidth());
-	}*/
+
 	for (Shape* child : g->getChildren()) {
 		int id = child->nameTonum();
 		switch (id) {
@@ -346,8 +325,6 @@ void Draw::drawFigure(Graphics& graphics, Figure &figure, float angle, float sca
 
 	float x = 0, y = 0;
 	figure.calCenter(x, y); // center of image
-	//
-	//Matrix sharedMatrix;
 
 	graphics.TranslateTransform(transX, transY, MatrixOrderPrepend);
 	graphics.TranslateTransform(x, y, MatrixOrderPrepend);
@@ -368,9 +345,6 @@ void Draw::drawFigure(Graphics& graphics, Figure &figure, float angle, float sca
 	//	Pen pen(Color(255, 0, 0, 0));
 	//	graphics.DrawRectangle(&pen, 0, 0, 200, 100);
 	//}
-
-	//graphics.MultiplyTransform(&sharedMatrix, MatrixOrderAppend);
-
 
 	for (Shape* shape : figure.getList()) {
 		int id = shape->nameTonum();

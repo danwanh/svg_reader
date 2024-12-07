@@ -2,9 +2,16 @@
 #include "Group.h"
 group::group() : Shape(){
 	name = "g";
+	parent = NULL;
 }
 group::group(MyColor stroke, float strokeW, MyColor fill, string shapeName, vector<TransformCommand> t) : Shape(stroke, strokeW, fill, "g", t){
-
+	parent = NULL;
+}
+Shape* group::getParent() {
+	return parent;
+}
+void group::setParent(Shape* p) {
+	parent = p;
 }
 vector<Shape*>& group::getChildren() {
 	return children;
