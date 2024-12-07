@@ -594,10 +594,14 @@ vector <point> FileProcess::ReadPoint(string Point) {
 	auto it = Point.cbegin();
 	while (regex_search(it, Point.cend(), match, pointRegex)) {
 		float x = stof(match[1].str());
+		cout << "x" << x << " ";
 		float y = stof(match[2].str());
+		cout << "y" << y << " ";
 		points.push_back(point(x, y));
 		it = match[0].second;
+		cout << " ; ";
 	}
+	cout << endl;
 	return points;
 }
 
@@ -729,7 +733,6 @@ path FileProcess::ReadPath(string p) {
 	P.setPath(pathVal);
 	return P;
 }
-
 Shape* FileProcess::Readshape(map<string, string> attributes, string name) {
 
 	Shape* shape = NULL;

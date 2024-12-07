@@ -1,10 +1,6 @@
 #include "stdafx.h"
 #include "Circle.h"
-<<<<<<< HEAD
 //dananh
-=======
-//xuan
->>>>>>> 7eef9e9037413868b30c0135d6eeaa6087282987
 circle::circle() {
     c.setX(0);
     c.setY(0);
