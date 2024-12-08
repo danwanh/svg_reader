@@ -64,21 +64,35 @@ MyColor FileProcess::ReadColor(string color) {
 	return Color;
 }
 
-vector <point> FileProcess::ReadPoint(string Point) {
-	vector <point> points;
-	regex pointRegex(R"((-?\d+\.?\d*)\s*,?\s*(-?\d+\.?\d*))");
+//vector <point> FileProcess::ReadPoint(string Point) {
+//	vector <point> points;
+//	regex pointRegex(R"((-?\d+\.?\d*)\s*,?\s*(-?\d+\.?\d*))");
+//	smatch match;
+//	auto it = Point.cbegin();
+//	while (regex_search(it, Point.cend(), match, pointRegex)) {
+//		float x = stof(match[1].str());
+//		//cout << "x" << x << " ";
+//		float y = stof(match[2].str());
+//		//cout << "y" << y << " ";
+//		points.push_back(point(x, y));
+//		it = match[0].second;
+//		//cout << " ; ";
+//	}
+//	//cout << endl;
+//	return points;
+//}
+vector<point> FileProcess::ReadPoint(string Point) {
+	vector<point> points;
+	regex pointRegex(R"((-?\d*\.?\d+)\s*,?\s*(-?\d*\.?\d+))"); // Xử lý cặp tọa độ
 	smatch match;
 	auto it = Point.cbegin();
+
 	while (regex_search(it, Point.cend(), match, pointRegex)) {
 		float x = stof(match[1].str());
-		cout << "x" << x << " ";
 		float y = stof(match[2].str());
-		cout << "y" << y << " ";
 		points.push_back(point(x, y));
 		it = match[0].second;
-		cout << " ; ";
 	}
-	cout << endl;
 	return points;
 }
 
@@ -161,60 +175,75 @@ vector<TransformCommand> FileProcess::ReadTranCom(string trans) {
 	return transcom;
 }
 
-path FileProcess::ReadPath(string p) {
-	vector <pair<string, vector<point>>> pathVal;
-	regex pathRegex(R"(([MLHVZC])((\s*-?\d+\.?\d*\s*)+))");
+
+path FileProcess::ReadPath(string d) {
+	if (d.empty()) {
+		throw std::invalid_argument("Path string cannot be empty.");
+	}
+
+	vector<pair<string, vector<point>>> pathVct; // Kết quả cuối
+	regex commandRegex(R"(([MLHVZCSmlhvzcs])([^MLHVZCSmlhvzcs]*))"); // Tách lệnh và tham số
 	smatch match;
 
-	auto it = p.cbegin();
-	while (regex_search(it, p.cend(), match, pathRegex)) {
+	point lastPoint = { 0, 0 }; // Điểm cuối hiện tại
+	auto it = d.cbegin();
 
-		pair <string, vector<point>> pairPath;
-		string command = match[1].str();  // Lấy lệnh (M, L, C, v.v.)
-		string Points = match[2].str();  // Lấy chuỗi điểm
-		//cout << match[1] << " : " << match[2] << endl;
+	while (regex_search(it, d.cend(), match, commandRegex)) {
+		string command = match[1].str(); // Lấy lệnh (M, C, H, V, Z)
+		string args = match[2].str();    // Lấy tham số liên quan đến lệnh
 
-		pairPath.first = command;
-		if (command == "V") { // x co dinh
-			stringstream ss(Points);
-			point tempPoint;
-			float x1 = 0, y1 = 0;
-			ss >> y1;
-			tempPoint.setY(y1);
+		pair<string, vector<point>> pathSegment; // Một phần tử trong pathVct
 
-			if (!pathVal.empty()) {
-				if (!pathVal.back().second.empty()) {
-					x1 = pathVal.back().second.back().getX();
-					tempPoint.setX(x1);
-				}
+		pathSegment.first = command;            // Gán lệnh
+		if (command == "M" || command == "L" || command == "C" || command == "m" || command == "l" || command == "c" || command == "S" || command == "s") {
+			vector<point> points = ReadPoint(args); // Chuyển chuỗi tọa độ thành vector<point>
+			pathSegment.second = points;
+			if (!points.empty()) {
+				lastPoint = points.back(); // Cập nhật điểm cuối
 			}
-			pairPath.second = vector <point>{ tempPoint };
 		}
-		else if (command == "H") {
-			stringstream ss(Points);
-			point tempPoint;
-			float x1 = 0, y1 = 0;
-			ss >> x1;
-			tempPoint.setX(x1);
-
-			if (!pathVal.empty()) {
-				if (!pathVal.back().second.empty()) {
-					y1 = pathVal.back().second.back().getY();
-					tempPoint.setY(y1);
-				}
+		else if (command == "H" || command == "h") {
+			//pathSegment.first = command;            // Gán lệnh
+			stringstream ss(args);
+			float coord;
+			while (ss >> coord) {
+				lastPoint.setX(coord); // Chỉ cập nhật trục x
+				pathSegment.second.push_back(lastPoint);
 			}
-			pairPath.second = vector <point>{ tempPoint };
 		}
-		else {
-			pairPath.second = ReadPoint(Points);
+		else if (command == "V" || command == "v") {
+			stringstream ss(args);
+			float coord;
+			while (ss >> coord) {
+				lastPoint.setY(coord); // Chỉ cập nhật trục y
+				pathSegment.second.push_back(lastPoint);
+			}
 		}
-		pathVal.push_back(pairPath);
-		it = match[0].second;
+		else if (command == "Z" || command == "z") {
+			// Lệnh Z không có tham số, thường để đóng đường dẫn
+			pathSegment.second.push_back(lastPoint); // Giữ nguyên điểm cuối
+		}
+
+		if (command == "M" && pathSegment.second.size() > 1) {
+			vector<point> tmp = pathSegment.second;
+			// Thêm điểm đầu với "M"
+			pathVct.push_back({ "M", { tmp[0] } });
+
+			// Thêm các điểm còn lại với "L"
+			for (size_t i = 1; i < tmp.size(); ++i) {
+				pathVct.push_back({ "L", { tmp[i] } });
+			}
+		}
+		else pathVct.push_back(pathSegment);
+		it = match[0].second; // Tiếp tục xử lý
 	}
+
+	// Tạo đối tượng path
 	path P;
-	P.setPath(pathVal);
+	P.setPath(pathVct);
 	return P;
 }
+
 Shape* FileProcess::Readshape(map<string, string> attributes, string name) {
 
 	Shape* shape = NULL;
@@ -326,6 +355,12 @@ Shape* FileProcess::Readshape(map<string, string> attributes, string name) {
 		if (attributes["x"] != "" && attributes["y"] != "") {
 			temp->setTextPos(point(stof(attributes["x"]), stof(attributes["y"])));
 		}
+		if (attributes["dx"] != "") {
+			temp->setDx(stof(attributes["dx"]));
+		}
+		if (attributes["dy"] != "") {
+			temp->setDy(stof(attributes["dy"]));
+		}
 		if (attributes["font-family"] != "") {
 			temp->setFontFamily(attributes["font-family"]);
 		}
@@ -374,6 +409,7 @@ Shape* FileProcess::Readshape(map<string, string> attributes, string name) {
 			vector<TransformCommand> transcom = ReadTranCom(attributes["transform"]);
 			temp->setTransform(transcom);
 		}
+
 	}
 	else if (name == "g") {
 		shape = new group;
@@ -384,7 +420,9 @@ Shape* FileProcess::Readshape(map<string, string> attributes, string name) {
 			vector<TransformCommand> transcom = ReadTranCom(attributes["transform"]);
 			temp->setTransform(transcom);
 		}
-
+	}
+	else {
+		shape = NULL;
 	}
 	return shape;
 }
