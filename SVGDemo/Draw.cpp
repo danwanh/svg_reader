@@ -95,7 +95,8 @@ void Draw::drawText(Graphics& graphics, text* text) {
 	graphics.SetSmoothingMode(SmoothingModeAntiAlias);
 	
 	graphics.FillPath(&fillBrush, &path);
-	if(text->getStrokeWidth() != 0) graphics.DrawPath(&outlinePen, &path);
+	if(text->getStrokeWidth() != 0)
+		graphics.DrawPath(&outlinePen, &path);
 	graphics.Restore(save);
 }
 
@@ -125,7 +126,8 @@ void Draw::drawPolyline(Graphics& graphics, polyline* polyline) {
 		polyline->getStrokeColor().getBlue()),
 		polyline->getStrokeWidth()); 
 
-	if (polyline->getStrokeWidth() != 0) graphics.DrawLines(&pen, gdiPoints, numPoints);
+	if (polyline->getStrokeWidth() != 0)
+		graphics.DrawLines(&pen, gdiPoints, numPoints);
 	graphics.Restore(save);
 
 	delete[] gdiPoints;
@@ -141,11 +143,15 @@ void Draw::drawPolygon(Graphics& graphics, polygon* polygon) {
 		gdiPoints[i].X = points[i].getX();
 		gdiPoints[i].Y = points[i].getY();
 	}
+	
 	Pen pen(Color(polygon->getStrokeColor().getOpacity() * 255, polygon->getStrokeColor().getRed(), polygon->getStrokeColor().getGreen(), polygon->getStrokeColor().getBlue()), polygon->getStrokeWidth());
+	pen.SetAlignment(PenAlignmentCenter);
 	graphics.SetSmoothingMode(SmoothingModeAntiAlias);
 
 	graphics.FillPolygon(&fillBrush, gdiPoints, points.size());
-	if (polygon->getStrokeWidth() != 0) graphics.DrawPolygon(&pen, gdiPoints, points.size());
+
+	if (polygon->getStrokeWidth() != 0)
+		graphics.DrawPolygon(&pen, gdiPoints, points.size());
 	graphics.Restore(save);
 
 	delete[] gdiPoints;
@@ -234,8 +240,8 @@ void Draw::drawPath(Graphics& graphics, path* path) {
 				PointF endPoint(points[i + 2].getX(), points[i + 2].getY());
 				graphicsPath.AddBezier(currentPoint, control1, control2, endPoint);
 				currentPoint = endPoint;
-				lastControlPoint = control2; // Cập nhật điểm điều khiển cuối cùng
-				hasPreviousControlPoint = true; // Đánh dấu đã có điểm điều khiển
+				lastControlPoint = control2; 
+				hasPreviousControlPoint = true; 
 			}
 		}
 		else if (command == "c") { // Cubic Bézier Curve (relative)
@@ -246,16 +252,16 @@ void Draw::drawPath(Graphics& graphics, path* path) {
 				PointF endPoint(points[i + 2].getX() + currentPoint.X, points[i + 2].getY() + currentPoint.Y);
 				graphicsPath.AddBezier(currentPoint, control1, control2, endPoint);
 				currentPoint = endPoint;
-				lastControlPoint = control2; // Cập nhật điểm điều khiển cuối cùng
-				hasPreviousControlPoint = true; // Đánh dấu đã có điểm điều khiển
+				lastControlPoint = control2; 
+				hasPreviousControlPoint = true; 
 			}
 		}
 		else if (command == "S") { // Smooth Cubic Bézier Curve (absolute)
 			if (points.size() < 2) continue;
 			for (size_t i = 0; i + 1 < points.size(); i += 2) {
 				PointF control1;
-				if (hasPreviousControlPoint) { // Nếu có điểm điều khiển trước đó
-					control1 = PointF(lastControlPoint.X, lastControlPoint.Y); // Lấy điểm điều khiển từ lệnh trước đó
+				if (hasPreviousControlPoint) { 
+					control1 = PointF(lastControlPoint.X, lastControlPoint.Y); 
 				}
 				else {
 					control1 = currentPoint; // Nếu không có, sử dụng currentPoint
@@ -265,27 +271,27 @@ void Draw::drawPath(Graphics& graphics, path* path) {
 				PointF endPoint(points[i + 1].getX(), points[i + 1].getY());
 				graphicsPath.AddBezier(currentPoint, control1, control2, endPoint);
 				currentPoint = endPoint;
-				lastControlPoint = control2; // Cập nhật điểm điều khiển cuối cùng
-				hasPreviousControlPoint = true; // Đánh dấu đã có điểm điều khiển
+				lastControlPoint = control2; 
+				hasPreviousControlPoint = true;
 			}
 		}
 		else if (command == "s") { // Smooth Cubic Bézier Curve (relative)
 			if (points.size() < 2) continue;
 			for (size_t i = 0; i + 1 < points.size(); i += 2) {
 				PointF control1;
-				if (hasPreviousControlPoint) { // Nếu có điểm điều khiển trước đó
-					control1 = PointF(currentPoint.X + lastControlPoint.X, currentPoint.Y + lastControlPoint.Y); // Điểm điều khiển từ lệnh trước đó
+				if (hasPreviousControlPoint) { 
+					control1 = PointF(currentPoint.X + lastControlPoint.X, currentPoint.Y + lastControlPoint.Y); 
 				}
 				else {
-					control1 = currentPoint; // Nếu không có, sử dụng currentPoint
+					control1 = currentPoint; 
 				}
 
 				PointF control2(points[i].getX() + currentPoint.X, points[i].getY() + currentPoint.Y);
 				PointF endPoint(points[i + 1].getX() + currentPoint.X, points[i + 1].getY() + currentPoint.Y);
 				graphicsPath.AddBezier(currentPoint, control1, control2, endPoint);
 				currentPoint = endPoint;
-				lastControlPoint = control2; // Cập nhật điểm điều khiển cuối cùng
-				hasPreviousControlPoint = true; // Đánh dấu đã có điểm điều khiển
+				lastControlPoint = control2; 
+				hasPreviousControlPoint = true; 
 			}
 		}
 		else if (command == "H") { // Horizontal line (absolute)
@@ -327,117 +333,6 @@ void Draw::drawPath(Graphics& graphics, path* path) {
 
 	graphics.Restore(save);
 }
-
-
-
-//void Draw::drawPath(Graphics& graphics, path* path) {
-//	GraphicsState save = graphics.Save();
-//	path->applyTransform(graphics);
-//
-//	SolidBrush fillBrush(Color(
-//		path->getFillColor().getOpacity() * 255,
-//		path->getFillColor().getRed(),
-//		path->getFillColor().getGreen(),
-//		path->getFillColor().getBlue()));
-//	Pen pen(Color(
-//		path->getStrokeColor().getOpacity() * 255,
-//		path->getStrokeColor().getRed(),
-//		path->getStrokeColor().getGreen(),
-//		path->getStrokeColor().getBlue()),
-//		path->getStrokeWidth());
-//
-//	graphics.SetSmoothingMode(SmoothingModeAntiAlias);
-//
-//	auto commands = path->getPath(); 
-//	GraphicsPath graphicsPath;
-//	PointF currentPoint;
-//
-//	
-//	for (auto cmd : commands) {
-//		string command = cmd.first;         
-//		vector<point> points = cmd.second;  
-//
-//		if (command == "M") { // Move to
-//			if (points.empty()) continue;
-//			currentPoint = PointF(points[0].getX(), points[0].getY());
-//			graphicsPath.StartFigure();
-//		}
-//		else if (command == "m") { // Move to
-//			if (points.empty()) continue;
-//			currentPoint = PointF(points[0].getX()+ currentPoint.X, points[0].getY() + currentPoint.Y);
-//			graphicsPath.StartFigure();
-//		}
-//		else if (command == "L" ) { // Line to
-//			for (auto pt : points) {
-//				PointF nextPoint(pt.getX(), pt.getY());
-//				graphicsPath.AddLine(currentPoint, nextPoint);
-//				currentPoint = nextPoint;
-//			}
-//		}
-//		else if (command == "l") { // Line to
-//			for (auto pt : points) {
-//				PointF nextPoint(pt.getX()+ currentPoint.X, pt.getY()+ currentPoint.Y);
-//				graphicsPath.AddLine(currentPoint, nextPoint);
-//				currentPoint = nextPoint;
-//			}
-//		}
-//		else if (command == "C") { // Cubic Bézier Curve
-//			if (points.size() < 3) continue; 
-//			for (size_t i = 0; i + 2 < points.size(); i += 3) {
-//				PointF control1(points[i].getX(), points[i].getY());
-//				PointF control2(points[i + 1].getX(), points[i + 1].getY());
-//				PointF endPoint(points[i + 2].getX(), points[i + 2].getY());
-//				graphicsPath.AddBezier(currentPoint, control1, control2, endPoint);
-//				currentPoint = endPoint;
-//			}
-//		}
-//		        else if (command == "c") { // Cubic Bézier Curve (tương đối)
-//            if (points.size() < 3) continue;
-//            for (size_t i = 0; i + 2 < points.size(); i += 3) {
-//                PointF control1(points[i].getX() + currentPoint.X, points[i].getY() + currentPoint.Y);
-//                PointF control2(points[i + 1].getX() + currentPoint.X, points[i + 1].getY() + currentPoint.Y);
-//                PointF endPoint(points[i + 2].getX() + currentPoint.X, points[i + 2].getY() + currentPoint.Y);
-//                graphicsPath.AddBezier(currentPoint, control1, control2, endPoint);
-//                currentPoint = endPoint;
-//            }
-//        }
-//        else if (command == "H") { // Horizontal line (tuyệt đối)
-//            for (auto& pt : points) {
-//                PointF nextPoint(pt.getX(), currentPoint.Y);
-//                graphicsPath.AddLine(currentPoint, nextPoint);
-//                currentPoint = nextPoint;
-//            }
-//        }
-//        else if (command == "h") { // Horizontal line (tương đối)
-//            for (auto& pt : points) {
-//                PointF nextPoint(currentPoint.X + pt.getX(), currentPoint.Y);
-//                graphicsPath.AddLine(currentPoint, nextPoint);
-//                currentPoint = nextPoint;
-//            }
-//        }
-//        else if (command == "V") { // Vertical line (tuyệt đối)
-//            for (auto& pt : points) {
-//                PointF nextPoint(currentPoint.X, pt.getY());
-//                graphicsPath.AddLine(currentPoint, nextPoint);
-//                currentPoint = nextPoint;
-//            }
-//        }
-//        else if (command == "v") { // Vertical line (tương đối)
-//            for (auto& pt : points) {
-//                PointF nextPoint(currentPoint.X, currentPoint.Y + pt.getY());
-//                graphicsPath.AddLine(currentPoint, nextPoint);
-//                currentPoint = nextPoint;
-//            }
-//        }
-//        else if (command == "Z" || command == "z") { // Close path
-//            graphicsPath.CloseFigure();
-//        }
-//	}
-//	graphics.FillPath(&fillBrush, &graphicsPath);
-//	if(path->getStrokeWidth() != 0) graphics.DrawPath(&pen, &graphicsPath);
-//
-//	graphics.Restore(save);
-//}
 
 void Draw::drawGroup(Graphics& graphics, group* g) {
 	GraphicsState save = graphics.Save();

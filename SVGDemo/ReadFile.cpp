@@ -50,10 +50,6 @@ void FileProcess::LoadColorMap() {
 MyColor FileProcess::ReadColor(string color) {
 	//LoadColorMap();
 
-	MyColor test;
-	test = colorMap["yellow"];
-	cout << "Mau vang: " << test.getRed() << "," << test.getGreen() << "," << test.getBlue() << endl;
-
 	MyColor Color;
 	if (color == "")
 		return Color;
@@ -120,6 +116,7 @@ void FileProcess::ReadStrokeAndFile(map<string, string> attributes, Shape* shape
 	MyColor stroke;
 	if (attributes["stroke"] != "") {
 		stroke = ReadColor(attributes["stroke"]);
+		shape->setStrokeWidth(1);
 	}
 	if (attributes["stroke-opacity"] != "") {
 		stroke.setOpacity(stof(attributes["stroke-opacity"]));
@@ -149,11 +146,17 @@ vector<TransformCommand> FileProcess::ReadTranCom(string trans) {
 		string value = match[2];
 		TransformCommand temp;
 		if (name == "translate") {
-			temp.setName("translate");
+		/*	temp.setName("translate");
 			smatch valMatch;
 			regex transVal(R"(\s*(-?\d+\.?\d*)\s*,\s*(-?\d+\.?\d*)\s*)");
 			if (regex_search(value, valMatch, transVal)) {
 				temp.setTranslate(stof(valMatch[1]), stof(valMatch[2]));
+			}*/
+			temp.setName("translate");
+			smatch valMatch;
+			regex transVal(R"(\s*(-?\d+(\.\d+)?)\s+(-?\d+(\.\d+)?)\s*)");
+			if (regex_search(value, valMatch, transVal)) {
+				temp.setTranslate(stof(valMatch[1]), stof(valMatch[3]));
 			}
 		}
 		else if (name == "rotate") {
