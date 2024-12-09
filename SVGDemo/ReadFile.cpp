@@ -106,7 +106,7 @@ void FileProcess::ReadStrokeAndFile(map<string, string> attributes, Shape* shape
 		color = ReadColor(attributes["fill"]);
 	}
 	if (attributes["fill"] == "none") {
-		color = MyColor(255, 255, 255, 1);
+		color = MyColor(255, 255, 255, 0);
 	}
 	if (attributes["fill-opacity"] != "") {
 		color.setOpacity(stof(attributes["fill-opacity"]));
