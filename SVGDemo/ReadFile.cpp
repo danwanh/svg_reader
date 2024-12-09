@@ -2,6 +2,7 @@
 #include "ReadFile.h"
 FileProcess::FileProcess() {
 	this->fileName = "";
+	LoadColorMap();
 }
 FileProcess::FileProcess(string name) {
 	this->fileName = name;
@@ -25,6 +26,16 @@ void FileProcess::LoadColorMap() {
 
 		if (!name.empty() && hexa_code.length() == 7) {
 			MyColor color;
+
+			string result;
+			for (char ch : name) {
+				if (!std::isspace(static_cast<unsigned char>(ch))) {
+					result += ch; // Thêm ký tự không phải khoảng trắng
+				}
+			}
+			name = result;
+			transform(name.begin(), name.end(), name.begin(), ::tolower);
+
 			color.setRed(stoi(hexa_code.substr(1, 2), NULL, 16));
 			color.setGreen(stoi(hexa_code.substr(3, 2), NULL, 16));
 			color.setBlue(stoi(hexa_code.substr(5, 2), NULL, 16));
@@ -32,6 +43,7 @@ void FileProcess::LoadColorMap() {
 		}
 	}
 	colorMap["none"] = { 0, 0, 0, 0 };
+	color_file.close();
 }
 
 MyColor FileProcess::ReadColor(string color) {
@@ -64,23 +76,6 @@ MyColor FileProcess::ReadColor(string color) {
 	return Color;
 }
 
-//vector <point> FileProcess::ReadPoint(string Point) {
-//	vector <point> points;
-//	regex pointRegex(R"((-?\d+\.?\d*)\s*,?\s*(-?\d+\.?\d*))");
-//	smatch match;
-//	auto it = Point.cbegin();
-//	while (regex_search(it, Point.cend(), match, pointRegex)) {
-//		float x = stof(match[1].str());
-//		//cout << "x" << x << " ";
-//		float y = stof(match[2].str());
-//		//cout << "y" << y << " ";
-//		points.push_back(point(x, y));
-//		it = match[0].second;
-//		//cout << " ; ";
-//	}
-//	//cout << endl;
-//	return points;
-//}
 vector<point> FileProcess::ReadPoint(string Point) {
 	vector<point> points;
 	regex pointRegex(R"((-?\d*\.?\d+)\s*,?\s*(-?\d*\.?\d+))"); // Xử lý cặp tọa độ
