@@ -2,6 +2,7 @@
 #include "ReadFile.h"
 FileProcess::FileProcess() {
 	this->fileName = "";
+	LoadColorMap();
 }
 FileProcess::FileProcess(string name) {
 	this->fileName = name;
@@ -25,16 +26,34 @@ void FileProcess::LoadColorMap() {
 
 		if (!name.empty() && hexa_code.length() == 7) {
 			MyColor color;
+			//name = trim(name); // Loại bỏ khoảng trắng
+			string result;
+			for (char ch : name) {
+				if (!std::isspace(static_cast<unsigned char>(ch))) {
+					result += ch; // Thêm ký tự không phải khoảng trắng
+				}
+			}
+			name = result;
+			transform(name.begin(), name.end(), name.begin(), ::tolower);
+
 			color.setRed(stoi(hexa_code.substr(1, 2), NULL, 16));
 			color.setGreen(stoi(hexa_code.substr(3, 2), NULL, 16));
 			color.setBlue(stoi(hexa_code.substr(5, 2), NULL, 16));
 			colorMap[name] = color;
+			cout << name << ": " << color.getRed() << "," << color.getGreen() << "," << color.getBlue() << endl;
 		}
 	}
 	colorMap["none"] = { 0, 0, 0, 0 };
+	color_file.close();
 }
 
 MyColor FileProcess::ReadColor(string color) {
+	//LoadColorMap();
+
+	MyColor test;
+	test = colorMap["yellow"];
+	cout << "Mau vang: " << test.getRed() << "," << test.getGreen() << "," << test.getBlue() << endl;
+
 	MyColor Color;
 	if (color == "")
 		return Color;
@@ -56,9 +75,14 @@ MyColor FileProcess::ReadColor(string color) {
 		Color.setBlue(stoi(color.substr(5, 2), NULL, 16));
 	}
 	else {
+		cout << color << endl;
 		auto it = colorMap.find(color);
 		if (it != colorMap.end()) {
 			Color = it->second;
+			cout << it->second.getRed() << "," << it->second.getBlue() << "," << it->second.getGreen() << endl;
+		}
+		else {
+			cout << "Khong tim duoc mau\n";
 		}
 	}
 	return Color;
@@ -565,6 +589,14 @@ void FileProcess::ShowShape(Shape* shape) {
 
 vector <Shape*> FileProcess::ReadFile() {
 	vector <Shape*> figure;
+	LoadColorMap();
+	string key;
+	MyColor value;
+	for (auto& it : colorMap) {
+		cout << "Color Name: " << it.first << ", RGB: ";
+		cout << it.second.getRed() << "," << it.second.getBlue() << "," << it.second.getGreen() << endl;
+
+	}
 	figure.resize(0);
 	fstream fi;
 	string name = this->GetFileName();
