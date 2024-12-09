@@ -26,11 +26,7 @@ void FileProcess::LoadColorMap() {
 
 		if (!name.empty() && hexa_code.length() == 7) {
 			MyColor color;
-<<<<<<< HEAD
 			//name = trim(name); // Loại bỏ khoảng trắng
-=======
-
->>>>>>> f1e3d8699201655eabbf8d95016ada460ddddc9d
 			string result;
 			for (char ch : name) {
 				if (!std::isspace(static_cast<unsigned char>(ch))) {
