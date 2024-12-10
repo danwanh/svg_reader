@@ -58,13 +58,13 @@ MyColor FileProcess::ReadColor(string color) {
 		}
 	}
 	color = temp;
-	cout << color;
+
 	MyColor Color;
 	if (color == "")
 		return Color;
 
 	if (color.find("rgb") != string::npos) {
-		//cout << color << endl;
+
 		regex colorVal(R"(rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\))");
 		smatch match;
 		if (regex_search(color, match, colorVal)) {
@@ -79,14 +79,14 @@ MyColor FileProcess::ReadColor(string color) {
 				Color.setRed(stoi(match[1]));
 			}
 			if (g < 0 || g > 255) {
-				Color.setGreen(255);
+				Color.setRed(255);
 			}
 			else {
 				Color.setGreen(stoi(match[2]));
 
 			}
 			if (b < 0 || b > 255) {
-				Color.setBlue(255);
+				Color.setRed(255);
 			}
 			else {
 				Color.setBlue(stoi(match[3]));
@@ -94,10 +94,8 @@ MyColor FileProcess::ReadColor(string color) {
 			}
 		}
 	}
-	else if (color[0] == '#' && (color.length() == 7 || color[0] == '#' && color.length() == 4)) {
+	else if (color[0] == '#' && (color.length() == 7 || color.length() == 4)) {
 		if (color.length() == 4) {
-			cout << color << endl;
-
 			// Expand 3-character shorthand color to 6-character format
 			string expandedColor = "#";
 			expandedColor += color[1];
@@ -111,11 +109,9 @@ MyColor FileProcess::ReadColor(string color) {
 		Color.setRed(stoi(color.substr(1, 2), NULL, 16));
 		Color.setGreen(stoi(color.substr(3, 2), NULL, 16));
 		Color.setBlue(stoi(color.substr(5, 2), NULL, 16));
-
-		cout << Color.getRed() << Color.getGreen() << Color.getBlue() << endl;
 	}
 	else {
-		//cout << color << endl;
+		cout << color << endl;
 		auto it = colorMap.find(color);
 		if (it != colorMap.end()) {
 			Color = it->second;
@@ -150,7 +146,6 @@ void FileProcess::ReadStrokeAndFile(map<string, string> attributes, Shape* shape
 		shape->getFillColor().setOpacity(stof(attributes["fill-opacity"]));
 	}
 	if (attributes["fill"] != "") {
-		cout << attributes["fill"] << endl;
 		color = ReadColor(attributes["fill"]);
 		shape->getFillColor().setBlue(color.getBlue());
 		shape->getFillColor().setRed(color.getRed());
@@ -162,12 +157,10 @@ void FileProcess::ReadStrokeAndFile(map<string, string> attributes, Shape* shape
 	}
 
 	MyColor stroke;
-	if (attributes["stroke"] != "" && attributes["stroke"] != "none") {
+	if (attributes["stroke"] != "") {
 		stroke = ReadColor(attributes["stroke"]);
 		shape->setStrokeWidth(1);
-		shape->getStrokeColor().setBlue(color.getBlue());
-		shape->getStrokeColor().setRed(color.getRed());
-		shape->getStrokeColor().setGreen(color.getGreen());
+		shape->setStrokeColor(stroke);
 	}
 	if (attributes["stroke-opacity"] != "") {
 		shape->getStrokeColor().setOpacity(stof(attributes["stroke-opacity"]));
@@ -303,10 +296,10 @@ path FileProcess::ReadPath(string d) {
 
 Shape* FileProcess::Readshape(map<string, string> attributes, string name) {
 
-
+	Shape* shape = NULL;
 	if (name == "rect") {
 		//cout << " rect ";
-		Shape* shape = new rectangle();
+		shape = new rectangle;
 		rectangle* temp = dynamic_cast<rectangle*>(shape);
 
 		shape->setName(name);  // dat ten
@@ -329,11 +322,10 @@ Shape* FileProcess::Readshape(map<string, string> attributes, string name) {
 			vector<TransformCommand> transcom = ReadTranCom(attributes["transform"]);
 			temp->setTransform(transcom);
 		}
-		return shape;
 	}
 	else if (name == "circle") {
 
-		Shape* shape = new circle;
+		shape = new circle;
 		circle* temp = dynamic_cast<circle*>(shape);
 
 		shape->setName(name);  // dat ten
@@ -352,10 +344,9 @@ Shape* FileProcess::Readshape(map<string, string> attributes, string name) {
 			vector<TransformCommand> transcom = ReadTranCom(attributes["transform"]);
 			temp->setTransform(transcom);
 		}
-		return shape;
 	}
 	else if (name == "line") {
-		Shape* shape = new line;
+		shape = new line;
 		line* temp = dynamic_cast<line*>(shape);
 		shape->setName(name);  // dat ten
 		this->ReadStrokeAndFile(attributes, shape); // Doc fill va stroke color
@@ -376,10 +367,9 @@ Shape* FileProcess::Readshape(map<string, string> attributes, string name) {
 			vector<TransformCommand> transcom = ReadTranCom(attributes["transform"]);
 			temp->setTransform(transcom);
 		}
-		return shape;
 	}
 	else if (name == "polyline") {
-		Shape* shape = new polyline();
+		shape = new polyline();
 		polyline* temp = dynamic_cast<polyline*>(shape);
 		shape->setName(name);  // dat ten
 		this->ReadStrokeAndFile(attributes, shape); // Doc fill va stroke color
@@ -390,10 +380,9 @@ Shape* FileProcess::Readshape(map<string, string> attributes, string name) {
 			vector<TransformCommand> transcom = ReadTranCom(attributes["transform"]);
 			temp->setTransform(transcom);
 		}
-		return shape;
 	}
 	else if (name == "polygon") {
-		Shape* shape = new polygon();
+		shape = new polygon();
 		polygon* temp = dynamic_cast<polygon*>(shape);
 		shape->setName(name);  // dat ten
 		this->ReadStrokeAndFile(attributes, shape); // Doc fill va stroke color
@@ -404,10 +393,9 @@ Shape* FileProcess::Readshape(map<string, string> attributes, string name) {
 			vector<TransformCommand> transcom = ReadTranCom(attributes["transform"]);
 			temp->setTransform(transcom);
 		}
-		return shape;
 	}
 	else if (name == "text") {
-		Shape* shape = new text;
+		shape = new text;
 		text* temp = dynamic_cast<text*>(shape);
 		shape->setName(name);  // dat ten
 		this->ReadStrokeAndFile(attributes, shape);
@@ -436,10 +424,9 @@ Shape* FileProcess::Readshape(map<string, string> attributes, string name) {
 			vector<TransformCommand> transcom = ReadTranCom(attributes["transform"]);
 			temp->setTransform(transcom);
 		}
-		return shape;
 	}
 	else if (name == "ellipse") {
-		Shape* shape = new ellipse;
+		shape = new ellipse;
 		ellipse* temp = dynamic_cast<ellipse*>(shape);
 		shape->setName(name);  // dat ten
 		this->ReadStrokeAndFile(attributes, shape);
@@ -460,11 +447,9 @@ Shape* FileProcess::Readshape(map<string, string> attributes, string name) {
 			vector<TransformCommand> transcom = ReadTranCom(attributes["transform"]);
 			temp->setTransform(transcom);
 		}
-		return shape;
 	}
 	else if (name == "path") {
-		//cout << "path" << endl;
-		Shape* shape = new path();
+		shape = new path();
 		path* temp = dynamic_cast<path*>(shape);
 		shape->setName(name);  // dat ten
 		this->ReadStrokeAndFile(attributes, shape);
@@ -477,12 +462,11 @@ Shape* FileProcess::Readshape(map<string, string> attributes, string name) {
 			vector<TransformCommand> transcom = ReadTranCom(attributes["transform"]);
 			temp->setTransform(transcom);
 		}
-		return shape;
+
 	}
 	else if (name == "g") {
-		//cout << "g" << endl;
 		//Shape* parent = NULL;
-		Shape* shape = new group();
+		shape = new group();
 		group* temp = dynamic_cast<group*>(shape);
 		shape->setName(name);  // dat ten
 		this->ReadStrokeAndFile(attributes, shape);
@@ -491,9 +475,11 @@ Shape* FileProcess::Readshape(map<string, string> attributes, string name) {
 			vector<TransformCommand> transcom = ReadTranCom(attributes["transform"]);
 			temp->setTransform(transcom);
 		}
-		return shape;
 	}
-	return NULL;
+	else {
+		shape = NULL;
+	}
+	return shape;
 }
 
 void FileProcess::ReadGroupChild(map<string, string> pAttributes, group* parentGroup, fstream& fi) {
@@ -523,9 +509,7 @@ void FileProcess::ReadGroupChild(map<string, string> pAttributes, group* parentG
 
 		//set cac thuoc tinh o dong parrent attibutes cho child
 		Shape* shape = this->Readshape(attributes, name);
-
-		if (shape != NULL)
-		{
+		if(shape){
 			ReadStrokeAndFile(pAttributes, shape); // bị mẹ đè
 			ReadStrokeAndFile(attributes, shape);
 		}
@@ -553,11 +537,9 @@ void FileProcess::ReadGroupChild(map<string, string> pAttributes, group* parentG
 		}
 
 		if (name == "g") {
-			map<string, string> grandAndparent = pAttributes; // Start with map1
-			grandAndparent.insert(attributes.begin(), attributes.end());
 			group* childGroup = dynamic_cast<group*>(shape);
 			if (childGroup) {
-				this->ReadGroupChild(grandAndparent, childGroup, fi);
+				this->ReadGroupChild(attributes, childGroup, fi);
 			}
 		}
 
