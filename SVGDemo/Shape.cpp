@@ -23,7 +23,7 @@ float Shape::getStrokeWidth() {
 	return str.getStrokeWidth();
 }
 
-MyColor Shape::getFillColor() {
+MyColor& Shape::getFillColor() {
 	return this->fillColor;
 }
 

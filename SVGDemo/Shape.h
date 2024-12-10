@@ -19,7 +19,7 @@ public:
 
     MyColor getStrokeColor();
     float getStrokeWidth();
-    MyColor getFillColor();
+    MyColor& getFillColor();
     float getXmin();
     float getXmax();
     float getYmin();
