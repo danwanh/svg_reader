@@ -100,6 +100,7 @@ void Draw::drawText(Graphics& graphics, text* text) {
 	if(text->getStrokeWidth() != 0)
 		graphics.DrawPath(&outlinePen, &path);
 	graphics.Restore(save);
+	delete fontFamily;
 }
 
 void Draw::drawPolyline(Graphics& graphics, polyline* polyline) {
