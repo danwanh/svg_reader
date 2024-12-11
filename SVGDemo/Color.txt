@@ -764,7 +764,7 @@ pinegreen#0a481e
 charcoal#343837
 babypink#ffb7ce
 cornflower#6a79f7
-blueviolet#5d06e9
+blueviolet#3532b2
 chocolate#3d1c02
 greyishgreen#82a67d
 scarlet#be0119

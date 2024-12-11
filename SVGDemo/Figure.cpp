@@ -30,3 +30,10 @@ void Figure::calCenter(float& xCenter, float& yCenter) {
 	xCenter = xMin + (xMax - xMin) / 2;
 	yCenter = yMin + (yMax - yMin) / 2;
 }
+Figure::~Figure() {
+	for (Shape* shape : list) {
+		if(shape){
+			delete shape;
+		}
+	}
+}

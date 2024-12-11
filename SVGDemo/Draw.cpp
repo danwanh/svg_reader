@@ -44,15 +44,17 @@ void Draw::drawText(Graphics& graphics, text* text) {
 	GraphicsState save = graphics.Save();
 	text->applyTransform(graphics);
 
-	//text->setFontSize(30);
 	wstring_convert<codecvt_utf8<wchar_t>> converter;
 	wstring wContent = converter.from_bytes(text->getContent());
 	wstring wFontFamily = converter.from_bytes(text->getFontFamily());
-	FontFamily fontFamily(wFontFamily.c_str());
-
+	Gdiplus::FontFamily* fontFamily = new Gdiplus::FontFamily(wFontFamily.c_str());
+	if (!fontFamily->IsAvailable()) {
+		delete fontFamily;  // Giải phóng bộ nhớ cũ
+		fontFamily = new Gdiplus::FontFamily(L"Times New Roman");  // Thay thế bằng font mới
+	}
 	int gdiFontStyle = FontStyleRegular;
 	
-	Font font(&fontFamily, text->getFontSize(), gdiFontStyle, UnitPixel);
+	Font font(fontFamily, text->getFontSize(), gdiFontStyle, UnitPixel);
 	PointF textPosition;
 
 	StringFormat stringFormat;
@@ -77,10 +79,10 @@ void Draw::drawText(Graphics& graphics, text* text) {
 
 	GraphicsPath path;
 	if (text->getFontStyle() == "italic")
-		path.AddString(wContent.c_str(), -1, &fontFamily, FontStyleItalic, text->getFontSize() / 1.05, textPosition, &stringFormat);
+		path.AddString(wContent.c_str(), -1, fontFamily, FontStyleItalic, text->getFontSize() / 1.05, textPosition, &stringFormat);
 	else if (text->getFontStyle() == "bold")
-		path.AddString(wContent.c_str(), -1, &fontFamily, FontStyleBold, text->getFontSize() / 1.05, textPosition, &stringFormat);
-	else path.AddString(wContent.c_str(), -1, &fontFamily, FontStyleRegular, text->getFontSize() / 1.05, textPosition, &stringFormat);
+		path.AddString(wContent.c_str(), -1, fontFamily, FontStyleBold, text->getFontSize() / 1.05, textPosition, &stringFormat);
+	else path.AddString(wContent.c_str(), -1, fontFamily, FontStyleRegular, text->getFontSize() / 1.05, textPosition, &stringFormat);
 
 	SolidBrush fillBrush(Color(text->getFillColor().getOpacity() * 255,
 		text->getFillColor().getRed(),

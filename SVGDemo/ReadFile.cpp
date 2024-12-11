@@ -537,8 +537,8 @@ void FileProcess::ReadGroupChild(map<string, string> pAttributes, group* parentG
 		}
 
 		if (name == "g") {
-			map<string, string> grandAndparent = pAttributes; // Start with map1
-			grandAndparent.insert(attributes.begin(), attributes.end());
+			map<string, string> grandAndparent = attributes; 
+			grandAndparent.insert(pAttributes.begin(), pAttributes.end());
 			group* childGroup = dynamic_cast<group*>(shape);
 			if (childGroup) {
 				this->ReadGroupChild(grandAndparent, childGroup, fi);

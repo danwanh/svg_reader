@@ -10,6 +10,7 @@ public:
 	void setList(vector<Shape*> list);
 
 	void calCenter(float&, float&);
+	~Figure();
 };
 #endif
 
