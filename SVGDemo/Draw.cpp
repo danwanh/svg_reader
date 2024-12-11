@@ -3,18 +3,6 @@
 void Draw::drawRectangle(Graphics& graphics, rectangle* rect) {
 	GraphicsState save = graphics.Save();
 	rect->applyTransform(graphics);
-	for (auto& command : rect->getTransform()) {
-		if (command.getName() == "translate") {
-			graphics.TranslateTransform(command.getTransX(), command.getTransY());
-		}
-		else if (command.getName() == "rotate") {
-			graphics.RotateTransform(command.getAngle());
-
-		}
-		else if (command.getName() == "scale") {
-			graphics.ScaleTransform(command.getScaleX(), command.getScaleY());
-		}
-	}
 	SolidBrush fillBrush(Color((rect->getFillColor().getOpacity() * 255), rect->getFillColor().getRed(), rect->getFillColor().getGreen(), rect->getFillColor().getBlue()));
 
 	Pen pen(Color(rect->getStrokeColor().getOpacity() * 255, rect->getStrokeColor().getRed(), rect->getStrokeColor().getGreen(), rect->getStrokeColor().getBlue()), rect->getStrokeWidth());
