@@ -4,33 +4,36 @@ void Draw::drawRectangle(Graphics& graphics, rectangle* rect) {
 	GraphicsState save = graphics.Save();
 	rect->applyTransform(graphics);
 	SolidBrush fillBrush(Color((rect->getFillColor().getOpacity() * 255), rect->getFillColor().getRed(), rect->getFillColor().getGreen(), rect->getFillColor().getBlue()));
+	stroke str = rect->getStroke();
 
-	Pen pen(Color(rect->getStrokeColor().getOpacity() * 255, rect->getStrokeColor().getRed(), rect->getStrokeColor().getGreen(), rect->getStrokeColor().getBlue()), rect->getStrokeWidth());
+	Pen pen(Color(str.getStrokeColor().getOpacity() * 255, str.getStrokeColor().getRed(), str.getStrokeColor().getGreen(), str.getStrokeColor().getBlue()), str.getStrokeWidth());
 	graphics.SetSmoothingMode(SmoothingModeAntiAlias);
 
 	graphics.FillRectangle(&fillBrush, rect->getRecX(), rect->getRecY(), rect->getWidth(), rect->getHeight());
 
-	if(rect->getStrokeWidth() != 0) graphics.DrawRectangle(&pen, rect->getRecX(), rect->getRecY(), rect->getWidth(), rect->getHeight());
+	if (str.getStrokeWidth() != 0) graphics.DrawRectangle(&pen, rect->getRecX(), rect->getRecY(), rect->getWidth(), rect->getHeight());
 	graphics.Restore(save);
 
 }
 void Draw::drawCircle(Graphics& graphics, circle* cir) {
 	GraphicsState save = graphics.Save();
 	cir->applyTransform(graphics);
+	stroke str = cir->getStroke();
 
 	SolidBrush fillBrush(Color(cir->getFillColor().getOpacity() * 255, cir->getFillColor().getRed(), cir->getFillColor().getGreen(), cir->getFillColor().getBlue()));
-	Pen pen(Color(cir->getStrokeColor().getOpacity() * 255, cir->getStrokeColor().getRed(), cir->getStrokeColor().getGreen(), cir->getStrokeColor().getBlue()), cir->getStrokeWidth());
-	
+	Pen pen(Color(str.getStrokeColor().getOpacity() * 255, str.getStrokeColor().getRed(), str.getStrokeColor().getGreen(), str.getStrokeColor().getBlue()), str.getStrokeWidth());
+
 	graphics.SetSmoothingMode(SmoothingModeAntiAlias);
 	graphics.FillEllipse(&fillBrush, cir->getCx() - cir->getRadius(), cir->getCy() - cir->getRadius(), cir->getRadius() * 2, cir->getRadius() * 2);
 
-	if (cir->getStrokeWidth() != 0) graphics.DrawEllipse(&pen, cir->getCx() - cir->getRadius(), cir->getCy() - cir->getRadius(), cir->getRadius() * 2, cir->getRadius() * 2);
+	if (str.getStrokeWidth() != 0) graphics.DrawEllipse(&pen, cir->getCx() - cir->getRadius(), cir->getCy() - cir->getRadius(), cir->getRadius() * 2, cir->getRadius() * 2);
 	graphics.Restore(save);
 }
 
 void Draw::drawText(Graphics& graphics, text* text) {
 	GraphicsState save = graphics.Save();
 	text->applyTransform(graphics);
+	stroke str = text->getStroke();
 
 	wstring_convert<codecvt_utf8<wchar_t>> converter;
 	wstring wContent = converter.from_bytes(text->getContent());
@@ -41,21 +44,21 @@ void Draw::drawText(Graphics& graphics, text* text) {
 		fontFamily = new Gdiplus::FontFamily(L"Times New Roman");  // Thay thế bằng font mới
 	}
 	int gdiFontStyle = FontStyleRegular;
-	
+
 	Font font(fontFamily, text->getFontSize(), gdiFontStyle, UnitPixel);
 	PointF textPosition;
 
 	StringFormat stringFormat;
-	
+
 	RectF layoutRect;
 	graphics.MeasureString(wContent.c_str(), -1, &font, PointF(0, 0), &layoutRect);
 	if (text->getTextAnchor() == "middle") {
-		textPosition = PointF(text->getTextPos().getX() + text->getDx()  - text->getFontSize() / 25, text->getTextPos().getY() + text->getDy()  - text->getFontSize() / 4 - layoutRect.Height * 0.7);
+		textPosition = PointF(text->getTextPos().getX() + text->getDx() - text->getFontSize() / 25, text->getTextPos().getY() + text->getDy() - text->getFontSize() / 4 - layoutRect.Height * 0.7);
 		stringFormat.SetAlignment(StringAlignmentCenter);
 		stringFormat.SetLineAlignment(StringAlignmentCenter);
 	}
 	else if (text->getTextAnchor() == "end") {
-		textPosition = PointF(text->getTextPos().getX() + text->getDx()+  text->getFontSize() / 6.5, text->getTextPos().getY() + text->getDy()+  text->getFontSize() / 2.8 - layoutRect.Height * 0.7);
+		textPosition = PointF(text->getTextPos().getX() + text->getDx() + text->getFontSize() / 6.5, text->getTextPos().getY() + text->getDy() + text->getFontSize() / 2.8 - layoutRect.Height * 0.7);
 		stringFormat.SetAlignment(StringAlignmentFar);
 		stringFormat.SetLineAlignment(StringAlignmentFar);
 	}
@@ -76,16 +79,16 @@ void Draw::drawText(Graphics& graphics, text* text) {
 		text->getFillColor().getRed(),
 		text->getFillColor().getGreen(),
 		text->getFillColor().getBlue()));
-	Pen outlinePen(Color(text->getStrokeColor().getOpacity() * 255,
-		text->getStrokeColor().getRed(),
-		text->getStrokeColor().getGreen(),
-		text->getStrokeColor().getBlue()),
-		text->getStrokeWidth());
+	Pen outlinePen(Color(str.getStrokeColor().getOpacity() * 255,
+		str.getStrokeColor().getRed(),
+		str.getStrokeColor().getGreen(),
+		str.getStrokeColor().getBlue()),
+		str.getStrokeWidth());
 
 	graphics.SetSmoothingMode(SmoothingModeAntiAlias);
-	
+
 	graphics.FillPath(&fillBrush, &path);
-	if(text->getStrokeWidth() != 0)
+	if (str.getStrokeWidth() != 0)
 		graphics.DrawPath(&outlinePen, &path);
 	graphics.Restore(save);
 	delete fontFamily;
@@ -94,8 +97,9 @@ void Draw::drawText(Graphics& graphics, text* text) {
 void Draw::drawPolyline(Graphics& graphics, polyline* polyline) {
 	GraphicsState save = graphics.Save();
 	polyline->applyTransform(graphics);
+	stroke str = polyline->getStroke();
 
-	if (!polyline || polyline->getPoints().size() < 2) return; 
+	if (!polyline || polyline->getPoints().size() < 2) return;
 	SolidBrush fillBrush(Color(polyline->getFillColor().getOpacity() * 255,
 		polyline->getFillColor().getRed(),
 		polyline->getFillColor().getGreen(),
@@ -111,13 +115,13 @@ void Draw::drawPolyline(Graphics& graphics, polyline* polyline) {
 	graphics.FillPolygon(&fillBrush, gdiPoints, numPoints);
 
 
-	Pen pen(Color(polyline->getStrokeColor().getOpacity() * 255,
-		polyline->getStrokeColor().getRed(),
-		polyline->getStrokeColor().getGreen(),
-		polyline->getStrokeColor().getBlue()),
-		polyline->getStrokeWidth()); 
+	Pen pen(Color(str.getStrokeColor().getOpacity() * 255,
+		str.getStrokeColor().getRed(),
+		str.getStrokeColor().getGreen(),
+		str.getStrokeColor().getBlue()),
+		str.getStrokeWidth());
 
-	if (polyline->getStrokeWidth() != 0)
+	if (str.getStrokeWidth() != 0)
 		graphics.DrawLines(&pen, gdiPoints, numPoints);
 	graphics.Restore(save);
 
@@ -126,6 +130,7 @@ void Draw::drawPolyline(Graphics& graphics, polyline* polyline) {
 void Draw::drawPolygon(Graphics& graphics, polygon* polygon) {
 	GraphicsState save = graphics.Save();
 	polygon->applyTransform(graphics);
+	stroke str = polygon->getStroke();
 
 	SolidBrush fillBrush(Color(polygon->getFillColor().getOpacity() * 255, polygon->getFillColor().getRed(), polygon->getFillColor().getGreen(), polygon->getFillColor().getBlue()));
 	PointF* gdiPoints = new PointF[polygon->getPoints().size()];
@@ -134,14 +139,14 @@ void Draw::drawPolygon(Graphics& graphics, polygon* polygon) {
 		gdiPoints[i].X = points[i].getX();
 		gdiPoints[i].Y = points[i].getY();
 	}
-	
-	Pen pen(Color(polygon->getStrokeColor().getOpacity() * 255, polygon->getStrokeColor().getRed(), polygon->getStrokeColor().getGreen(), polygon->getStrokeColor().getBlue()), polygon->getStrokeWidth());
+
+	Pen pen(Color(str.getStrokeColor().getOpacity() * 255, str.getStrokeColor().getRed(), str.getStrokeColor().getGreen(), str.getStrokeColor().getBlue()), str.getStrokeWidth());
 	pen.SetAlignment(PenAlignmentCenter);
 	graphics.SetSmoothingMode(SmoothingModeAntiAlias);
 
 	graphics.FillPolygon(&fillBrush, gdiPoints, points.size());
 
-	if (polygon->getStrokeWidth() != 0)
+	if (str.getStrokeWidth() != 0)
 		graphics.DrawPolygon(&pen, gdiPoints, points.size());
 	graphics.Restore(save);
 
@@ -150,30 +155,34 @@ void Draw::drawPolygon(Graphics& graphics, polygon* polygon) {
 void Draw::drawEllipse(Graphics& graphics, ellipse* ellipse) {
 	GraphicsState save = graphics.Save();
 	ellipse->applyTransform(graphics);
+	stroke str = ellipse->getStroke();
+
 	float x = ellipse->getCx() - ellipse->getRx();
 	float y = ellipse->getCy() - ellipse->getRy();
 
 	SolidBrush fillBrush(Color(ellipse->getFillColor().getOpacity() * 255, ellipse->getFillColor().getRed(), ellipse->getFillColor().getGreen(), ellipse->getFillColor().getBlue()));
-	Pen pen(Color(ellipse->getStrokeColor().getOpacity() * 255, ellipse->getStrokeColor().getRed(), ellipse->getStrokeColor().getGreen(), ellipse->getStrokeColor().getBlue()), ellipse->getStrokeWidth());
+	Pen pen(Color(str.getStrokeColor().getOpacity() * 255, str.getStrokeColor().getRed(), str.getStrokeColor().getGreen(), str.getStrokeColor().getBlue()), str.getStrokeWidth());
 	graphics.SetSmoothingMode(SmoothingModeAntiAlias);
 
-	graphics.FillEllipse(&fillBrush, x, y , ellipse->getRx() * 2, ellipse->getRy() * 2);
-	if (ellipse->getStrokeWidth() != 0)graphics.DrawEllipse(&pen, x, y , ellipse->getRx() * 2, ellipse->getRy() * 2);
+	graphics.FillEllipse(&fillBrush, x, y, ellipse->getRx() * 2, ellipse->getRy() * 2);
+	if (str.getStrokeWidth() != 0)graphics.DrawEllipse(&pen, x, y, ellipse->getRx() * 2, ellipse->getRy() * 2);
 	graphics.Restore(save);
 }
 void Draw::drawLine(Graphics& graphics, line* line) {
 	GraphicsState save = graphics.Save();
 	line->applyTransform(graphics);
+	stroke str = line->getStroke();
 
-	Pen pen(Color(line->getStrokeColor().getOpacity() * 255, line->getStrokeColor().getRed(), line->getStrokeColor().getGreen(), line->getStrokeColor().getBlue()), line->getStrokeWidth());
+	Pen pen(Color(str.getStrokeColor().getOpacity() * 255, str.getStrokeColor().getRed(), str.getStrokeColor().getGreen(), str.getStrokeColor().getBlue()), str.getStrokeWidth());
 	graphics.SetSmoothingMode(SmoothingModeAntiAlias);
 
-	if (line->getStrokeWidth() != 0) graphics.DrawLine(&pen, line->getX1(), line->getY1(), line->getX2(), line->getY2());
+	if (str.getStrokeWidth() != 0) graphics.DrawLine(&pen, line->getX1(), line->getY1(), line->getX2(), line->getY2());
 	graphics.Restore(save);
 }
 void Draw::drawPath(Graphics& graphics, path* path) {
 	GraphicsState save = graphics.Save();
 	path->applyTransform(graphics);
+	stroke str = path->getStroke();
 
 	SolidBrush fillBrush(Color(
 		path->getFillColor().getOpacity() * 255,
@@ -181,11 +190,11 @@ void Draw::drawPath(Graphics& graphics, path* path) {
 		path->getFillColor().getGreen(),
 		path->getFillColor().getBlue()));
 	Pen pen(Color(
-		path->getStrokeColor().getOpacity() * 255,
-		path->getStrokeColor().getRed(),
-		path->getStrokeColor().getGreen(),
-		path->getStrokeColor().getBlue()),
-		path->getStrokeWidth());
+		str.getStrokeColor().getOpacity() * 255,
+		str.getStrokeColor().getRed(),
+		str.getStrokeColor().getGreen(),
+		str.getStrokeColor().getBlue()),
+		str.getStrokeWidth());
 
 	graphics.SetSmoothingMode(SmoothingModeAntiAlias);
 
@@ -324,7 +333,7 @@ void Draw::drawPath(Graphics& graphics, path* path) {
 
 	// Vẽ các đường path
 	graphics.FillPath(&fillBrush, &graphicsPath);
-	if (path->getStrokeWidth() != 0)
+	if (str.getStrokeWidth() != 0)
 		graphics.DrawPath(&pen, &graphicsPath);
 
 	graphics.Restore(save);
@@ -404,18 +413,18 @@ void Draw::drawGroup(Graphics& graphics, group* g) {
 	}
 	graphics.Restore(save);
 }
-void Draw::drawFigure(Graphics& graphics, Figure &figure, float angle, float scale, float transX, float transY) {
+void Draw::drawFigure(Graphics& graphics, Figure& figure, float angle, float scale, float transX, float transY) {
 	GraphicsState save = graphics.Save();
 
-	float x = 0, y = 0;
-	figure.calCenter(x, y); // center of image
+	//float x = 0, y = 0;
+	//figure.calCenter(x, y); // center of image
 
 	graphics.TranslateTransform(transX, transY, MatrixOrderPrepend);
-	graphics.TranslateTransform(x, y, MatrixOrderPrepend);
+	//graphics.TranslateTransform(x, y, MatrixOrderPrepend);
 	graphics.ScaleTransform(scale, scale, MatrixOrderPrepend);
 	graphics.RotateTransform(angle, MatrixOrderPrepend);
-	graphics.TranslateTransform(-x, -y, MatrixOrderPrepend);
-	
+//	graphics.TranslateTransform(-x, -y, MatrixOrderPrepend);
+
 
 
 	//if (figure.getList().size() == 0) {
@@ -423,7 +432,7 @@ void Draw::drawFigure(Graphics& graphics, Figure &figure, float angle, float sca
 	//	Pen pen(Color(255, 0, 0, 0)); 
 	//	graphics.DrawRectangle(&pen, 0, 0, 200, 100);
 	//}
-	
+
 	//if (y == 0 && x == 0) {
 	//	//Graphics graphics(hdc);
 	//	Pen pen(Color(255, 0, 0, 0));

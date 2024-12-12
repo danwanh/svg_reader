@@ -60,6 +60,3 @@ float TransformCommand::getScaleX() {
 float TransformCommand::getScaleY() {
 	return scaleY;
 }
-//void TransformCommand::getCommand() {
-//	return (*this);
-//}

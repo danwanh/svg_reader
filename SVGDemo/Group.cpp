@@ -19,31 +19,6 @@ vector<Shape*>& group::getChildren() {
 void group::setChildren(vector<Shape*> list) {
 	this->children = list;
 }
-
-void group::calculateBoundingBox() {
-	float xMax = -FLT_MAX, xMin = FLT_MAX, yMax = -FLT_MAX, yMin = FLT_MAX;
-	for (Shape* shape : children) {
-		shape->calculateBoundingBox();
-	}
-	for (Shape* shape : children) {
-		if (shape->getXmin() < xMin) {
-			xMin = shape->getXmin();
-		}
-		if (shape->getYmin() < yMin) {
-			yMin = shape->getYmin();
-		}
-		if (shape->getXmax() > xMax) {
-			xMax = shape->getXmax();
-		}
-		if (shape->getYmax() > yMax) {
-			yMax = shape->getYmax();
-		}
-	}
-	this->xmin = xMin;
-	this->xmax = xMax;
-	this->ymin = yMin;
-	this->ymax = yMax;
-}
 void group::addChild(Shape* shape) {
 	children.push_back(shape);
 }

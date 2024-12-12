@@ -11,7 +11,6 @@ rectangle::rectangle() {
 rectangle::rectangle(float x, float y, float w, float h, MyColor stroke, float strokeW, MyColor fill, string name, vector<TransformCommand> t) : Shape(stroke, strokeW, fill, name, t),  width(w), height(h) {
 	start.setX(x);
 	start.setY(y);
-	calculateBoundingBox();
 }
 
 float rectangle::getRecX() {
@@ -46,9 +45,3 @@ void rectangle::setHeight(float height) {
 	this->height = height;
 }
 
-void rectangle::calculateBoundingBox(){
-	xmin = getRecX();
-	ymin = getRecY();
-	xmax = getRecX() + width;
-	ymax = getRecY() + height;
-}

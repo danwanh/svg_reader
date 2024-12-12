@@ -16,9 +16,7 @@ public:
 	vector<Shape*>& getChildren();
 	void setChildren(vector<Shape*> list);
 	void addChild(Shape* shape);
-	
-	void calculateBoundingBox() override;
-	~group();
+		~group();
 };
 #endif // !_GROUP_H_
 

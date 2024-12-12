@@ -1,7 +1,5 @@
-﻿
-
-#include "stdafx.h"
-#include "ReadFile.h"
+﻿#include "stdafx.h"
+#include "FileProcess.h"
 FileProcess::FileProcess() {
 	this->fileName = "";
 	LoadColorMap();
@@ -29,10 +27,9 @@ void FileProcess::LoadColorMap() {
 		if (!name.empty() && hexa_code.length() == 7) {
 			MyColor color;
 			string result;
-			// xoa khoang trang
 			for (char ch : name) {
 				if (!std::isspace(static_cast<unsigned char>(ch))) {
-					result += ch; // Thêm ký tự không phải khoảng trắng
+					result += ch; 
 				}
 			}
 			name = result;
@@ -54,7 +51,7 @@ MyColor FileProcess::ReadColor(string color) {
 	string temp;
 	for (char ch : color) {
 		if (!std::isspace(static_cast<unsigned char>(ch))) {
-			temp += ch; // Thêm ký tự không phải khoảng trắng
+			temp += ch; 
 		}
 	}
 	color = temp;
@@ -111,14 +108,9 @@ MyColor FileProcess::ReadColor(string color) {
 		Color.setBlue(stoi(color.substr(5, 2), NULL, 16));
 	}
 	else {
-		cout << color << endl;
 		auto it = colorMap.find(color);
 		if (it != colorMap.end()) {
 			Color = it->second;
-			//cout << it->second.getRed() << "," << it->second.getBlue() << "," << it->second.getGreen() << endl;
-		}
-		else {
-			cout << "Khong tim duoc mau\n";
 		}
 	}
 	return Color;
@@ -139,10 +131,9 @@ vector<point> FileProcess::ReadPoint(string Point) {
 	return points;
 }
 
-void FileProcess::ReadStrokeAndFile(map<string, string> attributes, Shape* shape) {
+void FileProcess::ReadStrokeAndFill(map<string, string> attributes, Shape* shape) {
 	MyColor color;
 	if (attributes["fill-opacity"] != "") {
-		//color.setOpacity(stof(attributes["fill-opacity"]));
 		shape->getFillColor().setOpacity(stof(attributes["fill-opacity"]));
 	}
 	if (attributes["fill"] != "") {
@@ -157,19 +148,21 @@ void FileProcess::ReadStrokeAndFile(map<string, string> attributes, Shape* shape
 	}
 
 	MyColor stroke;
-	if (attributes["stroke"] != "") {
+	if (attributes["stroke"] != "" && attributes["stroke"] != "none") {
 		stroke = ReadColor(attributes["stroke"]);
-		shape->setStrokeWidth(1);
-		shape->setStrokeColor(stroke);
+		shape->getStroke().setStrokeWidth(1);
+		shape->getStroke().getStrokeColor().setRed(stroke.getRed());
+		shape->getStroke().getStrokeColor().setBlue(stroke.getBlue());
+		shape->getStroke().getStrokeColor().setGreen(stroke.getGreen());
 	}
 	if (attributes["stroke-opacity"] != "") {
-		shape->getStrokeColor().setOpacity(stof(attributes["stroke-opacity"]));
+		shape->getStroke().getStrokeColor().setOpacity(stof(attributes["stroke-opacity"]));
 	}
 	if (attributes["stroke-width"] != "") {
-		shape->setStrokeWidth(stof(attributes["stroke-width"]));
+		shape->getStroke().setStrokeWidth(stof(attributes["stroke-width"]));
 	}
 	if (attributes["stroke"] == "none") {
-		shape->setStrokeWidth(0);
+		shape->getStroke().setStrokeWidth(0);
 	}
 }
 
@@ -184,21 +177,11 @@ vector<TransformCommand> FileProcess::ReadTranCom(string trans) {
 		string name = match[1];
 		string value = match[2];
 		TransformCommand temp;
-		/*if (name == "translate") {
-			temp.setName("translate");
-			smatch valMatch;
-			regex transVal(R"(\s*(-?\d+\.?\d*)\s*,\s*(-?\d+\.?\d*)\s*)");
-			if (regex_search(value, valMatch, transVal)) {
-				temp.setTranslate(stof(valMatch[1]), stof(valMatch[2]));
-			}
-		}*/
 		if (name == "translate") {
 			temp.setName("translate");
 			smatch valMatch;
-			//regex transVal(R"(\s*(-?\d+(\.\d+)?)\s+(-?\d+(\.\d+)?)\s*)");
 			regex transVal(R"(\s*(-?\d+(\.\d+)?)[\s,]*(-?\d+(\.\d+)?)\s*)");
 			if (regex_search(value, valMatch, transVal)) {
-				cout << "!!!!!!!!!!!!!!!" << valMatch[1] << " " << valMatch[3] << endl;
 				temp.setTranslate(stof(valMatch[1]), stof(valMatch[3]));
 			}
 		}
@@ -294,7 +277,7 @@ path FileProcess::ReadPath(string d) {
 	return P;
 }
 
-Shape* FileProcess::Readshape(map<string, string> attributes, string name) {
+Shape* FileProcess::ReadShape(map<string, string> attributes, string name) {
 
 	Shape* shape = NULL;
 	if (name == "rect") {
@@ -303,7 +286,7 @@ Shape* FileProcess::Readshape(map<string, string> attributes, string name) {
 		rectangle* temp = dynamic_cast<rectangle*>(shape);
 
 		shape->setName(name);  // dat ten
-		this->ReadStrokeAndFile(attributes, shape); // Doc fill va stroke color
+		this->ReadStrokeAndFill(attributes, shape); // Doc fill va stroke color
 
 		//doc thuoc tinh
 		if (attributes["x"] != "") {
@@ -329,7 +312,7 @@ Shape* FileProcess::Readshape(map<string, string> attributes, string name) {
 		circle* temp = dynamic_cast<circle*>(shape);
 
 		shape->setName(name);  // dat ten
-		this->ReadStrokeAndFile(attributes, shape); // Doc fill va stroke color
+		this->ReadStrokeAndFill(attributes, shape); // Doc fill va stroke color
 
 		if (attributes["cx"] != "") {
 			temp->setCx(stof(attributes["cx"]));
@@ -349,7 +332,7 @@ Shape* FileProcess::Readshape(map<string, string> attributes, string name) {
 		shape = new line;
 		line* temp = dynamic_cast<line*>(shape);
 		shape->setName(name);  // dat ten
-		this->ReadStrokeAndFile(attributes, shape); // Doc fill va stroke color
+		this->ReadStrokeAndFill(attributes, shape); // Doc fill va stroke color
 
 		if (attributes["x1"] != "") {
 			temp->setX1(stof(attributes["x1"]));
@@ -372,7 +355,7 @@ Shape* FileProcess::Readshape(map<string, string> attributes, string name) {
 		shape = new polyline();
 		polyline* temp = dynamic_cast<polyline*>(shape);
 		shape->setName(name);  // dat ten
-		this->ReadStrokeAndFile(attributes, shape); // Doc fill va stroke color
+		this->ReadStrokeAndFill(attributes, shape); // Doc fill va stroke color
 		if (attributes["points"] != "") {
 			temp->setPoints(ReadPoint(attributes["points"]));
 		}
@@ -385,7 +368,7 @@ Shape* FileProcess::Readshape(map<string, string> attributes, string name) {
 		shape = new polygon();
 		polygon* temp = dynamic_cast<polygon*>(shape);
 		shape->setName(name);  // dat ten
-		this->ReadStrokeAndFile(attributes, shape); // Doc fill va stroke color
+		this->ReadStrokeAndFill(attributes, shape); // Doc fill va stroke color
 		if (attributes["points"] != "") {
 			temp->setPoints(ReadPoint(attributes["points"]));
 		}
@@ -398,7 +381,7 @@ Shape* FileProcess::Readshape(map<string, string> attributes, string name) {
 		shape = new text;
 		text* temp = dynamic_cast<text*>(shape);
 		shape->setName(name);  // dat ten
-		this->ReadStrokeAndFile(attributes, shape);
+		this->ReadStrokeAndFill(attributes, shape);
 		if (attributes["font-size"] != "") {
 			temp->setFontSize(stof(attributes["font-size"]));
 		}
@@ -429,7 +412,7 @@ Shape* FileProcess::Readshape(map<string, string> attributes, string name) {
 		shape = new ellipse;
 		ellipse* temp = dynamic_cast<ellipse*>(shape);
 		shape->setName(name);  // dat ten
-		this->ReadStrokeAndFile(attributes, shape);
+		this->ReadStrokeAndFill(attributes, shape);
 		if (attributes["cx"] != "") {
 			temp->setCx(stof(attributes["cx"]));
 		}
@@ -452,7 +435,7 @@ Shape* FileProcess::Readshape(map<string, string> attributes, string name) {
 		shape = new path();
 		path* temp = dynamic_cast<path*>(shape);
 		shape->setName(name);  // dat ten
-		this->ReadStrokeAndFile(attributes, shape);
+		this->ReadStrokeAndFill(attributes, shape);
 		if (attributes["d"] != "") {
 			path p = ReadPath(attributes["d"]);
 			temp->setName(p.getName());
@@ -469,7 +452,7 @@ Shape* FileProcess::Readshape(map<string, string> attributes, string name) {
 		shape = new group();
 		group* temp = dynamic_cast<group*>(shape);
 		shape->setName(name);  // dat ten
-		this->ReadStrokeAndFile(attributes, shape);
+		this->ReadStrokeAndFill(attributes, shape);
 
 		if (attributes["transform"] != "") {
 			vector<TransformCommand> transcom = ReadTranCom(attributes["transform"]);
@@ -482,7 +465,7 @@ Shape* FileProcess::Readshape(map<string, string> attributes, string name) {
 	return shape;
 }
 
-void FileProcess::ReadGroupChild(map<string, string> pAttributes, group* parentGroup, fstream& fi) {
+void FileProcess::ReadGroupChild(map<string, string>& pAttributes, group* parentGroup, fstream& fi) {
 	string s;
 
 	while (getline(fi, s, '>')) {
@@ -508,10 +491,10 @@ void FileProcess::ReadGroupChild(map<string, string> pAttributes, group* parentG
 		}
 
 		//set cac thuoc tinh o dong parrent attibutes cho child
-		Shape* shape = this->Readshape(attributes, name);
-		if(shape){
-			ReadStrokeAndFile(pAttributes, shape); // bị mẹ đè
-			ReadStrokeAndFile(attributes, shape);
+		Shape* shape = this->ReadShape(attributes, name);
+		if (shape) {
+			ReadStrokeAndFill(pAttributes, shape); // bị mẹ đè
+			ReadStrokeAndFill(attributes, shape);
 		}
 
 		if (pAttributes["font-size"] != "" && shape->getName() == "text") {
@@ -537,7 +520,7 @@ void FileProcess::ReadGroupChild(map<string, string> pAttributes, group* parentG
 		}
 
 		if (name == "g") {
-			map<string, string> grandAndparent = attributes; 
+			map<string, string> grandAndparent = attributes;
 			grandAndparent.insert(pAttributes.begin(), pAttributes.end());
 			group* childGroup = dynamic_cast<group*>(shape);
 			if (childGroup) {
@@ -625,9 +608,9 @@ void FileProcess::ShowShape(Shape* shape) {
 		}
 	}
 
-	cout << " stroke width " << shape->getStrokeWidth() << endl;
+	cout << " stroke width " << shape->getStroke().getStrokeWidth() << endl;
 	cout << " fill " << shape->getFillColor().getRed() << " " << shape->getFillColor().getGreen() << " " << shape->getFillColor().getBlue() << " " << shape->getFillColor().getOpacity() << endl;
-	cout << " stroke " << shape->getStrokeColor().getRed() << " " << shape->getStrokeColor().getGreen() << " " << shape->getStrokeColor().getBlue() << " " << shape->getStrokeColor().getOpacity() << endl;
+	cout << " stroke " << shape->getStroke().getStrokeColor().getRed() << " " << shape->getStroke().getStrokeColor().getGreen() << " " << shape->getStroke().getStrokeColor().getBlue() << " " << shape->getStroke().getStrokeColor().getOpacity() << endl;
 	vector<TransformCommand>  Trans = shape->getTransform();
 	int size = Trans.size();
 	for (int i = 0; i < size; i++) {
@@ -673,7 +656,7 @@ vector <Shape*> FileProcess::ReadFile() {
 			it = match[0].second; // Cập nhật vị trí để tìm kiếm tiếp ( trỏ đến vị trí tiếp theo)
 		}
 
-		Shape* shape = this->Readshape(attributes, name);
+		Shape* shape = this->ReadShape(attributes, name);
 		if (name == "text") {
 			getline(fi, s, '>');
 			s += '>';
@@ -703,6 +686,3 @@ vector <Shape*> FileProcess::ReadFile() {
 string FileProcess::GetFileName() {
 	return this->fileName;
 }
-
-
-

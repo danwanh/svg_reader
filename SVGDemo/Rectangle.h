@@ -21,8 +21,6 @@ public:
     void setRecY(float y);
     void setWidth(float width);
     void setHeight(float height);
-
-    void calculateBoundingBox() override;
 };
 
 #endif

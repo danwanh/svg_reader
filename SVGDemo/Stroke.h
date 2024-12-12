@@ -7,7 +7,7 @@ private:
 	float strokeWidth;
 public:
 	stroke();
-	MyColor getStrokeColor();
+	MyColor& getStrokeColor();
 	float getStrokeWidth();
 	void setStrokeColor(MyColor strokeColor);
 	void setStrokeWidth(float strokeWidth);

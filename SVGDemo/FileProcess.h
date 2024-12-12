@@ -1,5 +1,5 @@
-#ifndef _READFILE_H
-#define _READFILE_H
+#ifndef _FILEPROCESS_H
+#define _FILEPROCESS_H
 
 #include "Stroke.h"
 #include "TransformCommand.h"
@@ -21,7 +21,6 @@ class FileProcess {
 	string fileName;
 	unordered_map <string, MyColor> colorMap;
 public:
-	//vector<point> ReadPointP(const string& points, float& prevX, float& prevY);
 	string GetFileName();
 	FileProcess();
 	FileProcess(string);
@@ -30,11 +29,10 @@ public:
 	vector< TransformCommand> ReadTranCom(string);
 	vector <point> ReadPoint(string);
 	path ReadPath(string);
-	void ReadStrokeAndFile(map<string, string>, Shape*);
+	void ReadStrokeAndFill(map<string, string>, Shape*);
 	map<string, string> ParseAttributes(string attributes);
-
-	Shape* Readshape(map<string, string>, string);
-	void ReadGroupChild(map<string, string>, group*, fstream&);
+	Shape* ReadShape(map<string, string>, string);
+	void ReadGroupChild(map<string, string>&, group*, fstream&);
 	vector <Shape*> ReadFile();
 	void ShowShape(Shape*);
 };

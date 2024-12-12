@@ -23,9 +23,6 @@ public:
     void setX1(float x1);
     void setX2(float x2);
     void setY1(float y1);
-    void setY2(float y2);
-
-    void calculateBoundingBox() override;
-    
+    void setY2(float y2);    
 };
 #endif
