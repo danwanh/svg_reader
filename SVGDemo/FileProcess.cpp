@@ -1,5 +1,5 @@
 ﻿#include "stdafx.h"
-#include "ReadFile.h"
+#include "FileProcess.h"
 FileProcess::FileProcess() {
 	this->fileName = "";
 	LoadColorMap();

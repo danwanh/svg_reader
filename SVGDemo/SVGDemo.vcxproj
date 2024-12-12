@@ -151,6 +151,7 @@
     <ClInclude Include="Draw.h" />
     <ClInclude Include="Ellipse.h" />
     <ClInclude Include="Figure.h" />
+    <ClInclude Include="Gradient.h" />
     <ClInclude Include="Group.h" />
     <ClInclude Include="Lib.h" />
     <ClInclude Include="Line.h" />
@@ -160,7 +161,7 @@
     <ClInclude Include="Polygon.h" />
     <ClInclude Include="Polyline.h" />
     <ClInclude Include="rapidxml.hpp" />
-    <ClInclude Include="ReadFile.h" />
+    <ClInclude Include="FileProcess.h" />
     <ClInclude Include="Rectangle.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Shape.h" />
@@ -176,6 +177,7 @@
     <ClCompile Include="Draw.cpp" />
     <ClCompile Include="Ellipse.cpp" />
     <ClCompile Include="Figure.cpp" />
+    <ClCompile Include="Gradient.cpp" />
     <ClCompile Include="Group.cpp" />
     <ClCompile Include="Line.cpp" />
     <ClCompile Include="MyColor.cpp" />
@@ -183,7 +185,7 @@
     <ClCompile Include="Point.cpp" />
     <ClCompile Include="Polygon.cpp" />
     <ClCompile Include="Polyline.cpp" />
-    <ClCompile Include="ReadFile.cpp" />
+    <ClCompile Include="FileProcess.cpp" />
     <ClCompile Include="Rectangle.cpp" />
     <ClCompile Include="Shape.cpp" />
     <ClCompile Include="stdafx.cpp">

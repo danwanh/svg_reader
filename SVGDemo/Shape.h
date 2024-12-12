@@ -2,6 +2,7 @@
 #define _SHAPE_H_
 
 #include "Lib.h"
+#include "Gradient.h"
 #include "TransformCommand.h"
 #include "Stroke.h"
 using namespace std;
@@ -11,7 +12,8 @@ protected:
     stroke str;
     MyColor fillColor;
     string name;
-    vector<TransformCommand> transform; //Transformation
+    vector<TransformCommand> transform; 
+    gradient* grad;
 public:
     Shape();
     Shape(MyColor stroke, float strokeW, MyColor fill, string shapeName, vector<TransformCommand> transform);
@@ -23,13 +25,14 @@ public:
     void setFillColor(MyColor fillColor);
     void setName(string name);
     void setStroke(stroke& s);
+    void setGradient(gradient* grad);
 
-    int nameTonum();
+    gradient* getGradient();
     vector<TransformCommand> getTransform() const;
     void setTransform(vector<TransformCommand>& other);
     void applyTransform(Graphics& graphics);
    
-
+    int nameTonum();
     virtual ~Shape() {
 
     }

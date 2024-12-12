@@ -24,7 +24,16 @@ string Shape::getName() {
 stroke& Shape::getStroke(){
 	return str;
 }
+void Shape::setStroke(stroke &str) {
+	this->str = str;
+}
+void Shape::setGradient(gradient* grad) {
+	this->grad = grad;
+}
 
+gradient* Shape::getGradient() {
+	return grad;
+}
 void Shape::setFillColor(MyColor fillColor) {
 	this->fillColor = fillColor;
 }

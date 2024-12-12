@@ -63,7 +63,7 @@
     <ClInclude Include="Polyline.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ReadFile.h">
+    <ClInclude Include="FileProcess.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Rectangle.h">
@@ -82,6 +82,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Path.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Gradient.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -128,7 +131,7 @@
     <ClCompile Include="Group.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ReadFile.cpp">
+    <ClCompile Include="FileProcess.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Stroke.cpp">
@@ -141,6 +144,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Path.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Gradient.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

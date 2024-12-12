@@ -1,5 +1,5 @@
-#ifndef _READFILE_H
-#define _READFILE_H
+#ifndef _FILEPROCESS_H
+#define _FILEPROCESS_H
 
 #include "Stroke.h"
 #include "TransformCommand.h"
