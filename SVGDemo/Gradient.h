@@ -1,6 +1,7 @@
 ﻿#ifndef _GRADIENT_H_
 #define _GRADIENT_H_
 #include "TransformCommand.h"
+#include "MyColor.h"
 
 class stop {
 public:
