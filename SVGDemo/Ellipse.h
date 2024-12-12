@@ -24,6 +24,5 @@ public:
     void setRx(float rx);
     void setRy(float ry);
 
-    void calculateBoundingBox() override;
 };
 #endif

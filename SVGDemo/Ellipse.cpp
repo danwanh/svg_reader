@@ -10,7 +10,6 @@ ellipse::ellipse() {
 ellipse::ellipse(float centerX, float centerY, float radiusX, float radiusY, MyColor stroke, float strokeW, MyColor fill, string name, vector<TransformCommand> t) :  Shape(stroke, strokeW, fill, name, t), rx(radiusX), ry(radiusY) {
     c.setX(centerX);
     c.setY(centerY);
-    calculateBoundingBox();
 }
 
 float ellipse::getCx() {
@@ -45,9 +44,3 @@ void ellipse::setRy(float ry) {
     this->ry = ry;
 }
 
-void ellipse::calculateBoundingBox() {
-    xmin = c.getX() - rx;
-    ymin = c.getY() - ry;
-    xmax = c.getX() + rx;
-    ymax = c.getY() + ry;
-}

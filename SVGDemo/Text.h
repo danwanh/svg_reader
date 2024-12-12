@@ -39,7 +39,6 @@ public:
     void setDx(float);
     void setDy(float);
 
-    void calculateBoundingBox() override;
 };
 
 #endif

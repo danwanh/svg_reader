@@ -13,7 +13,6 @@ public:
 	path();
 	vector<pair<string, vector<point>>> getPath();
 	void setPath(vector<pair<string, vector<point>>>);
-	void calculateBoundingBox() override;
 };
 
 #endif // !PATH_H

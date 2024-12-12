@@ -7,7 +7,6 @@ text::text()
 text::text(float x, float y, float dx_, float dy_, string txt, float fSize, string fFamily, string anchor, string fStyle)
     : fontSize(fSize), textPos(point(x, y)), content(txt),
     fontFamily(fFamily), textAnchor(anchor), fontStyle(fStyle), dx(dx_), dy(dy_) {
-    calculateBoundingBox();
 }
 float text::getFontSize() const { 
     return fontSize; 
@@ -60,19 +59,4 @@ float text::getDx() {
 float text::getDy() {
     return this->dy;
 }
-void text::calculateBoundingBox() {
-    float textWidth = content.length() * (fontSize * 0.5);
-    xmin = textPos.getX();
-    ymin = textPos.getY() - fontSize;
-    xmax = textPos.getX() + textWidth;
-    ymax = textPos.getY();
 
-    if (textAnchor == "middle") {
-        xmin -= textWidth / 2;
-        xmax -= textWidth / 2;
-    }
-    else if (textAnchor == "end") {
-        xmin -= textWidth;
-        xmax -= textWidth;
-    }
-}

@@ -26,7 +26,6 @@ class Draw {
 		void drawEllipse(Graphics& graphics, ellipse* elipse);
 		void drawLine(Graphics& graphics, line* line);
 		void drawPath(Graphics& graphics, path* p);
-
 		void drawGroup(Graphics& graphics, group* group);
 		void drawFigure(Graphics& graphics, Figure& shape, float angle, float scale, float transX, float transY);
 	};

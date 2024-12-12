@@ -10,7 +10,7 @@ void stroke::setStrokeColor(MyColor strokeColor) {
 void stroke::setStrokeWidth(float strokeWidth) {
 	this->strokeWidth = strokeWidth;
 }
-MyColor stroke::getStrokeColor() {
+MyColor& stroke::getStrokeColor() {
 	return this->strokeColor;
 }
 

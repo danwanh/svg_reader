@@ -13,7 +13,6 @@ line::line(float startX, float startY, float endX, float endY, MyColor stroke, f
     start.setY(startY);
     end.setX(endX);
     end.setY(endY);
-    calculateBoundingBox();
 }
 
 float line::getX1() {
@@ -48,10 +47,3 @@ void line::setY2(float y2) {
     this->end.setY(y2);
 }
 
-void line::calculateBoundingBox()
-{
-    xmin = min(getX1(), getX2());
-    ymin = min(getY1(), getY2());
-    xmax = max(getX1(), getX2());
-    ymax = max(getY1(), getY2());
-}

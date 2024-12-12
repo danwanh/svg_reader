@@ -15,8 +15,6 @@ public:
     vector<point> getPoints();
 
     void setPoints(vector<point> points);
-
-    void calculateBoundingBox() override;
 };
 
 #endif
