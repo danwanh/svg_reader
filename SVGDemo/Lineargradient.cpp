@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "Lineargradient.h"
+#include "LinearGradient.h"
 
 double linearGradient::getX1() const
 {
