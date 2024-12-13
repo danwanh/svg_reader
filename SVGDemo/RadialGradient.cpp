@@ -1,6 +1,16 @@
 #include "stdafx.h"
 #include "RadialGradient.h"
 
+radialGradient::radialGradient()
+{
+    cx = 0.5;
+    cy = 0.5;
+    r = 0.5;
+    fx = 0.5;
+    fy = 0.5;
+    fr = 0;
+}
+
 double radialGradient::getCx() const
 {
     return cx;
@@ -49,4 +59,14 @@ double radialGradient::getFy() const
 void radialGradient::setFy(double value)
 {
     fy = value;
+}
+
+double radialGradient::getFr() const
+{
+    return fr;
+}
+
+void radialGradient::setFr(double value)
+{
+    fr = value;
 }

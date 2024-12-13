@@ -7,9 +7,10 @@ using namespace std;
 
 class radialGradient : public gradient {
 private:
-    double cx, cy, r, fx, fy;
+    double cx, cy, r, fx, fy, fr;
 
 public:
+    radialGradient();
     double getCx() const;
     void setCx(double value);
 
@@ -24,5 +25,8 @@ public:
 
     double getFy() const;
     void setFy(double value);
+
+    double getFr() const;
+    void setFr(double value);
 };
 #endif // !RADIALGRADIENT_H

@@ -9,6 +9,7 @@ class linearGradient : public gradient {
 private:
 	double x1, y1, x2, y2;
 public:
+	linearGradient();
 	double getX1() const;
 	double getY1() const;
 	double getX2() const;
