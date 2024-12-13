@@ -1,6 +1,14 @@
 #include "stdafx.h"
 #include "Lineargradient.h"
 
+linearGradient::linearGradient()
+{
+    x1 = 0;
+    x2 = 1;
+    y1 = 0;
+    y2 = 0;
+}
+
 double linearGradient::getX1() const
 {
     return x1;
