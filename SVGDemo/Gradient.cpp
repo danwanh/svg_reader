@@ -30,3 +30,9 @@ string gradient::getGradientUnits() const {
 void gradient::setGradientUnits(string& units) {
     gradientUnits = units;
 }
+GradientType gradient::getType() const {
+    return type;
+}
+void gradient::setType(GradientType& t) {
+    type = t;
+}

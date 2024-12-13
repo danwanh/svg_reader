@@ -9,12 +9,18 @@ public:
     double offset;         // Vị trí điểm dừng 
 };
 
+enum class GradientType {
+    LINEAR,
+    RADIAL
+};
+
 class gradient {
 private:
     vector<stop> colorStop;
     string id;
     vector<TransformCommand> transform;
     string gradientUnits;
+    GradientType type;
 public:
     vector<stop> getColorStop() const;
     void setColorStop(vector<stop>& stops);
@@ -27,5 +33,8 @@ public:
 
     string getGradientUnits() const;
     void setGradientUnits(string& units);
+
+    GradientType getType() const;
+    void setType(GradientType& t);
 };
 #endif // !_GRADIENT_H_

@@ -1,4 +1,3 @@
-#pragma once
 #ifndef LINEARGRADIENT_H
 #define LINEARGRADIENT_H
 

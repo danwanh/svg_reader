@@ -1,4 +1,3 @@
-#pragma once
 #ifndef RADIALGRADIENT_H
 #define RADIALGRADIENT_H
 
