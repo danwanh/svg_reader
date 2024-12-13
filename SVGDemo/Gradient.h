@@ -35,6 +35,10 @@ public:
     void setGradientUnits(string& units);
 
     GradientType getType() const;
-    void setType(GradientType& t);
+    void setType(GradientType t);
+
+    virtual ~gradient() {
+
+    }
 };
 #endif // !_GRADIENT_H_

@@ -15,6 +15,7 @@
 #include "Path.h"
 #include "Group.h"
 #include "Figure.h"
+
 class Draw {
 
 	public:

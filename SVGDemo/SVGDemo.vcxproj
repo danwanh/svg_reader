@@ -155,7 +155,7 @@
     <ClInclude Include="Group.h" />
     <ClInclude Include="Lib.h" />
     <ClInclude Include="Line.h" />
-    <ClInclude Include="Lineargradient.h" />
+    <ClInclude Include="LinearGradient.h" />
     <ClInclude Include="MyColor.h" />
     <ClInclude Include="Path.h" />
     <ClInclude Include="Point.h" />
@@ -182,7 +182,7 @@
     <ClCompile Include="Gradient.cpp" />
     <ClCompile Include="Group.cpp" />
     <ClCompile Include="Line.cpp" />
-    <ClCompile Include="Lineargradient.cpp" />
+    <ClCompile Include="LinearGradient.cpp" />
     <ClCompile Include="MyColor.cpp" />
     <ClCompile Include="Path.cpp" />
     <ClCompile Include="Point.cpp" />

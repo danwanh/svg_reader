@@ -33,6 +33,6 @@ void gradient::setGradientUnits(string& units) {
 GradientType gradient::getType() const {
     return type;
 }
-void gradient::setType(GradientType& t) {
+void gradient::setType(GradientType t) {
     type = t;
 }
