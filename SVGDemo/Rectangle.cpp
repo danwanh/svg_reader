@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "Rectangle.h"
 
 rectangle::rectangle() {
@@ -43,5 +43,28 @@ void rectangle::setWidth(float width) {
 
 void rectangle::setHeight(float height) {
 	this->height = height;
+}
+
+GraphicsPath* rectangle::createGraphicsPath()
+{
+	GraphicsPath* path = new GraphicsPath();
+
+	// Xác định tọa độ và kích thước của hình chữ nhật
+	float x = start.getX();
+	float y = start.getY();
+
+	// Thêm hình chữ nhật vào GraphicsPath
+	path->AddRectangle(RectF(x, y, width, height));
+
+	return path;
+}
+
+void rectangle::getBoundingBox(float& x, float& y, float& width, float& height)
+{
+	// Tọa độ góc trái trên và kích thước chính là bounding box
+	x = start.getX();
+	y = start.getY();
+	width = this->width;
+	height = this->height;
 }
 

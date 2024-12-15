@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "Line.h"
 
 line::line(){
@@ -45,5 +45,26 @@ void line::setY1(float y1) {
 
 void line::setY2(float y2) {
     this->end.setY(y2);
+}
+
+GraphicsPath* line::createGraphicsPath()
+{
+    GraphicsPath* path = new GraphicsPath();
+    path->AddLine(PointF(start.getX(), start.getY()), PointF(end.getX(), end.getY()));
+
+    return path;
+}
+
+void line::getBoundingBox(float& x, float& y, float& width, float& height)
+{
+    float minX = min(start.getX(), end.getX());
+    float minY = min(start.getY(), end.getY());
+    float maxX = max(start.getX(), end.getX());
+    float maxY = max(start.getY(), end.getY());
+
+    x = minX;
+    y = minY;
+    width = maxX - minX;
+    height = maxY - minY;
 }
 

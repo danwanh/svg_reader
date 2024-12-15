@@ -23,6 +23,9 @@ public:
     void setX1(float x1);
     void setX2(float x2);
     void setY1(float y1);
-    void setY2(float y2);    
+    void setY2(float y2);   
+
+    GraphicsPath* createGraphicsPath() override;
+    void getBoundingBox(float& x, float& y, float& width, float& height) override;
 };
 #endif

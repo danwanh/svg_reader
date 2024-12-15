@@ -27,3 +27,12 @@ group::~group() {
 		delete child;
 	}
 }
+
+GraphicsPath* group::createGraphicsPath()
+{
+	return nullptr;
+}
+
+void group::getBoundingBox(float& x, float& y, float& width, float& height)
+{
+}

@@ -16,8 +16,8 @@ public:
 	point();
 	point(float xCoord, float yCoord);
 
-	float getX();
-	float getY();
+	float getX() const;
+	float getY() const;
 
 	void setX(float x);
 	void setY(float y);

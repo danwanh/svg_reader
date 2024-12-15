@@ -20,3 +20,16 @@ void circle::setRadius(float radius) {
     this->ry = radius;
 }
 
+GraphicsPath* circle::createGraphicsPath() {
+    GraphicsPath* path = new GraphicsPath();
+    path->AddEllipse(c.getX() - rx, c.getY() - ry, 2 * rx, 2 * ry);
+    return path;    
+}
+
+
+void circle::getBoundingBox(float& x, float& y, float& width, float& height) {
+    x = c.getX() - rx;
+    y = c.getY() - ry;
+    width = 2 * rx;
+    height = 2 * ry;
+}

@@ -8,6 +8,7 @@ linearGradient::linearGradient()
     y1 = 0;
     y2 = 0;
 }
+
 double linearGradient::getX1() const
 {
     return x1;

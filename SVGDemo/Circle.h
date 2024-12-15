@@ -12,6 +12,9 @@ public:
 
     float getRadius();
     void setRadius(float radius);
+
+    GraphicsPath* createGraphicsPath() override;
+    void getBoundingBox(float& x, float& y, float& width, float& height) override;
 };
 
 #endif
