@@ -8,11 +8,11 @@ point::point() {
 
 point::point(float xCoord, float yCoord) : x(xCoord), y(yCoord) {}
 
-float point::getX() {
+float point::getX() const{
 	return this->x;
 }
 
-float point::getY() {
+float point::getY() const{
 	return this->y;
 }
 

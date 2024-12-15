@@ -13,5 +13,8 @@ public:
     vector<point> getPoints();
 
     void setPoints(vector<point> points);    
+
+    GraphicsPath* createGraphicsPath() override;
+    void getBoundingBox(float& x, float& y, float& width, float& height) override;
 };
 #endif 

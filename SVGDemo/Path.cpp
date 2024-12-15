@@ -10,3 +10,14 @@ void path::setPath(vector<pair<string, vector<point>>> P) {
 	this->pathVct = P;
 }
 
+GraphicsPath* path::createGraphicsPath()
+{
+	return nullptr;
+}
+
+void path::getBoundingBox(float& x, float& y, float& width, float& height)
+{
+}
+
+
+

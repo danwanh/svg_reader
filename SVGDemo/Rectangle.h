@@ -21,6 +21,9 @@ public:
     void setRecY(float y);
     void setWidth(float width);
     void setHeight(float height);
+
+    GraphicsPath* createGraphicsPath() override;
+    void getBoundingBox(float& x, float& y, float& width, float& height) override;
 };
 
 #endif

@@ -13,6 +13,9 @@ public:
 	path();
 	vector<pair<string, vector<point>>> getPath();
 	void setPath(vector<pair<string, vector<point>>>);
+
+	GraphicsPath* createGraphicsPath() override;
+	void getBoundingBox(float& x, float& y, float& width, float& height) override;
 };
 
 #endif // !PATH_H

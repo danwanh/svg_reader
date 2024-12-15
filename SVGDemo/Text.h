@@ -39,6 +39,8 @@ public:
     void setDx(float);
     void setDy(float);
 
+    GraphicsPath* createGraphicsPath() override;
+    void getBoundingBox(float& x, float& y, float& width, float& height) override;
 };
 
 #endif

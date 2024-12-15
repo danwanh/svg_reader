@@ -16,7 +16,10 @@ public:
 	vector<Shape*>& getChildren();
 	void setChildren(vector<Shape*> list);
 	void addChild(Shape* shape);
-		~group();
+	~group();
+
+	GraphicsPath* createGraphicsPath() override;
+	void getBoundingBox(float& x, float& y, float& width, float& height) override;
 };
 #endif // !_GROUP_H_
 
