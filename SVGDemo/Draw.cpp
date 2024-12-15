@@ -37,11 +37,12 @@ void Draw::drawRectangle(Graphics& graphics, rectangle* rect) {
 					LinearGradientBrush linearBrush(
 						PointF(rect->getRecX() + rect->getWidth() * linearGrad->getX1(), rect->getRecY() + rect->getHeight() * linearGrad->getY1()),
 						PointF(rect->getRecX() + rect->getWidth() * linearGrad->getX2(), rect->getRecY() + rect->getHeight() * linearGrad->getY2()),
-						colors[0],  // Màu bắt đầu
-						colors[numStops - 1]  // Màu kết thúc
+						colors[numStops - 1],  // Màu bắt đầu
+						colors[0]  // Màu kết thúc
 					);
 					
 					//transform gradient
+					linearBrush.SetWrapMode(WrapMode);
 					vector<TransformCommand> trans = grad->getTransform();
 					for (TransformCommand t : trans) {
 						if (t.getName() == "translate") {
@@ -54,10 +55,13 @@ void Draw::drawRectangle(Graphics& graphics, rectangle* rect) {
 							linearBrush.ScaleTransform(t.getScaleX(), t.getScaleY());
 						}
 					}
-					linearBrush.SetWrapMode(WrapModeTileFlipXY);
+					//if(grad->setGradientUnits == "") linearBrush.SetWrapMode(WrapModeTileFlipXY); //reflect
+					//linearBrush.SetWrapMode(WrapModeClamp); //repeat
+					
 					linearBrush.SetInterpolationColors(colors.data(), positions.data(), numStops);
+					
 
-					graphics.FillRectangle(&linearBrush, rect->getRecX(), rect->getRecY(), rect->getWidth(), rect->getHeight());
+					graphics.FillRectangle(&linearBrush, RectF(rect->getRecX(), rect->getRecY(), rect->getWidth(), rect->getHeight()));
 				}
 			}
 		}
