@@ -1,5 +1,10 @@
 #include "stdafx.h"
 #include "Gradient.h"
+gradient::gradient() {
+    id = "";
+    gradientUnits = "userOnSpaceUse";
+    spreadMethod = "";
+}
 vector<stop> gradient::getColorStop() const {
     return colorStop;
 }
@@ -27,7 +32,7 @@ void gradient::setTransform(vector<TransformCommand>& commands) {
 string gradient::getGradientUnits() const {
     return gradientUnits;
 }
-void gradient::setGradientUnits(string& units) {
+void gradient::setGradientUnits(string units) {
     gradientUnits = units;
 }
 GradientType gradient::getType() const {
@@ -35,4 +40,10 @@ GradientType gradient::getType() const {
 }
 void gradient::setType(GradientType t) {
     type = t;
+}
+string gradient::getSpreadMethod() const {
+    return spreadMethod;
+}
+void gradient::setSpreadMethod(string method) {
+    spreadMethod = method;
 }

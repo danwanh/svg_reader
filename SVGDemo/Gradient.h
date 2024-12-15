@@ -15,13 +15,16 @@ enum class GradientType {
 };
 
 class gradient {
-private:
+protected:
     vector<stop> colorStop;
     string id;
     vector<TransformCommand> transform;
     string gradientUnits;
+    string spreadMethod;
     GradientType type;
 public:
+    gradient();
+
     vector<stop> getColorStop() const;
     void setColorStop(vector<stop>& stops);
 
@@ -32,7 +35,10 @@ public:
     void setTransform(vector<TransformCommand>& commands);
 
     string getGradientUnits() const;
-    void setGradientUnits(string& units);
+    void setGradientUnits(string units);
+
+    string getSpreadMethod() const;
+    void setSpreadMethod(string method);
 
     GradientType getType() const;
     void setType(GradientType t);

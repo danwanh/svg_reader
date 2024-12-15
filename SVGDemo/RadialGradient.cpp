@@ -9,6 +9,7 @@ radialGradient::radialGradient()
     fx = 0.5;
     fy = 0.5;
     fr = 0;
+    type = GradientType::RADIAL;
 }
 
 double radialGradient::getCx() const

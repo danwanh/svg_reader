@@ -1,11 +1,11 @@
 ﻿#include "stdafx.h"
 #include "Text.h"
 text::text()
-    : fontSize(16), textPos({ 0.0f, 0.0f }),
+    : Shape(), fontSize(16), textPos({ 0.0f, 0.0f }),
     content(""), dx(0), dy(0), fontFamily("Times New Roman"), textAnchor("start"), fontStyle("normal") {}
 
 text::text(float x, float y, float dx_, float dy_, string txt, float fSize, string fFamily, string anchor, string fStyle)
-    : fontSize(fSize), textPos(point(x, y)), content(txt),
+    : Shape(), fontSize(fSize), textPos(point(x, y)), content(txt),
     fontFamily(fFamily), textAnchor(anchor), fontStyle(fStyle), dx(dx_), dy(dy_) {
 }
 float text::getFontSize() const { 

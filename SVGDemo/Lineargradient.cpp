@@ -7,6 +7,7 @@ linearGradient::linearGradient()
     x2 = 1;
     y1 = 0;
     y2 = 0;
+    type = GradientType::LINEAR;
 }
 
 double linearGradient::getX1() const

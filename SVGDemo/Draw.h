@@ -19,6 +19,9 @@
 class Draw {
 
 	public:
+		void renderFillGradient(Graphics& graphics,  GraphicsPath* path, gradient* fillGrad, Shape* shape);
+		void renderStrokeGradient(Graphics& graphics, GraphicsPath* path, gradient* strokeGrad, Shape* shape);
+
 		void drawRectangle(Graphics& graphics, rectangle* rect);
 		void drawCircle(Graphics& graphics, circle* cir);
 		void drawText(Graphics& graphics, text* text);
