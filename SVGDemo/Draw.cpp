@@ -629,14 +629,21 @@ void Draw::drawPath(Graphics& graphics, path* path) {
 		str.getStrokeColor().getGreen(),
 		str.getStrokeColor().getBlue()),
 		str.getStrokeWidth());
+	pen.SetMiterLimit(path->getStrokeMiterLimit());
 
 	graphics.SetSmoothingMode(SmoothingModeAntiAlias);
 
 	auto commands = path->getPath();
 	GraphicsPath graphicsPath;
 
+	//fill mode dựa trên fillRude
+	if (path->getFillRule() == "evenodd") {
+		graphicsPath.SetFillMode(FillModeWinding);
+	}
+	else graphicsPath.SetFillMode(FillModeAlternate);
+
 	// Đặt chế độ fill mode thành FillModeAlternate (even-odd rule)
-	graphicsPath.SetFillMode(FillModeAlternate);
+	//graphicsPath.SetFillMode(FillModeAlternate);
 
 	PointF currentPoint;
 	PointF lastControlPoint(0, 0); // Khởi tạo điểm điều khiển mặc định (0, 0)
