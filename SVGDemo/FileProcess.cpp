@@ -164,6 +164,16 @@ void FileProcess::ReadStrokeAndFill(map<string, string> attributes, Shape* shape
 	if (attributes["stroke"] == "none") {
 		shape->getStroke().setStrokeWidth(0);
 	}
+
+	if (attributes["stroke-miterlimit"] != "") {
+		path* pathShape = dynamic_cast<path*>(shape);
+		if (pathShape) pathShape->setStrokeMiterLimit(stof(attributes["stroke-miterlimit"]));
+	}
+
+	if (attributes["fill-rule"] != "") {
+		path* pathShape = dynamic_cast<path*> (shape);
+		if (pathShape) pathShape->setFillRude(attributes["fill-rule"]);
+	}
 }
 
 // Xu li transform neu no la ma tran
