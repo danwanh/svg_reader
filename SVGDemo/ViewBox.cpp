@@ -1,15 +1,7 @@
 #include "stdafx.h"
 #include "ViewBox.h"
 
-ViewBox::ViewBox() : minX(0), minY(0), width(0), height(0) {}
-
-ViewBox::ViewBox(float x, float y, float w, float h)
-{
-	minX = x;
-	minY = y;
-	width = w;
-	height = h;
-}
+ViewBox::ViewBox() : portHeight(0), portWidth(0), minX(0), minY(0), width(100), height(100) {}
 
 float ViewBox::getMinX() const
 {
@@ -20,13 +12,21 @@ float ViewBox::getMinY() const
 {
 	return minY;
 }
+float ViewBox::getPortHeight() const
+{
+	return portHeight;
+}
 
-float ViewBox::getWidth() const
+float ViewBox::getPortWidth() const
+{
+	return portWidth;
+}
+float ViewBox::getViewWidth() const
 {
 	return width;
 }
 
-float ViewBox::getHeight() const
+float ViewBox::getViewHeight() const
 {
 	return height;
 }
@@ -40,13 +40,21 @@ void ViewBox::setMinY(float y)
 {
 	minY = y;
 }
+void ViewBox::setPortHeight(float x)
+{
+	portHeight = x;
+}
 
-void ViewBox::setWidth(float w)
+void ViewBox::setPortWidth(float y)
+{
+	portWidth = y;
+}
+void ViewBox::setViewWidth(float w)
 {
 	width = w;
 }
 
-void ViewBox::setHeight(float h)
+void ViewBox::setViewHeight(float h)
 {
 	height = h;
 }

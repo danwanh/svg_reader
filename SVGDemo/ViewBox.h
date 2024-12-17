@@ -11,19 +11,25 @@ private:
     float minY;
     float width;
     float height;
+    float portHeight, portWidth;
 
 public:
     ViewBox();
-    ViewBox(float x, float y, float w, float h);
-
+    ViewBox(float x, float y, float w, float h, float pH, float pW)
+        : minX(x), minY(y), width(w), height(h), portHeight(pH), portWidth(pW) {}
+    float getPortHeight() const;
+    float getPortWidth() const;
     float getMinX() const;
     float getMinY() const;
-    float getWidth() const;
-    float getHeight() const;
+    float getViewWidth() const;
+    float getViewHeight() const;
 
+    void setPortHeight(float x);
+    void setPortWidth(float y);
     void setMinX(float x);
     void setMinY(float y);
-    void setWidth(float w);
-    void setHeight(float h);
+    void setViewWidth(float w);
+    void setViewHeight(float h);
+
 };
 #endif // !VIEWBOX_H
