@@ -15,7 +15,7 @@ private:
 
 public:
     ViewBox();
-    ViewBox(float x, float y, float w, float h, float pH, float pW)
+    ViewBox(float x, float y, float w, float h, float pW, float pH)
         : minX(x), minY(y), width(w), height(h), portHeight(pH), portWidth(pW) {}
     float getPortHeight() const;
     float getPortWidth() const;
