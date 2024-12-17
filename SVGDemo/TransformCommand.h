@@ -7,8 +7,7 @@ private:
 	float transX, transY;
 	float angle;    
 	float scaleX, scaleY;
-	// NGOC HAN
-	//float skewX, skewY; 
+	float skewX, skewY;
 public:
 	TransformCommand();
 	TransformCommand(string n, float x, float y, float angle, float sx, float sy);
@@ -29,6 +28,9 @@ public:
 	float getAngle();
 	float getScaleX();
 	float getScaleY();
+	float getSkewX();
+	float getSkewY();
+
 };
 #endif // !_TRANSFORMCOMMAND_H_
 

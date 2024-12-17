@@ -1,12 +1,12 @@
 #include "stdafx.h"
 #include "TransformCommand.h"
-TransformCommand::TransformCommand() : name(""), transX(0), transY(0), angle(0), scaleX(1), scaleY(1) {
+TransformCommand::TransformCommand() : name(""), transX(0), transY(0), angle(0), scaleX(1), scaleY(1), skewX(0), skewY(0) {
 
 }
 TransformCommand::TransformCommand(string n, float x, float y, float a, float sx, float sy) : name(n), transX(x), transY(y), angle(a), scaleX(sx), scaleY(sy){
 
 }
-TransformCommand::TransformCommand(string n, float x, float y, float a, float sx, float sy, float skX, float skY) : name(n), transX(x), transY(y), angle(a){
+TransformCommand::TransformCommand(string n, float x, float y, float a, float sx, float sy, float skX, float skY) : name(n), transX(x), transY(y), angle(a), scaleX(sx), scaleY(sy), skewX(skX), skewY(skY) {
 
 }
 void TransformCommand::setName(string s) {
@@ -64,3 +64,17 @@ float TransformCommand::getScaleY() {
 	return scaleY;
 }
 
+void TransformCommand::setSkewX(float a) {
+	this->skewX = a;
+}
+void TransformCommand::setSkewY(float a) {
+	this->skewY = a;
+}
+
+float TransformCommand::getSkewX() {
+	return this->skewX;
+}
+
+float TransformCommand::getSkewY() {
+	return this->skewY;
+}

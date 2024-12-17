@@ -35,6 +35,8 @@ public:
 	Shape* ReadShape(map<string, string>, string);
 	void ReadGroupChild(map<string, string>&, group*, fstream&);
 	map <string, gradient*> ReadGradient(fstream& fi);
+	void setGradientMap(map <string, gradient*> mapGra);
+	map <string, gradient*> getGradientMap();
 	vector <Shape*> ReadFile();
 	void ShowShape(Shape*);
 };
