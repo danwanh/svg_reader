@@ -1,14 +1,20 @@
 ﻿#include "stdafx.h"
 #include "Draw.h"
-void Draw::renderFillGradient(Graphics& graphics, GraphicsPath* path, gradient* grad, Shape* shape) {
+void Draw::renderFillGradient(Graphics& graphics, GraphicsPath* path, gradient* grad, Shape* shape, ViewBox *vb) {
 	if (shape->getName() != "path") {
 		path = shape->createGraphicsPath();
 	}
 	if (!path) return;
 
 	float x = 0, y = 0, width = 0, height = 0;
-	if (grad->getGradientUnits() == "userSpaceOnUse")
-	{
+	
+	if (grad->getGradientUnits() == "userSpaceOnUse") {
+		x = vb->getMinX();
+		y = vb->getMinY();
+		width = vb->getPortHeight();
+		height = vb->getPortWidth();
+	}
+	else {
 		shape->getBoundingBox(x, y, width, height);
 	}
 
@@ -58,13 +64,14 @@ void Draw::renderFillGradient(Graphics& graphics, GraphicsPath* path, gradient* 
 				}
 
 				linearBrush.SetInterpolationColors(colors.data(), positions.data(), numStops);
-				graphics.SetClip(path, CombineModeReplace);
+				GraphicsState save = graphics.Save();
+				graphics.SetClip(path, CombineModeIntersect);
 
 				// Vẽ gradient trên bounding box
 				graphics.FillRectangle(&linearBrush, RectF(x, y, width, height));
 
 				// Xóa clip sau khi vẽ
-				graphics.ResetClip();
+				graphics.Restore(save);
 			}
 		}
 	}
@@ -107,8 +114,8 @@ void Draw::renderFillGradient(Graphics& graphics, GraphicsPath* path, gradient* 
 
 				// Path gradient brush
 				PathGradientBrush radialBrush(&ellipsePath);
-
-				graphics.SetClip(path, CombineModeReplace);
+				GraphicsState save = graphics.Save();
+				graphics.SetClip(path, CombineModeIntersect);
 
 				SolidBrush fallbackBrush(colors[0]); //màu cuối cùng trong color stop (100%)
 				graphics.FillRectangle(&fallbackBrush, RectF(x, y, width, height));
@@ -241,13 +248,13 @@ void Draw::renderFillGradient(Graphics& graphics, GraphicsPath* path, gradient* 
 				// Vẽ gradient trong vùng path
 				graphics.FillRectangle(&radialBrush, RectF(x, y, width, height));
 
-				// Reset clip để không ảnh hưởng các thao tác sau
-				graphics.ResetClip();
+				//xoa clip
+				graphics.Restore(save);
 			}
 		}
 	}
 }
-void Draw::renderStrokeGradient(Graphics& graphics, GraphicsPath* path, gradient* grad, Shape* shape) {
+void Draw::renderStrokeGradient(Graphics& graphics, GraphicsPath* path, gradient* grad, Shape* shape, ViewBox *vb) {
 	if (shape->getName() != "path") {
 		path = shape->createGraphicsPath();
 	}
@@ -256,8 +263,13 @@ void Draw::renderStrokeGradient(Graphics& graphics, GraphicsPath* path, gradient
 
 	// Lấy bounding box của shape
 	float x = 0, y = 0, width = 0, height = 0;
-	if (grad->getGradientUnits() == "userSpaceOnUse")
-	{
+	if (grad->getGradientUnits() == "userSpaceOnUse") {
+		x = vb->getMinX();
+		y = vb->getMinY();
+		width = vb->getPortHeight();
+		height = vb->getPortWidth();
+	}
+	else {
 		shape->getBoundingBox(x, y, width, height);
 	}
 
@@ -308,11 +320,10 @@ void Draw::renderStrokeGradient(Graphics& graphics, GraphicsPath* path, gradient
 
 				linearBrush.SetInterpolationColors(colors.data(), positions.data(), numStops);
 				Pen gradientPen(&linearBrush, shape->getStroke().getStrokeWidth()); // Dùng gradient pen với độ dày viền
-				graphics.SetClip(path, CombineModeReplace);
+				GraphicsState save = graphics.Save();
+				graphics.SetClip(path, CombineModeIntersect);
 				graphics.DrawPath(&gradientPen, path); // Vẽ đường viền với gradient
-
-				// Xóa clip sau khi vẽ
-				graphics.ResetClip();
+				graphics.Restore(save);
 			}
 		}
 	}
@@ -387,7 +398,7 @@ void Draw::renderStrokeGradient(Graphics& graphics, GraphicsPath* path, gradient
 	}
 	if(shape->getName() !="path") delete path;
 }
-void Draw::drawRectangle(Graphics& graphics, rectangle* rect) {
+void Draw::drawRectangle(Graphics& graphics, rectangle* rect, ViewBox *vb) {
 	GraphicsState save = graphics.Save();
 	GraphicsPath* p = NULL;
 	rect->applyTransform(graphics);
@@ -401,7 +412,7 @@ void Draw::drawRectangle(Graphics& graphics, rectangle* rect) {
 		graphics.FillRectangle(&fillBrush, rect->getRecX(), rect->getRecY(), rect->getWidth(), rect->getHeight());
 	}
 	else {
-		renderFillGradient(graphics, p, grad, rect);
+		renderFillGradient(graphics, p, grad, rect, vb);
 	}
 	grad = rect->getStrokeGradient();
 	if(grad == NULL) {
@@ -409,13 +420,13 @@ void Draw::drawRectangle(Graphics& graphics, rectangle* rect) {
 		if (str.getStrokeWidth() != 0) graphics.DrawRectangle(&pen, rect->getRecX(), rect->getRecY(), rect->getWidth(), rect->getHeight());
 	}
 	else {
-		renderStrokeGradient(graphics, p, grad, rect);
+		renderStrokeGradient(graphics, p, grad, rect, vb);
 	}
 
 	graphics.Restore(save);
 	delete p;
 }
-void Draw::drawCircle(Graphics& graphics, circle* cir) {
+void Draw::drawCircle(Graphics& graphics, circle* cir, ViewBox *vb) {
 	GraphicsState save = graphics.Save();
 	GraphicsPath* p = NULL;
 	cir->applyTransform(graphics);
@@ -427,7 +438,7 @@ void Draw::drawCircle(Graphics& graphics, circle* cir) {
 		graphics.FillEllipse(&fillBrush, cir->getCx() - cir->getRadius(), cir->getCy() - cir->getRadius(), cir->getRadius() * 2, cir->getRadius() * 2);
 	}
 	else {
-		renderFillGradient(graphics,p, grad, cir);
+		renderFillGradient(graphics,p, grad, cir, vb);
 	}
 	grad = cir->getStrokeGradient();
 	if(grad == NULL)
@@ -436,13 +447,13 @@ void Draw::drawCircle(Graphics& graphics, circle* cir) {
 		if (str.getStrokeWidth() != 0) graphics.DrawEllipse(&pen, cir->getCx() - cir->getRadius(), cir->getCy() - cir->getRadius(), cir->getRadius() * 2, cir->getRadius() * 2);
 	}
 	else {
-		renderStrokeGradient(graphics, p, grad, cir);
+		renderStrokeGradient(graphics, p, grad, cir, vb);
 	}
 	graphics.Restore(save);
 	delete p;
 }
 
-void Draw::drawText(Graphics& graphics, text* text) {
+void Draw::drawText(Graphics& graphics, text* text, ViewBox *vb) {
 	GraphicsState save = graphics.Save();
 	text->applyTransform(graphics);
 	stroke str = text->getStroke();
@@ -497,7 +508,7 @@ void Draw::drawText(Graphics& graphics, text* text) {
 		graphics.FillPath(&fillBrush, &path);
 	}
 	else {
-		renderFillGradient(graphics, p, grad, text);
+		renderFillGradient(graphics, p, grad, text, vb);
 	}
 	grad = text->getStrokeGradient();
 	if(grad == NULL)
@@ -512,14 +523,14 @@ void Draw::drawText(Graphics& graphics, text* text) {
 			graphics.DrawPath(&outlinePen, &path);
 	}
 	else {
-		renderStrokeGradient(graphics, p, grad, text);
+		renderStrokeGradient(graphics, p, grad, text, vb);
 	}
 	graphics.Restore(save);
 	delete fontFamily;
 	delete p;
 }
 
-void Draw::drawPolyline(Graphics& graphics, polyline* polyline) {
+void Draw::drawPolyline(Graphics& graphics, polyline* polyline, ViewBox *vb) {
 	GraphicsState save = graphics.Save();
 	GraphicsPath* p = NULL;
 	polyline->applyTransform(graphics);
@@ -544,7 +555,7 @@ void Draw::drawPolyline(Graphics& graphics, polyline* polyline) {
 		graphics.FillPolygon(&fillBrush, gdiPoints, numPoints);
 	}
 	else {
-		renderFillGradient(graphics, p, grad, polyline);
+		renderFillGradient(graphics, p, grad, polyline, vb);
 	}
 	grad = polyline->getStrokeGradient();
 	if(grad == NULL)
@@ -559,13 +570,13 @@ void Draw::drawPolyline(Graphics& graphics, polyline* polyline) {
 			graphics.DrawLines(&pen, gdiPoints, numPoints);
 	}
 	else {
-		renderStrokeGradient(graphics, p, grad, polyline);
+		renderStrokeGradient(graphics, p, grad, polyline, vb);
 	}
 	graphics.Restore(save);
 	delete p;
 	delete[] gdiPoints;
 }
-void Draw::drawPolygon(Graphics& graphics, polygon* polygon) {
+void Draw::drawPolygon(Graphics& graphics, polygon* polygon, ViewBox *vb) {
 	GraphicsState save = graphics.Save();
 	polygon->applyTransform(graphics);
 	stroke str = polygon->getStroke();
@@ -585,7 +596,7 @@ void Draw::drawPolygon(Graphics& graphics, polygon* polygon) {
 		graphics.FillPolygon(&fillBrush, gdiPoints, points.size());
 	}
 	else {
-		renderFillGradient(graphics, p, grad, polygon);
+		renderFillGradient(graphics, p, grad, polygon, vb);
 	}
 	grad = polygon->getStrokeGradient();
 	if(grad == NULL)
@@ -596,13 +607,13 @@ void Draw::drawPolygon(Graphics& graphics, polygon* polygon) {
 			graphics.DrawPolygon(&pen, gdiPoints, points.size());
 	}
 	else {
-		renderStrokeGradient(graphics, p, grad, polygon);
+		renderStrokeGradient(graphics, p, grad, polygon, vb);
 	}
 	graphics.Restore(save);
 	delete p;
 	delete[] gdiPoints;
 }
-void Draw::drawEllipse(Graphics& graphics, ellipse* ellipse) {
+void Draw::drawEllipse(Graphics& graphics, ellipse* ellipse, ViewBox *vb) {
 	GraphicsState save = graphics.Save();
 	GraphicsPath* p = NULL;
 	ellipse->applyTransform(graphics);
@@ -617,7 +628,7 @@ void Draw::drawEllipse(Graphics& graphics, ellipse* ellipse) {
 		graphics.FillEllipse(&fillBrush, x, y, ellipse->getRx() * 2, ellipse->getRy() * 2);
 	}
 	else {
-		renderFillGradient(graphics, p,  grad, ellipse);
+		renderFillGradient(graphics, p,  grad, ellipse, vb);
 	}
 	grad = ellipse->getStrokeGradient();
 	if(grad == NULL)
@@ -627,12 +638,12 @@ void Draw::drawEllipse(Graphics& graphics, ellipse* ellipse) {
 		if (str.getStrokeWidth() != 0)graphics.DrawEllipse(&pen, x, y, ellipse->getRx() * 2, ellipse->getRy() * 2);
 	}
 	else {
-		renderStrokeGradient(graphics, p, grad, ellipse);
+		renderStrokeGradient(graphics, p, grad, ellipse, vb);
 	}
 	graphics.Restore(save);
 	delete p;
 }
-void Draw::drawLine(Graphics& graphics, line* line) {
+void Draw::drawLine(Graphics& graphics, line* line, ViewBox *vb) {
 	GraphicsState save = graphics.Save();
 	line->applyTransform(graphics);
 	stroke str = line->getStroke();
@@ -644,12 +655,12 @@ void Draw::drawLine(Graphics& graphics, line* line) {
 	}
 	else {
 		GraphicsPath* p = NULL;
-		renderStrokeGradient(graphics, p, grad, line);
+		renderStrokeGradient(graphics, p, grad, line, vb);
 		delete p;
 	}
 	graphics.Restore(save);
 }
-void Draw::drawPath(Graphics& graphics, path* path) {
+void Draw::drawPath(Graphics& graphics, path* path, ViewBox *vb) {
 	GraphicsState save = graphics.Save();
 	path->applyTransform(graphics);
 	stroke str = path->getStroke();
@@ -805,7 +816,7 @@ void Draw::drawPath(Graphics& graphics, path* path) {
 		graphics.FillPath(&fillBrush, &graphicsPath);
 	}
 	else {
-		renderFillGradient(graphics, &graphicsPath, grad, path);
+		renderFillGradient(graphics, &graphicsPath, grad, path, vb);
 	}
 	// Vẽ các đường path
 	grad = path->getStrokeGradient();
@@ -821,14 +832,14 @@ void Draw::drawPath(Graphics& graphics, path* path) {
 			graphics.DrawPath(&pen, &graphicsPath);
 	}
 	else {
-		renderStrokeGradient(graphics, &graphicsPath, grad, path);
+		renderStrokeGradient(graphics, &graphicsPath, grad, path, vb);
 	}
 
 	graphics.Restore(save);
 }
 
 
-void Draw::drawGroup(Graphics& graphics, group* g) {
+void Draw::drawGroup(Graphics& graphics, group* g, ViewBox *vb) {
 	GraphicsState save = graphics.Save();
 	g->applyTransform(graphics);
 
@@ -843,54 +854,54 @@ void Draw::drawGroup(Graphics& graphics, group* g) {
 		case 1:
 		{
 			rectangle* rect = dynamic_cast<rectangle*>(child);
-			drawRectangle(graphics, rect);
+			drawRectangle(graphics, rect, vb);
 			break;
 		}
 
 		case 2:
 		{
 			circle* cir = dynamic_cast<circle*> (child);
-			drawCircle(graphics, cir);
+			drawCircle(graphics, cir, vb);
 			break;
 		}
 		case 3:
 		{
 			polygon* pg = dynamic_cast<polygon*> (child);
-			drawPolygon(graphics, pg);
+			drawPolygon(graphics, pg, vb);
 			break;
 		}
 		case 4:
 		{
 			polyline* pl = dynamic_cast<polyline*> (child);
-			drawPolyline(graphics, pl);
+			drawPolyline(graphics, pl, vb);
 			break;
 		}
 		case 5:
 		{
 			line* l = dynamic_cast<line*> (child);
-			drawLine(graphics, l);
+			drawLine(graphics, l, vb);
 			break;
 		}
 		case 6:
 		{
 			text* t = dynamic_cast<text*> (child);
-			drawText(graphics, t);
+			drawText(graphics, t, vb);
 			break;
 		}
 		case 7:
 		{
 			ellipse* e = dynamic_cast<ellipse*> (child);
-			drawEllipse(graphics, e);
+			drawEllipse(graphics, e, vb);
 			break;
 		}
 		case 8: {
 			group* g = dynamic_cast<group*> (child);
-			drawGroup(graphics, g);
+			drawGroup(graphics, g, vb);
 			break;
 		}
 		case 9: {
 			path* p = dynamic_cast<path*> (child);
-			drawPath(graphics, p);
+			drawPath(graphics, p, vb);
 			break;
 		}
 		default:
@@ -901,7 +912,7 @@ void Draw::drawGroup(Graphics& graphics, group* g) {
 	}
 	graphics.Restore(save);
 }
-void Draw::drawFigure(Graphics& graphics, Figure& figure, float angle, float scale, float transX, float transY) {
+void Draw::drawFigure(Graphics& graphics, Figure& figure, float angle, float scale, float transX, float transY, ViewBox *vb) {
 	GraphicsState save = graphics.Save();
 
 	//float x = 0, y = 0;
@@ -929,54 +940,54 @@ void Draw::drawFigure(Graphics& graphics, Figure& figure, float angle, float sca
 		case 1:
 		{
 			rectangle* rect = dynamic_cast<rectangle*>(shape);
-			drawRectangle(graphics, rect);
+			drawRectangle(graphics, rect, vb);
 			break;
 		}
 
 		case 2:
 		{
 			circle* cir = dynamic_cast<circle*> (shape);
-			drawCircle(graphics, cir);
+			drawCircle(graphics, cir, vb);
 			break;
 		}
 		case 3:
 		{
 			polygon* pg = dynamic_cast<polygon*> (shape);
-			drawPolygon(graphics, pg);
+			drawPolygon(graphics, pg, vb);
 			break;
 		}
 		case 4:
 		{
 			polyline* pl = dynamic_cast<polyline*> (shape);
-			drawPolyline(graphics, pl);
+			drawPolyline(graphics, pl, vb);
 			break;
 		}
 		case 5:
 		{
 			line* l = dynamic_cast<line*> (shape);
-			drawLine(graphics, l);
+			drawLine(graphics, l, vb);
 			break;
 		}
 		case 6:
 		{
 			text* t = dynamic_cast<text*> (shape);
-			drawText(graphics, t);
+			drawText(graphics, t, vb);
 			break;
 		}
 		case 7:
 		{
 			ellipse* e = dynamic_cast<ellipse*> (shape);
-			drawEllipse(graphics, e);
+			drawEllipse(graphics, e, vb);
 			break;
 		}
 		case 8: {
 			group* g = dynamic_cast<group*> (shape);
-			drawGroup(graphics, g);
+			drawGroup(graphics, g, vb);
 			break;
 		}
 		case 9: {
 			path* p = dynamic_cast<path*> (shape);
-			drawPath(graphics, p);
+			drawPath(graphics, p, vb);
 			break;
 		}
 		default:
