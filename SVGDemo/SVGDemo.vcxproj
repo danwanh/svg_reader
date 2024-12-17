@@ -173,6 +173,7 @@
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Text.h" />
     <ClInclude Include="TransformCommand.h" />
+    <ClInclude Include="ViewBox.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Circle.cpp" />
@@ -202,6 +203,7 @@
     <ClCompile Include="SVGDemo.cpp" />
     <ClCompile Include="Text.cpp" />
     <ClCompile Include="TransformCommand.cpp" />
+    <ClCompile Include="ViewBox.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="SVGDemo.rc" />
