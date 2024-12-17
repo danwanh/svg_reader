@@ -908,12 +908,8 @@ void Draw::drawFigure(Graphics& graphics, Figure& figure, float angle, float sca
 	//figure.calCenter(x, y); // center of image
 
 	graphics.TranslateTransform(transX, transY, MatrixOrderPrepend);
-	//graphics.TranslateTransform(x, y, MatrixOrderPrepend);
 	graphics.ScaleTransform(scale, scale, MatrixOrderPrepend);
 	graphics.RotateTransform(angle, MatrixOrderPrepend);
-//	graphics.TranslateTransform(-x, -y, MatrixOrderPrepend);
-
-
 
 	//if (figure.getList().size() == 0) {
 	//	//	Graphics graphics(hdc);
