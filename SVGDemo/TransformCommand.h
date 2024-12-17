@@ -7,14 +7,19 @@ private:
 	float transX, transY;
 	float angle;    
 	float scaleX, scaleY;
+	// NGOC HAN
+	//float skewX, skewY; 
 public:
 	TransformCommand();
 	TransformCommand(string n, float x, float y, float angle, float sx, float sy);
+	TransformCommand(string n, float x, float y, float angle, float sx, float sy, float skX, float skY);
 
 	void setName(string s);
 	void setTranslate(float x, float y);
 	void setScale(float sx, float sy);
 	void setScale(float d);
+	void setSkewX(float a);
+	void setSkewY(float a);
 
 	void setRotate(float a);
 
@@ -24,7 +29,6 @@ public:
 	float getAngle();
 	float getScaleX();
 	float getScaleY();
-
 };
 #endif // !_TRANSFORMCOMMAND_H_
 

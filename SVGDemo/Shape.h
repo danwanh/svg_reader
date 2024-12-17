@@ -15,6 +15,8 @@ protected:
     vector<TransformCommand> transform; 
     gradient* fillGrad;
     gradient* strokeGrad;
+    gradient* grad;
+    bool hasGradient;
 public:
     Shape();
     Shape(MyColor stroke, float strokeW, MyColor fill, string shapeName, vector<TransformCommand> transform);
@@ -28,9 +30,12 @@ public:
     void setStroke(stroke& s);
     void setFillGradient(gradient* grad);
     void setStrokeGradient(gradient* grad);
+    void setUsingGradient(bool use);
 
     gradient* getStrokeGradient();
     gradient* getFillGradient();
+
+    bool isUsingGradient();
     vector<TransformCommand> getTransform() const;
     void setTransform(vector<TransformCommand>& other);
     void applyTransform(Graphics& graphics);

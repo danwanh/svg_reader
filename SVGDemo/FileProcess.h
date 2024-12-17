@@ -20,6 +20,7 @@
 class FileProcess {
 	string fileName;
 	unordered_map <string, MyColor> colorMap;
+	map <string, gradient*> gradientMap;
 public:
 	string GetFileName();
 	FileProcess();
@@ -33,6 +34,7 @@ public:
 	map<string, string> ParseAttributes(string attributes);
 	Shape* ReadShape(map<string, string>, string);
 	void ReadGroupChild(map<string, string>&, group*, fstream&);
+	map <string, gradient*> ReadGradient(fstream& fi);
 	vector <Shape*> ReadFile();
 	void ShowShape(Shape*);
 };

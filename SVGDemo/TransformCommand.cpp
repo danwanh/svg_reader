@@ -3,7 +3,10 @@
 TransformCommand::TransformCommand() : name(""), transX(0), transY(0), angle(0), scaleX(1), scaleY(1) {
 
 }
-TransformCommand::TransformCommand(string n, float x, float y, float a, float sx, float sy) : name(n), transX(x), transY(y), angle(a), scaleX(sx), scaleY(sy) {
+TransformCommand::TransformCommand(string n, float x, float y, float a, float sx, float sy) : name(n), transX(x), transY(y), angle(a), scaleX(sx), scaleY(sy){
+
+}
+TransformCommand::TransformCommand(string n, float x, float y, float a, float sx, float sy, float skX, float skY) : name(n), transX(x), transY(y), angle(a){
 
 }
 void TransformCommand::setName(string s) {
@@ -60,3 +63,4 @@ float TransformCommand::getScaleX() {
 float TransformCommand::getScaleY() {
 	return scaleY;
 }
+

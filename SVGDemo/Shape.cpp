@@ -4,6 +4,7 @@
 Shape::Shape() {
 	str.setStrokeWidth(0);
 	transform = {};
+	grad = NULL;
 	fillGrad = NULL;
 	strokeGrad = NULL;
 }
@@ -11,6 +12,7 @@ Shape::Shape() {
 Shape::Shape(MyColor stroke, float strokeW, MyColor fill, string shapeName, vector<TransformCommand> t) : fillColor(fill), name(shapeName), transform(t) {
 	str.setStrokeColor(stroke);
 	str.setStrokeWidth(strokeW);
+	grad = NULL;
 	fillGrad = NULL;
 	strokeGrad = NULL;
 }
@@ -45,6 +47,7 @@ void Shape::setStrokeGradient(gradient* grad) {
 gradient* Shape::getStrokeGradient() {
 	return strokeGrad;
 }
+
 void Shape::setFillColor(MyColor fillColor) {
 	this->fillColor = fillColor;
 }
@@ -84,4 +87,11 @@ void Shape::applyTransform(Graphics& graphics) {
 			graphics.ScaleTransform(command.getScaleX(), command.getScaleY());
 		}
 	}
+}
+
+void Shape::setUsingGradient(bool use) {
+	this->hasGradient = use;
+}
+bool Shape::isUsingGradient() {
+	return this->hasGradient;
 }
