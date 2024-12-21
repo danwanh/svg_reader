@@ -559,12 +559,26 @@ void FileProcess::ReadGroupChild(map<string, string>& pAttributes, group* parent
 			if (regex_search(attributes["fill"], match, pattern)) {
 				url = match[1].str();
 			}
-			map <string, gradient*> graMap = this->getGradientMap();
 
-			if (graMap[url] != NULL) {
+			if (this->gradientMap[url] != NULL) {
 				shape->setUsingGradient(true);
-				//shape->setGradient(graMap[url]);
-				shape->setFillGradient(graMap[url]);
+				shape->setFillGradient(this->gradientMap[url]);
+			}
+		}
+
+		if (attributes["stroke"].find("url") != string::npos) {
+			regex pattern(R"(url\(#([\w_-]+)\))");
+			smatch match;
+
+			string url;
+
+			if (regex_search(attributes["stroke"], match, pattern)) {
+				url = match[1].str();
+			}
+
+			if (this->gradientMap[url] != NULL) {
+				shape->setUsingGradient(true);
+				shape->setStrokeGradient(this->gradientMap[url]);
 			}
 		}
 
@@ -660,8 +674,18 @@ void FileProcess::ShowShape(Shape* shape) {
 	}
 	// xem gradient
 	if (shape->isUsingGradient() == true) {
-		cout << " url " << shape->getGradient()->getId() << endl;
-		vector <stop> stops = shape->getGradient()->getColorStop();
+		cout << " url " << shape->getFillGradient()->getId() << endl;
+		cout << " fill gradient " << endl;
+		vector <stop> stops = shape->getFillGradient()->getColorStop();
+		for (auto itt : stops) {
+			cout << " offset " << itt.offset << " " << endl;
+			cout << " stop - color: " << itt.stopColor.getRed() << " " << itt.stopColor.getGreen() << " " << itt.stopColor.getBlue();
+			cout << " stop - opacity: " << itt.stopColor.getOpacity() << endl;
+		}
+		cout << endl;
+
+		cout << " stroke gradient " << endl;
+		stops = shape->getStrokeGradient()->getColorStop();
 		for (auto itt : stops) {
 			cout << " offset " << itt.offset << " " << endl;
 			cout << " stop - color: " << itt.stopColor.getRed() << " " << itt.stopColor.getGreen() << " " << itt.stopColor.getBlue();
@@ -869,7 +893,7 @@ void ShowGradient(map <string, gradient*> MapGra) {
 			int size = Trans.size();
 			for (int i = 0; i < size; i++) {
 				cout << Trans[i].getName() << " transX: " << Trans[i].getTransX() << " transY:  " << Trans[i].getTransY() << " rotate: " << Trans[i].getAngle() << " scaleX: " << Trans[i].getScaleX() << " scaleY: " << Trans[i].getScaleY() << " " <<
-					" skewX: " << Trans[i].getSkewX() << " " << " skewY: " << Trans[i].getSkewY() << endl;
+					" skewX: " << Trans[i].getSkewX()<< " " << " skewY: " << Trans[i].getSkewY() << endl;
 			}
 		}
 
@@ -922,7 +946,7 @@ vector <Shape*> FileProcess::ReadFile() {
 		return figure;
 	}
 	string s;
-	getline(fi, s, '>');
+	//getline(fi, s, '>');
 
 	while (getline(fi, s, '>')) {
 		stringstream ss(s);
@@ -942,16 +966,38 @@ vector <Shape*> FileProcess::ReadFile() {
 			attributes[match[1]] = match[2]; // match[1]: tên thuộc tính, match[2]: giá trị thuộc tính (còn match[0] là nguyên chuỗi khớp)
 			it = match[0].second; // Cập nhật vị trí để tìm kiếm tiếp ( trỏ đến vị trí tiếp theo)
 		}
-		// xu li def
-		//if (name == "defs") {
-		//	this->gradientMap = this->ReadGradient(fi);
-		//}
 
-		if (name == "defs") {
-			mapGra = this->ReadGradient(fi);
-			this->setGradientMap(mapGra);
+		
+		if (name == "svg") {
+			// doc viewbox
+			if (attributes["viewBox"] != "") {
+				stringstream sss(attributes["viewBox"]);
+				float vb;
+				sss >> vb;
+				this->viewbox.setMinX(vb);
+				
+				sss >> vb;
+				this->viewbox.setMinY(vb);
+
+				sss >> vb;
+				this->viewbox.setViewWidth(vb);
+
+				sss >> vb;
+				this->viewbox.setViewHeight(vb);
+			}
+			if (attributes["width"] != "") {
+				this->viewbox.setPortWidth(stof(attributes["width"]));
+			}
+			if (attributes["height"] != "") {
+				this->viewbox.setPortHeight(stof(attributes["height"]));
+			}
 		}
-		ShowGradient(mapGra);
+		// xu li def
+		if (name == "defs") {
+			this->gradientMap = this->ReadGradient(fi);
+		}
+
+		//ShowGradient(mapGra);
 
 
 		Shape* shape = this->ReadShape(attributes, name);
@@ -977,11 +1023,23 @@ vector <Shape*> FileProcess::ReadFile() {
 			if (regex_search(attributes["fill"], match, pattern)) {
 				url = match[1].str();
 			}
-			map <string, gradient*> graMap = this->getGradientMap();
-			if (graMap[url] != NULL) {
+
+			if (this->gradientMap[url] != NULL) {
 				shape->setUsingGradient(true);
-				//shape->setGradient(graMap[url]);
-				shape->setFillGradient(graMap[url]);
+				shape->setFillGradient(this->gradientMap[url]);
+			}
+		}
+
+		if (attributes["stroke"].find("url") != string::npos) {
+			regex pattern(R"(url\(#([\w_-]+)\))");
+			smatch match;
+			string url;
+			if (regex_search(attributes["stroke"], match, pattern)) {
+				url = match[1].str();
+			}
+			if (this->gradientMap[url] != NULL) {
+				shape->setUsingGradient(true);
+				shape->setStrokeGradient(this->gradientMap[url]);
 			}
 		}
 
@@ -1002,12 +1060,9 @@ string FileProcess::GetFileName() {
 	return this->fileName;
 }
 
-void FileProcess::setGradientMap(map <string, gradient*> mapGra) {
-	this->gradientMap = mapGra;
+ViewBox FileProcess::GetViewBox() {
+	return this->viewbox;
 }
-
-map <string, gradient*> FileProcess::getGradientMap() {
-	return this->gradientMap;
+void FileProcess::SetViewBox(ViewBox vb) {
+	this->viewbox = vb;
 }
-
-// Chu y: Chua chinh sua setfill séttroke

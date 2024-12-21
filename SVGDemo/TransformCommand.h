@@ -1,6 +1,7 @@
 #ifndef _TRANSFORMCOMMAND_H_
 #define _TRANSFORMCOMMAND_H_
 #include "Lib.h"
+#include "TransformCommand.h"
 class TransformCommand {
 private:
 	string name;

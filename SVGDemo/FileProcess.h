@@ -15,30 +15,37 @@
 #include "Group.h"
 #include "Figure.h"
 #include "path.h"
+#include "ViewBox.h"
 #include <unordered_map>
 
 class FileProcess {
 	string fileName;
 	unordered_map <string, MyColor> colorMap;
 	map <string, gradient*> gradientMap;
+	ViewBox viewbox;
+
 public:
 	string GetFileName();
 	FileProcess();
 	FileProcess(string);
 	void LoadColorMap();
 	MyColor ReadColor(string);
-	vector< TransformCommand> ReadTranCom(string);
+	void ReadStrokeAndFill(map<string, string>, Shape*);
+	map <string, gradient*> ReadGradient(fstream& fi);
+
 	vector <point> ReadPoint(string);
 	path ReadPath(string);
-	void ReadStrokeAndFill(map<string, string>, Shape*);
-	map<string, string> ParseAttributes(string attributes);
+	vector< TransformCommand> ReadTranCom(string);
+	
+	ViewBox GetViewBox();
+	void SetViewBox(ViewBox vb);
+
+	//map<string, string> ParseAttributes(string attributes);
 	Shape* ReadShape(map<string, string>, string);
 	void ReadGroupChild(map<string, string>&, group*, fstream&);
-	map <string, gradient*> ReadGradient(fstream& fi);
-	void setGradientMap(map <string, gradient*> mapGra);
-	map <string, gradient*> getGradientMap();
 	vector <Shape*> ReadFile();
 	void ShowShape(Shape*);
+	
 };
 
 #endif
