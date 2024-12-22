@@ -15,7 +15,6 @@ protected:
     vector<TransformCommand> transform; 
     gradient* fillGrad;
     gradient* strokeGrad;
-    gradient* grad;
     bool hasGradient;
 public:
     Shape();
