@@ -843,11 +843,6 @@ void Draw::drawGroup(Graphics& graphics, group* g, ViewBox *vb) {
 	GraphicsState save = graphics.Save();
 	g->applyTransform(graphics);
 
-	//if (g->getChildren().size() == 0) {
-	//	Pen pen(Color(255, 0, 0, 0));
-	//	graphics.DrawRectangle(&pen, 0, 0, 200, 100);
-	//}
-
 	for (Shape* child : g->getChildren()) {
 		int id = child->nameTonum();
 		switch (id) {
@@ -915,24 +910,9 @@ void Draw::drawGroup(Graphics& graphics, group* g, ViewBox *vb) {
 void Draw::drawFigure(Graphics& graphics, Figure& figure, float angle, float scale, float transX, float transY, ViewBox *vb) {
 	GraphicsState save = graphics.Save();
 
-	//float x = 0, y = 0;
-	//figure.calCenter(x, y); // center of image
-
 	graphics.TranslateTransform(transX, transY, MatrixOrderPrepend);
 	graphics.ScaleTransform(scale, scale, MatrixOrderPrepend);
 	graphics.RotateTransform(angle, MatrixOrderPrepend);
-
-	//if (figure.getList().size() == 0) {
-	//	//	Graphics graphics(hdc);
-	//	Pen pen(Color(255, 0, 0, 0)); 
-	//	graphics.DrawRectangle(&pen, 0, 0, 200, 100);
-	//}
-
-	//if (y == 0 && x == 0) {
-	//	//Graphics graphics(hdc);
-	//	Pen pen(Color(255, 0, 0, 0));
-	//	graphics.DrawRectangle(&pen, 0, 0, 200, 100);
-	//}
 
 	for (Shape* shape : figure.getList()) {
 		int id = shape->nameTonum();
