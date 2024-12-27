@@ -444,7 +444,8 @@ void Draw::drawCircle(Graphics& graphics, circle* cir, ViewBox *vb) {
 	if(grad == NULL)
 	{
 		Pen pen(Color(str.getStrokeColor().getOpacity() * 255, str.getStrokeColor().getRed(), str.getStrokeColor().getGreen(), str.getStrokeColor().getBlue()), str.getStrokeWidth());
-		if (str.getStrokeWidth() != 0) graphics.DrawEllipse(&pen, cir->getCx() - cir->getRadius(), cir->getCy() - cir->getRadius(), cir->getRadius() * 2, cir->getRadius() * 2);
+		//if (str.getStrokeWidth() != 0) 
+		graphics.DrawEllipse(&pen, cir->getCx() - cir->getRadius(), cir->getCy() - cir->getRadius(), cir->getRadius() * 2, cir->getRadius() * 2);
 	}
 	else {
 		renderStrokeGradient(graphics, p, grad, cir, vb);
@@ -910,9 +911,9 @@ void Draw::drawGroup(Graphics& graphics, group* g, ViewBox *vb) {
 void Draw::drawFigure(Graphics& graphics, Figure& figure, float angle, float scale, float transX, float transY, ViewBox *vb) {
 	GraphicsState save = graphics.Save();
 
-	graphics.TranslateTransform(transX, transY, MatrixOrderPrepend);
-	graphics.ScaleTransform(scale, scale, MatrixOrderPrepend);
-	graphics.RotateTransform(angle, MatrixOrderPrepend);
+	graphics.TranslateTransform(transX, transY);
+	graphics.ScaleTransform(scale, scale);
+	graphics.RotateTransform(angle);
 
 	for (Shape* shape : figure.getList()) {
 		int id = shape->nameTonum();

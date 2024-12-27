@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "ViewBox.h"
 
-ViewBox::ViewBox() : portHeight(0), portWidth(0), minX(0), minY(0), width(100), height(100) {}
+ViewBox::ViewBox() : portHeight(0), portWidth(0), minX(0), minY(0), width(0), height(0) {}
 
 float ViewBox::getMinX() const
 {

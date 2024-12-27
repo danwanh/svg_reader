@@ -1,10 +1,12 @@
 ﻿#include "stdafx.h"
 #include "FileProcess.h"
 FileProcess::FileProcess() {
+	viewbox = new ViewBox();
 	this->fileName = "";
 	LoadColorMap();
 }
 FileProcess::FileProcess(string name) {
+	viewbox = new ViewBox();
 	this->fileName = name;
 }
 void FileProcess::LoadColorMap() {
@@ -974,22 +976,22 @@ vector <Shape*> FileProcess::ReadFile() {
 				stringstream sss(attributes["viewBox"]);
 				float vb;
 				sss >> vb;
-				this->viewbox.setMinX(vb);
+				this->viewbox->setMinX(vb);
 				
 				sss >> vb;
-				this->viewbox.setMinY(vb);
+				this->viewbox->setMinY(vb);
 
 				sss >> vb;
-				this->viewbox.setViewWidth(vb);
+				this->viewbox->setViewWidth(vb);
 
 				sss >> vb;
-				this->viewbox.setViewHeight(vb);
+				this->viewbox->setViewHeight(vb);
 			}
 			if (attributes["width"] != "") {
-				this->viewbox.setPortWidth(stof(attributes["width"]));
+				this->viewbox->setPortWidth(stof(attributes["width"]));
 			}
 			if (attributes["height"] != "") {
-				this->viewbox.setPortHeight(stof(attributes["height"]));
+				this->viewbox->setPortHeight(stof(attributes["height"]));
 			}
 		}
 		// xu li def
@@ -1060,9 +1062,9 @@ string FileProcess::GetFileName() {
 	return this->fileName;
 }
 
-ViewBox FileProcess::GetViewBox() {
+ViewBox* FileProcess::GetViewBox() {
 	return this->viewbox;
 }
-void FileProcess::SetViewBox(ViewBox vb) {
+void FileProcess::SetViewBox(ViewBox* vb) {
 	this->viewbox = vb;
 }

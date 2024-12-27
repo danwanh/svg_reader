@@ -4,7 +4,7 @@
 Shape::Shape() {
 	str.setStrokeWidth(0);
 	transform = {};
-	grad = NULL;
+	//grad = NULL;
 	fillGrad = NULL;
 	strokeGrad = NULL;
 }
@@ -12,7 +12,7 @@ Shape::Shape() {
 Shape::Shape(MyColor stroke, float strokeW, MyColor fill, string shapeName, vector<TransformCommand> t) : fillColor(fill), name(shapeName), transform(t) {
 	str.setStrokeColor(stroke);
 	str.setStrokeWidth(strokeW);
-	grad = NULL;
+	//grad = NULL;
 	fillGrad = NULL;
 	strokeGrad = NULL;
 }

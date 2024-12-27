@@ -1,6 +1,11 @@
 #include "stdafx.h"
 #include "Figure.h"
-
+void Figure::setViewBox(ViewBox* vb_) {
+	vb = vb_;
+}
+ViewBox* Figure::getViewBox() {
+	return vb;
+}
 vector<Shape*> Figure::getList() {
 	return list;
 }
