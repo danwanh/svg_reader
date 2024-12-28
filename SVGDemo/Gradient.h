@@ -43,8 +43,6 @@ public:
     GradientType getType() const;
     void setType(GradientType t);
 
-    virtual ~gradient() {
-
-    }
+    virtual ~gradient() {}
 };
 #endif // !_GRADIENT_H_

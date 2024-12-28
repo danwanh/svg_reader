@@ -4,7 +4,7 @@
 Shape::Shape() {
 	str.setStrokeWidth(0);
 	transform = {};
-	//grad = NULL;
+	hasGradient = false;
 	fillGrad = NULL;
 	strokeGrad = NULL;
 }
@@ -12,7 +12,7 @@ Shape::Shape() {
 Shape::Shape(MyColor stroke, float strokeW, MyColor fill, string shapeName, vector<TransformCommand> t) : fillColor(fill), name(shapeName), transform(t) {
 	str.setStrokeColor(stroke);
 	str.setStrokeWidth(strokeW);
-	//grad = NULL;
+	hasGradient = false;
 	fillGrad = NULL;
 	strokeGrad = NULL;
 }
@@ -66,6 +66,18 @@ int Shape::nameTonum() {
 	if (name == "g") return 8;
 	if (name == "path") return 9;
 	return -1;
+}
+
+Shape::~Shape()
+{
+	if (fillGrad) {
+		delete fillGrad;
+		fillGrad = nullptr;
+	}
+	if (strokeGrad) {
+		delete strokeGrad;
+		strokeGrad = nullptr;
+	}
 }
 
 vector<TransformCommand> Shape::getTransform() const {

@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "Figure.h"
 void Figure::setViewBox(ViewBox* vb_) {
 	vb = vb_;
@@ -14,9 +14,20 @@ void Figure::setList(vector<Shape*> list) {
 }
 
 Figure::~Figure() {
-	for (Shape* shape : list) {
-		if(shape){
-			delete shape;
-		}
-	}
+    if (vb) {
+        delete vb;
+        vb = nullptr;
+    }
+
+    // Giải phóng từng phần tử trong danh sách `list`
+    for (Shape* shape : list) {
+        delete shape;
+    }
+    list.clear(); // Xóa toàn bộ các con trỏ đã bị xóa
+
+    // Giải phóng từng gradient trong `grad`
+    for (auto& pair : grad) {
+        delete pair.second; // pair.second là con trỏ gradient*
+    }
+    grad.clear();
 }

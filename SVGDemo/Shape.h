@@ -44,6 +44,6 @@ public:
     virtual GraphicsPath* createGraphicsPath() = 0; //createGraphicsPath() : để vẽ, tô màu, tính toán.
     virtual void getBoundingBox(float& x, float& y, float& width, float& height) = 0; // //getBoundingBox() : Tính hcn bao quanh để kiểm tra va chạm,tối ưu hóa,căn chỉnh.
 
-    virtual ~Shape(){}
+    virtual ~Shape();
 };
 #endif
