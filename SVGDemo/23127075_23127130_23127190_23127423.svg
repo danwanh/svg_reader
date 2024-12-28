@@ -1,0 +1,201 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600">
+ <!-- Background -->
+<defs>
+  <linearGradient id="backgroundGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+    <stop offset="0%" style="stop-color:#b3e1f7; stop-opacity:1" />
+    <stop offset="100%" style="stop-color:#d6f0ff; stop-opacity:1" />
+  </linearGradient>
+</defs>
+<rect x="0" y="0" width="800" height="600" fill="url(#backgroundGradient)" />
+<!-- Snowy Ground -->
+<defs>
+  <linearGradient id="groundGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%" style="stop-color:#f9fcff; stop-opacity:1" />
+    <stop offset="100%" style="stop-color:#eaf4f9; stop-opacity:1" />
+  </linearGradient>
+</defs>
+<rect x="0" y="530" width="800" height="70" fill="url(#groundGradient)" />
+
+ <g>
+  <title>Layer 1</title>
+  <defs>
+    <linearGradient id="textGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:rgb(255,250,141);stop-opacity:1" />
+      <stop offset="100%" style="stop-color:rgb(255,102,102);stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Áp dụng gradient vào văn bản -->
+  <text 
+    font-style="italic" 
+    fill="url(#textGradient)" 
+    x="155.80152" 
+    y="180.26296" 
+    font-size="20" 
+    font-family="'STIX Two Text'" 
+    text-anchor="start" 
+    transform="matrix(4.406 0 0 1.28814 -622.251 -146.609)">
+    Merry
+  </text>
+  <defs>
+    <!-- Định nghĩa gradient -->
+    <linearGradient id="textGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+       <stop offset="0%" stop-color="#729C62" /> <!-- Màu xanh lá nhạt -->
+      <stop offset="100%" stop-color="#4A6D3D" /> <!-- Màu xanh lá đậm -->
+    </linearGradient>
+  </defs>
+  
+  <!-- Văn bản sử dụng gradient -->
+  <text 
+    transform="matrix(1.68667 0 0 1.4843 -65.8823 -58.5454)" 
+    stroke="#000" 
+    font-weight="bold" 
+    xml:space="preserve" 
+    text-anchor="start" 
+    font-family="'STIX Two Text'" 
+    font-size="50" 
+    id="svg_1" 
+    y="142.19999" 
+    x="1.59999" 
+    stroke-dasharray="5,5" 
+    stroke-width="0" 
+    fill="url(#textGradient)">
+    Christmas
+  </text>
+ <defs>
+  <linearGradient id="groundGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%" style="stop-color:#a0b8c6; stop-opacity:1" />
+    <stop offset="100%" style="stop-color:#7a9db1; stop-opacity:1" />
+  </linearGradient>
+</defs>
+<path d="M-5 530 C 200 500, 600 580, 805 520 L 805 600 L -5 600 Z" fill="url(#groundGradient)" />
+  <!-- Christmas Tree -->
+  <rect x="565" y="500" width="70" height="100" fill="saddlebrown" />
+  <polygon points="600,100 720,300 480,300" fill="green" />
+  <polygon points="600,200 770,400 430,400" fill="green" />
+  <polygon points="600,300 820,500 380,500" fill="green" />
+ </g>
+  <!-- Gradient for snowman body -->
+  <defs>
+    <linearGradient id="bodyGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color: #ffffff; stop-opacity: 1" />
+      <stop offset="100%" style="stop-color: #cce0ff; stop-opacity: 1" />
+    </linearGradient>
+    <!-- Gradient for the Christmas tree -->
+    <linearGradient id="treeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color: #006400; stop-opacity: 1" />
+      <stop offset="100%" style="stop-color: #00b300; stop-opacity: 1" />
+    </linearGradient>
+  </defs>
+
+ <!-- Christmas Tree -->
+<!-- Tree trunk -->
+<rect x="565" y="500" width="70" height="100" fill="saddlebrown" />
+
+<!-- Tree layers -->
+<polygon points="600,100 720,300 480,300" fill="url(#treeGradient)" />
+<polygon points="600,200 770,400 430,400" fill="url(#treeGradient)" />
+<polygon points="600,300 820,500 380,500" fill="url(#treeGradient)" />
+
+<!-- Star on top -->
+<defs>
+  <!-- Gradient for the star -->
+  <radialGradient id="starGradient" cx="50%" cy="50%" r="50%">
+    <stop offset="0%" style="stop-color:#ffeb3b; stop-opacity:1" />
+    <stop offset="100%" style="stop-color:#f57f17; stop-opacity:1" />
+  </radialGradient>
+
+  <!-- Gradient for ornaments -->
+  <radialGradient id="ornamentRed" cx="50%" cy="50%" r="50%">
+    <stop offset="0%" style="stop-color:#ff8a80; stop-opacity:1" />
+    <stop offset="100%" style="stop-color:#d32f2f; stop-opacity:1" />
+  </radialGradient>
+
+  <radialGradient id="ornamentGold" cx="50%" cy="50%" r="50%">
+    <stop offset="0%" style="stop-color:#fff176; stop-opacity:1" />
+    <stop offset="100%" style="stop-color:#fbc02d; stop-opacity:1" />
+  </radialGradient>
+
+  <radialGradient id="ornamentBlue" cx="50%" cy="50%" r="50%">
+    <stop offset="0%" style="stop-color:#80d8ff; stop-opacity:1" />
+    <stop offset="100%" style="stop-color:#0277bd; stop-opacity:1" />
+  </radialGradient>
+</defs>
+
+<!-- Smaller Star -->
+<polygon points="600,80 610,100 630,100 615,110 620,130 600,120 580,130 585,110 570,100 590,100" fill="url(#starGradient)" />
+
+<!-- Ornaments -->
+<circle cx="650" cy="230" r="12" fill="url(#ornamentRed)" />
+<circle cx="550" cy="230" r="12" fill="url(#ornamentGold)" />
+<circle cx="600" cy="300" r="12" fill="url(#ornamentBlue)" />
+<circle cx="550" cy="300" r="12" fill="url(#ornamentRed)" />
+<circle cx="650" cy="300" r="12" fill="url(#ornamentGold)" />
+<circle cx="520" cy="370" r="12" fill="url(#ornamentBlue)" />
+<circle cx="680" cy="370" r="12" fill="url(#ornamentRed)" />
+<circle cx="570" cy="430" r="12" fill="url(#ornamentGold)" />
+<circle cx="630" cy="430" r="12" fill="url(#ornamentBlue)" />
+<circle cx="500" cy="450" r="12" fill="url(#ornamentRed)" />
+<circle cx="690" cy="465" r="12" fill="url(#ornamentGold)" />
+
+<!-- Lights -->
+<circle cx="565" cy="190" r="5" fill="yellow" />
+<circle cx="600" cy="190" r="5" fill="yellow" />
+<circle cx="635" cy="190" r="5" fill="yellow" />
+<circle cx="540" cy="270" r="5" fill="yellow" />
+<circle cx="600" cy="270" r="5" fill="yellow" />
+<circle cx="660" cy="270" r="5" fill="yellow" />
+<circle cx="500" cy="350" r="5" fill="yellow" />
+<circle cx="600" cy="370" r="5" fill="yellow" />
+<circle cx="700" cy="350" r="5" fill="yellow" />
+<circle cx="550" cy="420" r="5" fill="yellow" />
+<circle cx="650" cy="420" r="5" fill="yellow" />
+<circle cx="650" cy="485" r="5" fill="yellow" />
+<circle cx="550" cy="487" r="5" fill="yellow" />
+<circle cx="450" cy="483" r="5" fill="yellow" />
+<circle cx="730" cy="487" r="5" fill="yellow" />
+
+
+  <!-- Snowman -->
+  <circle cx="100" cy="530" r="70" fill="url(#bodyGradient)" />
+  <circle cx="100" cy="470" r="60" fill="url(#bodyGradient)" />
+  <circle cx="100" cy="390" r="50" fill="url(#bodyGradient)" />
+
+  <circle cx="85" cy="380" r="4" fill="black" />
+  <circle cx="115" cy="380" r="4" fill="black" />
+  <polygon points="100,395 110,390 100,400" fill="orange" />
+  <circle cx="100" cy="472" r="4" fill="black" />
+  <circle cx="100" cy="505" r="4" fill="black" />
+  <circle cx="100" cy="545" r="4" fill="black" />
+  <line x1="50" y1="470" x2="20" y2="450" stroke="saddlebrown" stroke-width="4" />
+  <line x1="150" y1="470" x2="180" y2="450" stroke="saddlebrown" stroke-width="4" />
+   <defs>
+    <radialGradient id="snowflakeGradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+      <stop offset="0%" style="stop-color: #ffffff; stop-opacity: 1" />
+      <stop offset="100%" style="stop-color: #66ccff; stop-opacity: 0.8" />
+    </radialGradient>
+  </defs>
+     <!-- Snowflakes -->
+    <g fill="url(#snowflakeGradient)">
+      <circle cx="100" cy="100" r="5" />
+      <circle cx="200" cy="150" r="5" />
+      <circle cx="300" cy="200" r="5" />
+      <circle cx="400" cy="50" r="5" />
+      <circle cx="150" cy="300" r="5" />
+      <circle cx="250" cy="400" r="5" />
+      <circle cx="350" cy="500" r="5" />
+      <circle cx="450" cy="350" r="5" />
+      <circle cx="550" cy="150" r="5" />
+      <circle cx="600" cy="100" r="5" />
+      <circle cx="700" cy="200" r="5" />
+      <circle cx="750" cy="300" r="5" />
+      <circle cx="50" cy="250" r="5" />
+      <circle cx="650" cy="50" r="5" />
+      <circle cx="550" cy="550" r="5" />
+      <circle cx="200" cy="500" r="5" />
+      <circle cx="300" cy="350" r="5" />
+      <circle cx="400" cy="450" r="5" />
+      <circle cx="50" cy="400" r="5" />
+      <circle cx="700" cy="400" r="5" />
+    </g>
+</svg>

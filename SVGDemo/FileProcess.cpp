@@ -10,6 +10,9 @@ FileProcess::FileProcess(string name) {
 	this->fileName = name;
 }
 void FileProcess::LoadColorMap() {
+	// COPY PATH de test
+	string C = "D:\\TestReadFile1\\Color.txt";
+	//ifstream color_file(C.c_str(), ios::in);
 	ifstream color_file("Color.txt", ios::in);
 
 	if (!color_file.is_open()) {
@@ -31,7 +34,7 @@ void FileProcess::LoadColorMap() {
 			string result;
 			for (char ch : name) {
 				if (!std::isspace(static_cast<unsigned char>(ch))) {
-					result += ch; 
+					result += ch;
 				}
 			}
 			name = result;
@@ -53,7 +56,7 @@ MyColor FileProcess::ReadColor(string color) {
 	string temp;
 	for (char ch : color) {
 		if (!std::isspace(static_cast<unsigned char>(ch))) {
-			temp += ch; 
+			temp += ch;
 		}
 	}
 	color = temp;
@@ -171,7 +174,7 @@ void FileProcess::ReadStrokeAndFill(map<string, string> attributes, Shape* shape
 // Xu li transform neu no la ma tran
 vector<TransformCommand> FileProcess::ReadTranCom(string trans) {
 	vector <TransformCommand> transcom;
-// Xu li transform khi no la matrix
+	// Xu li transform khi no la matrix
 	if (trans.find("matrix") != string::npos) {
 		regex pattern(R"(matrix\(([-+]?[0-9]*\.?[0-9]+)[ ,]+([-+]?[0-9]*\.?[0-9]+)[ ,]+([-+]?[0-9]*\.?[0-9]+)[ ,]+([-+]?[0-9]*\.?[0-9]+)[ ,]+([-+]?[0-9]*\.?[0-9]+)[ ,]+([-+]?[0-9]*\.?[0-9]+)\))");
 		smatch matches;
@@ -613,6 +616,7 @@ void FileProcess::ShowShape(Shape* shape) {
 	}
 	else if (shape->getName() == "circle") {
 		circle* temp = dynamic_cast<circle*>(shape);
+		cout << " name " << temp->getName() << endl;
 		cout << " radius " << temp->getRadius() << endl;
 		cout << " cx " << temp->getCx() << endl;
 		cout << " cy " << temp->getCy() << endl;
@@ -627,14 +631,15 @@ void FileProcess::ShowShape(Shape* shape) {
 	}
 	else if (shape->getName() == "polyline") {
 		polyline* temp = dynamic_cast<polyline*>(shape);
+		cout << " name " << temp->getName() << endl;
 		vector <point> points = temp->getPoints();
 		for (auto p : points) {
 			cout << "Point: (" << p.getX() << ", " << p.getY() << ")" << endl;
 		}
 	}
 	else if (shape->getName() == "polygon") {
-		cout << "polygon" << " ";
 		polygon* temp = dynamic_cast<polygon*>(shape);
+		cout << " name " << temp->getName() << endl;
 		vector <point> points = temp->getPoints();
 		for (auto p : points) {
 			cout << "Point: (" << p.getX() << ", " << p.getY() << ")" << endl;
@@ -642,9 +647,10 @@ void FileProcess::ShowShape(Shape* shape) {
 	}
 	else if (shape->getName() == "text") {
 		text* temp = dynamic_cast<text*>(shape);
-		cout << " fontSize " << temp->getFontSize() << endl;
-		cout << " fontFamily " << temp->getFontFamily() << endl;
-
+		cout << " name " << temp->getName() << endl;
+		cout << " font-size " << temp->getFontSize() << endl;
+		cout << " font-family " << temp->getFontFamily() << endl;
+		cout << " text-anchor " << temp->getTextAnchor() << endl;
 		cout << " content " << temp->getContent() << endl;
 	}
 
@@ -663,8 +669,8 @@ void FileProcess::ShowShape(Shape* shape) {
 	}
 	else if (shape->getName() == "g") {
 		group* temp = dynamic_cast<group*>(shape);
-		cout << " name " << temp->getName() << endl;
-		cout << "parent: \n";
+		//cout << " name " << temp->getName() << endl;
+		cout << "GROUP G: \n";
 		ShowShape(temp->getParent());
 		cout << endl;
 		vector<Shape*> children = temp->getChildren();
@@ -676,24 +682,28 @@ void FileProcess::ShowShape(Shape* shape) {
 	}
 	// xem gradient
 	if (shape->isUsingGradient() == true) {
-		cout << " url " << shape->getFillGradient()->getId() << endl;
-		cout << " fill gradient " << endl;
-		vector <stop> stops = shape->getFillGradient()->getColorStop();
-		for (auto itt : stops) {
-			cout << " offset " << itt.offset << " " << endl;
-			cout << " stop - color: " << itt.stopColor.getRed() << " " << itt.stopColor.getGreen() << " " << itt.stopColor.getBlue();
-			cout << " stop - opacity: " << itt.stopColor.getOpacity() << endl;
+		if (shape->getFillGradient() != NULL) {
+			cout << " url " << shape->getFillGradient()->getId() << endl;
+			cout << " fill gradient " << endl;
+			vector <stop> stops = shape->getFillGradient()->getColorStop();
+			for (auto itt : stops) {
+				cout << " offset " << itt.offset << " " << endl;
+				cout << " stop - color: " << itt.stopColor.getRed() << " " << itt.stopColor.getGreen() << " " << itt.stopColor.getBlue();
+				cout << " stop - opacity: " << itt.stopColor.getOpacity() << endl;
+			}
+			cout << endl;
 		}
-		cout << endl;
 
-		cout << " stroke gradient " << endl;
-		stops = shape->getStrokeGradient()->getColorStop();
-		for (auto itt : stops) {
-			cout << " offset " << itt.offset << " " << endl;
-			cout << " stop - color: " << itt.stopColor.getRed() << " " << itt.stopColor.getGreen() << " " << itt.stopColor.getBlue();
-			cout << " stop - opacity: " << itt.stopColor.getOpacity() << endl;
+		if (shape->getStrokeGradient() != NULL) {
+			cout << " stroke gradient " << endl;
+			vector <stop> stops = shape->getStrokeGradient()->getColorStop();
+			for (auto itt : stops) {
+				cout << " offset " << itt.offset << " " << endl;
+				cout << " stop - color: " << itt.stopColor.getRed() << " " << itt.stopColor.getGreen() << " " << itt.stopColor.getBlue();
+				cout << " stop - opacity: " << itt.stopColor.getOpacity() << endl;
+			}
+			cout << endl;
 		}
-		cout << endl;
 	}
 
 	cout << " stroke width " << shape->getStroke().getStrokeWidth() << endl;
@@ -715,7 +725,6 @@ map <string, gradient*> FileProcess::ReadGradient(fstream& fi) {
 	vector <stop> Stops;
 	vector <TransformCommand> Trans;
 	while (getline(fi, s, '>')) {
-		bool endstop = false;
 		stringstream ss(s);
 		char c;
 		ss >> c;
@@ -825,46 +834,46 @@ map <string, gradient*> FileProcess::ReadGradient(fstream& fi) {
 				Stop.stopColor = stopColor;
 			}
 			Stops.push_back(Stop);
-			string S;
-			while (getline(fi, S, '>')) {
-				stringstream sss(S);
-				string subName;
-				sss >> subName;
+			//string S;
+			//while (getline(fi, S, '>')) {
+			//	stringstream sss(S);
+			//	string subName;
+			//	sss >> subName;
 
-				if (subName != "<stop") {
-					endstop = true;
-					break;
-				}
-				else {
-					regex AttriPair(R"(\s*([a-zA-Z0-9-]+)=["']([^"']+)["'])");
-					smatch Match;
+			//	if (subName == "/linearGradient" || subName == "/radialGradient") {
+			//		break;
+			//	}
+			//	else {
+			//		regex AttriPair(R"(\s*([a-zA-Z0-9-]+)=["']([^"']+)["'])");
+			//		smatch Match;
 
-					std::map<std::string, std::string> Attributes;
-					auto It = S.cbegin();
-					while (regex_search(It, S.cend(), Match, AttriPair)) {
-						Attributes[Match[1]] = Match[2]; // store attribute name and value
-						It = Match[0].second; // update position for next search
-					}
-					if (S == "<stop") {
-						stop STOP;
-						double Offset = 0;
-						if (Attributes["offset"] != "")
-							Offset = stod(Attributes["offset"]);
-						STOP.offset = Offset;
-						if (Attributes["stop-color"] != "") {
-							MyColor StopColor = this->ReadColor(Attributes["stop-color"]);
-							STOP.stopColor = StopColor;
-						}
-						Stops.push_back(STOP);
-					}
-				}
+			//		std::map<std::string, std::string> Attributes;
+			//		auto It = S.cbegin();
+			//		while (regex_search(It, S.cend(), Match, AttriPair)) {
+			//			Attributes[Match[1]] = Match[2]; // store attribute name and value
+			//			It = Match[0].second; // update position for next search
+			//		}
+			//		if (S == "<stop") {
+			//			stop STOP;
+			//			double Offset = 0;
+			//			if (Attributes["offset"] != "")
+			//				Offset = stod(Attributes["offset"]);
+			//			STOP.offset = Offset;
+			//			if (Attributes["stop-color"] != "") {
+			//				MyColor StopColor = this->ReadColor(Attributes["stop-color"]);
+			//				STOP.stopColor = StopColor;
+			//			}
+			//			Stops.push_back(STOP);
+			//		}
+			//	}
 
-			}
-			temp->setColorStop(Stops);
+			//}
+			//temp->setColorStop(Stops);
 		}
 
-		if (name == "/linearGradient" || name == "/radialGradient" || endstop || radial) {
+		if (name == "/linearGradient" || name == "/radialGradient" || radial) {
 			mapGra.insert(make_pair(temp->getId(), temp));
+			temp->setColorStop(Stops);
 			temp = NULL;
 			Stops.clear();
 		}
@@ -874,7 +883,7 @@ map <string, gradient*> FileProcess::ReadGradient(fstream& fi) {
 // Show gradient
 void ShowGradient(map <string, gradient*> MapGra) {
 	for (auto it : MapGra) {
-		if (it.second->getType() ==  GradientType(1)) {
+		if (it.second->getType() == GradientType(1)) {
 			cout << " type: linearGradient" << endl;
 			cout << " id " << it.second->getId() << endl;
 			linearGradient* temp = dynamic_cast<linearGradient*>(it.second);
@@ -895,11 +904,11 @@ void ShowGradient(map <string, gradient*> MapGra) {
 			int size = Trans.size();
 			for (int i = 0; i < size; i++) {
 				cout << Trans[i].getName() << " transX: " << Trans[i].getTransX() << " transY:  " << Trans[i].getTransY() << " rotate: " << Trans[i].getAngle() << " scaleX: " << Trans[i].getScaleX() << " scaleY: " << Trans[i].getScaleY() << " " <<
-					" skewX: " << Trans[i].getSkewX()<< " " << " skewY: " << Trans[i].getSkewY() << endl;
+					" skewX: " << Trans[i].getSkewX() << " " << " skewY: " << Trans[i].getSkewY() << endl;
 			}
 		}
 
-		else if (it.second->getType() ==  GradientType(2)) {
+		else if (it.second->getType() == GradientType(2)) {
 			cout << endl << " type: radialGradient ";
 			radialGradient* temp = dynamic_cast<radialGradient*>(it.second);
 			cout << " id: " << it.second->getId() << endl;
@@ -969,7 +978,7 @@ vector <Shape*> FileProcess::ReadFile() {
 			it = match[0].second; // Cập nhật vị trí để tìm kiếm tiếp ( trỏ đến vị trí tiếp theo)
 		}
 
-		
+
 		if (name == "svg") {
 			// doc viewbox
 			if (attributes["viewBox"] != "") {
@@ -977,7 +986,7 @@ vector <Shape*> FileProcess::ReadFile() {
 				float vb;
 				sss >> vb;
 				this->viewbox->setMinX(vb);
-				
+
 				sss >> vb;
 				this->viewbox->setMinY(vb);
 
@@ -997,6 +1006,8 @@ vector <Shape*> FileProcess::ReadFile() {
 		// xu li def
 		if (name == "defs") {
 			this->gradientMap = this->ReadGradient(fi);
+			cout << " Show GRADIENT " << endl;
+			ShowGradient(gradientMap);
 		}
 
 		//ShowGradient(mapGra);
@@ -1017,8 +1028,9 @@ vector <Shape*> FileProcess::ReadFile() {
 				}
 			}
 		}
-    // Xu li fill gradient
+		// Xu li fill gradient
 		if (attributes["fill"].find("url") != string::npos) {
+			shape->setUsingGradient(true);
 			regex pattern(R"(url\(#([\w_-]+)\))");
 			smatch match;
 			string url;

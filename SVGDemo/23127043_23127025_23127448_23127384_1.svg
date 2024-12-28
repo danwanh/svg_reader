@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg">
+  
+  <defs>
+      <linearGradient id="grad1" x1="70.79" x2="6.447" y1="12.39" y2="74.47" gradientTransform="translate(-1.3 -.004086)" gradientUnits="userSpaceOnUse">
+          <stop stop-color="#fff44f" offset=".048"/>
+          <stop stop-color="#ffe847" offset=".111"/>
+          <stop stop-color="#ffc830" offset=".225"/>
+          <stop stop-color="#ff980e" offset=".368"/>
+          <stop stop-color="#ff8b16" offset=".401"/>
+          <stop stop-color="#ff672a" offset=".462"/>
+          <stop stop-color="#ff3647" offset=".534"/>
+          <stop stop-color="#e31587" offset=".705"/>
+      </linearGradient>
+  </defs>
+  <defs>
+      <linearGradient id="grad2" x1="0%" y1="50%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="rgb(0,0,255)" stop-opacity="1" />
+      <stop offset="100%" stop-color="rgb(255,0,0)" stop-opacity="1" />
+      </linearGradient>
+  </defs>
+  
+  <!-- Bầu trời -->
+  <path d="M0,0H800V400H0Z" fill="url(#grad2)"/>
+  
+  <!-- Mặt trời -->
+  <g transform="translate(50,50)">
+    <circle cx="50" cy="50" r="30" fill="url(#grad1)"/>
+  </g>
+  <!-- Mặt đất -->
+  <rect x="0" y="300" width="800" height="100" fill="rgb(0,128,0)" transform="translate(0,10)"/>
+
+  <!-- Ngôi nhà -->
+  <g transform="translate(-50,0)scale(1,1)">
+    <!-- Thân nhà -->
+    <rect x="200" y="200" width="150" height="150" fill="rgb(160,82,45)" stroke="rgb(0,0,0)"/>
+    <!-- Mái nhà -->
+    <polygon points="200,200,275,150,350,200" fill="rgb(165,42,42)" stroke="rgb(0,0,0)"/>
+    <!-- Cửa sổ bên trái -->
+    <rect x="215" y="220" width="40" height="40" fill="rgb(255,255,255)" stroke="rgb(0,0,0)"/>
+    <line x1="215" y1="240" x2="255" y2="240" stroke="rgb(0,0,0)"/>
+    <line x1="235" y1="220" x2="235" y2="260" stroke="rgb(0,0,0)"/>
+    <!-- Cửa sổ bên phải -->
+    <rect x="295" y="220" width="40" height="40" fill="rgb(255,255,255)" stroke="rgb(0,0,0)"/>
+    <line x1="295" y1="240" x2="335" y2="240" stroke="rgb(0,0,0)"/>
+    <line x1="315" y1="220" x2="315" y2="260" stroke="rgb(0,0,0)"/>
+    <!-- Cửa chính -->
+    <rect x="260" y="280" width="40" height="70" fill="rgb(139,69,19)" stroke="rgb(0,0,0)"/>
+  </g>
+
+  <!-- Cây -->
+  <g transform="rotate(30)scale(1.2)translate(-350,-50)scale(1.5)rotate(-30)">
+    <!-- Thân cây -->
+    <rect x="500" y="250" width="30" height="100" fill="rgb(139,69,19)"/>
+    <!-- Tán cây -->
+    <circle cx="515" cy="230" r="50" fill="rgb(0,128,0)"/>
+    <circle cx="480" cy="200" r="40" fill="rgb(0,128,0)"/>
+    <circle cx="550" cy="200" r="40" fill="rgb(0,128,0)"/>
+  </g>
+  <g transform="translate(100,250)scale(1.2.3)scale(0.5)">
+    <!-- Thân cây -->
+    <rect x="500" y="250" width="30" height="100" fill="rgb(139,69,19)"/>
+    <!-- Tán cây -->
+    <circle cx="515" cy="230" r="50" fill="rgb(0,128,0)"/>
+    <circle cx="480" cy="200" r="40" fill="rgb(0,128,0)"/>
+    <circle cx="550" cy="200" r="40" fill="rgb(0,128,0)"/>
+  </g>
+</svg>
