@@ -1,0 +1,30 @@
+
+<svg width="800" height="600" viewBox="0 0 400 600" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <linearGradient id="new_grad1" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="300" y2="0" gradientTransform="translate(60,60) rotate(60) scale(1.8)">
+      <stop offset="0%" stop-color="gold" />
+      <stop offset="100%" stop-color="brown" />
+    </linearGradient>
+    <radialGradient id="new_grad2" cx="50%" cy="50%" r="40%" fx="60%" fy="40%" spreadMethod="repeat" gradientTransform="translate(30,30)">
+      <stop offset="0%" stop-color="cyan" />
+      <stop offset="100%" stop-color="darkcyan" />
+    </radialGradient>
+    <radialGradient id="new_grad3" cx="50%" cy="50%" r="50%" fx="40%" fy="40%" spreadMethod="reflect" >
+      <stop offset="0%" stop-color="magenta" />
+      <stop offset="100%" stop-color="blueviolet" />
+    </radialGradient>
+  </defs>
+
+  <rect x="100" y="50" width="150" height="150" fill="url(#new_grad1)" stroke="url(#new_grad2)" stroke-width="6" />
+
+  <circle cx="200" cy="300" r="70" fill="url(#new_grad2)" stroke="green" stroke-width="3" />
+  <ellipse cx="200" cy="450" rx="90" ry="40" fill="url(#new_grad3)" stroke="blue" stroke-width="3" />
+  <path d="M 50 500 Q 100 400, 150 500 T 250 500" fill="none" stroke="orange" stroke-width="4"/>
+  <polyline points="50,150 100,100 150,200 200,100 250,200 300,100" 
+            fill="none" stroke="purple" stroke-width="3" />
+    
+  <polygon points="300,300 330,390 370,330 310,360 340,450 270,390 240,360 310,300" 
+           fill="lightblue" stroke="darkblue" stroke-width="2" fill-opacity="0.8" />
+    
+  <text x="200" y="550" font-family="Courier New" font-size="22" text-anchor="middle" font-weight="bold">SVG with Similar Attributes</text>
+</svg>
