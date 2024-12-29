@@ -6,7 +6,7 @@ class TransformCommand {
 private:
 	string name;
 	float transX, transY;
-	float angle;    
+	float angle;
 	float scaleX, scaleY;
 	float skewX, skewY;
 public:
@@ -18,8 +18,7 @@ public:
 	void setTranslate(float x, float y);
 	void setScale(float sx, float sy);
 	void setScale(float d);
-	void setSkewX(float a);
-	void setSkewY(float a);
+	void setSkew(float skx, float sky);
 
 	void setRotate(float a);
 
