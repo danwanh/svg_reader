@@ -11,7 +11,7 @@ FileProcess::FileProcess(string name) {
 }
 void FileProcess::LoadColorMap() {
 	// COPY PATH de test
-	string C = "D:\\TestReadFile1\\Color.txt";
+	string C = "Color.txt";
 	//ifstream color_file(C.c_str(), ios::in);
 	ifstream color_file("Color.txt", ios::in);
 
@@ -247,7 +247,6 @@ vector<TransformCommand> FileProcess::ReadTranCom(string trans) {
 	}
 	return transcom;
 }
-
 
 path FileProcess::ReadPath(string d) {
 	if (d.empty()) {
@@ -529,14 +528,6 @@ void FileProcess::ReadGroupChild(map<string, string>& pAttributes, group* parent
 
 		//set cac thuoc tinh o dong parrent attibutes cho child
 		Shape* shape = this->ReadShape(attributes, name);
-		if (shape) {
-			ReadStrokeAndFill(pAttributes, shape); // bị mẹ đè
-			ReadStrokeAndFill(attributes, shape);
-		}
-
-		if (pAttributes["font-size"] != "" && shape->getName() == "text") {
-			dynamic_cast<text*>(shape)->setFontSize(stof(pAttributes["font-size"]));
-		}
 
 
 		if (name == "text") {
@@ -656,7 +647,7 @@ void FileProcess::ShowShape(Shape* shape) {
 
 	else if (shape->getName() == "path") {
 		path* temp = dynamic_cast<path*>(shape);
-		cout << " name " << temp->getName() << endl;
+		cout << " name " << temp->getName() << " ";
 		vector<pair<string, vector<point>>>pairPath = temp->getPath();
 		for (auto it : pairPath) {
 			vector <point> points = it.second;
@@ -747,48 +738,109 @@ map <string, gradient*> FileProcess::ReadGradient(fstream& fi) {
 		if (name == "radialGradient") {
 			radial = true;
 			temp = new radialGradient;
-			temp->setType(GradientType(2));
+			temp->setType(GradientType::RADIAL);
 
 			if (attributes["id"] != "") {
 				temp->setId(attributes["id"]);
 			}
 			if (attributes["r"] != "") {
-				dynamic_cast<radialGradient*>(temp)->setR(stod(attributes["r"]));
+				string strTemp = attributes["r"];
+				if (strTemp.back() == '%') {
+					dynamic_cast<radialGradient*>(temp)->setR(stod(strTemp.substr(0, strTemp.size() - 1)) / 100.0);
+				}
+				else {
+					dynamic_cast<radialGradient*>(temp)->setR(stod(strTemp));
+				}
 			}
+
 			if (attributes["cx"] != "") {
-				dynamic_cast<radialGradient*>(temp)->setCx(stod(attributes["cx"]));
+				string strTemp = attributes["cx"];
+				if (strTemp.back() == '%') {
+					dynamic_cast<radialGradient*>(temp)->setCx(stod(strTemp.substr(0, strTemp.size() - 1)) / 100.0);
+				}
+				else {
+					dynamic_cast<radialGradient*>(temp)->setCx(stod(strTemp));
+				}
 			}
+
 			if (attributes["cy"] != "") {
-				dynamic_cast<radialGradient*>(temp)->setCy(stod(attributes["cy"]));
+				string strTemp = attributes["cy"];
+				if (strTemp.back() == '%') {
+					dynamic_cast<radialGradient*>(temp)->setCy(stod(strTemp.substr(0, strTemp.size() - 1)) / 100.0);
+				}
+				else {
+					dynamic_cast<radialGradient*>(temp)->setCy(stod(strTemp));
+				}
 			}
+
 			if (attributes["fx"] != "") {
-				dynamic_cast<radialGradient*>(temp)->setFx(stod(attributes["fx"]));
+				string strTemp = attributes["fx"];
+				if (strTemp.back() == '%') {
+					dynamic_cast<radialGradient*>(temp)->setFx(stod(strTemp.substr(0, strTemp.size() - 1)) / 100.0);
+				}
+				else {
+					dynamic_cast<radialGradient*>(temp)->setFx(stod(strTemp));
+				}
 			}
+
 			if (attributes["fy"] != "") {
-				dynamic_cast<radialGradient*>(temp)->setFy(stod(attributes["fy"]));
+				string strTemp = attributes["fy"];
+				if (strTemp.back() == '%') {
+					dynamic_cast<radialGradient*>(temp)->setFy(stod(strTemp.substr(0, strTemp.size() - 1)) / 100.0);
+				}
+				else {
+					dynamic_cast<radialGradient*>(temp)->setFy(stod(strTemp));
+				}
 			}
+
 			if (attributes["fr"] != "") {
-				dynamic_cast<radialGradient*>(temp)->setFy(stod(attributes["fr"]));
+				string strTemp = attributes["fr"];
+				if (strTemp.back() == '%') {
+					dynamic_cast<radialGradient*>(temp)->setFr(stod(strTemp.substr(0, strTemp.size() - 1)) / 100.0);
+				}
+				else {
+					dynamic_cast<radialGradient*>(temp)->setFr(stod(strTemp));
+				}
 			}
+
 		}
 		else if (name == "linearGradient") {
 			temp = new linearGradient;
-			temp->setType(GradientType(1));
+			temp->setType(GradientType::LINEAR);
 
 			if (attributes["id"] != "") {
 				temp->setId(attributes["id"]);
 			}
 			if (attributes["x1"] != "") {
-				dynamic_cast<linearGradient*>(temp)->setX1(stod(attributes["x1"]));
+				string strTemp = attributes["x1"];
+				if(strTemp.back() == '%')
+				{
+					dynamic_cast<linearGradient*>(temp)->setX1(stod(attributes["x1"])/100);
+				}
+				else dynamic_cast<linearGradient*>(temp)->setX1(stod(attributes["x1"]));
 			}
 			if (attributes["x2"] != "") {
-				dynamic_cast<linearGradient*>(temp)->setX2(stod(attributes["x2"]));
+				string strTemp = attributes["x2"];
+				if (strTemp.back() == '%')
+				{
+					dynamic_cast<linearGradient*>(temp)->setX2(stod(attributes["x2"]) / 100);
+				}
+				else dynamic_cast<linearGradient*>(temp)->setX2(stod(attributes["x2"]));
 			}
 			if (attributes["y1"] != "") {
-				dynamic_cast<linearGradient*>(temp)->setY1(stod(attributes["y1"]));
+				string strTemp = attributes["y1"];
+				if (strTemp.back() == '%')
+				{
+					dynamic_cast<linearGradient*>(temp)->setY1(stod(attributes["y1"]) / 100);
+				}
+				else dynamic_cast<linearGradient*>(temp)->setY1(stod(attributes["y1"]));
 			}
 			if (attributes["y2"] != "") {
-				dynamic_cast<linearGradient*>(temp)->setY2(stod(attributes["y2"]));
+				if (attributes["y2"].back() == '%')
+				{
+					dynamic_cast<linearGradient*>(temp)->setY2(stod(attributes["y2"]) / 100);
+				}
+				else dynamic_cast<linearGradient*>(temp)->setY2(stod(attributes["y2"]));
 			}
 		}
 		if (attributes["gradientUnits"] != "") {
@@ -872,12 +924,12 @@ map <string, gradient*> FileProcess::ReadGradient(fstream& fi) {
 		}
 
 		if (name == "/linearGradient" || name == "/radialGradient" || radial) {
-			mapGra.insert(make_pair(temp->getId(), temp));
 			temp->setColorStop(Stops);
-			temp = NULL;
+			mapGra.insert(make_pair(temp->getId(), temp));
 			Stops.clear();
 		}
 	}
+	return mapGra;
 }
 
 // Show gradient
@@ -937,6 +989,19 @@ void ShowGradient(map <string, gradient*> MapGra) {
 		}
 	}
 }
+void ShowViewBox(ViewBox* viewbox) {
+	if (viewbox == NULL)
+	{
+		cout << " NO VIEW BOX " << endl;
+		return;
+	}
+	cout << " x " << viewbox->getMinX() << endl;
+	cout << " y " << viewbox->getMinY() << endl;
+	cout << " port width " << viewbox->getPortWidth() << endl;
+	cout << " port height " << viewbox->getPortHeight() << endl;
+	cout << " view width " << viewbox->getViewWidth() << endl;
+	cout << " view height " << viewbox->getViewHeight() << endl;
+}
 
 
 vector <Shape*> FileProcess::ReadFile() {
@@ -967,7 +1032,7 @@ vector <Shape*> FileProcess::ReadFile() {
 		string name;
 		ss >> name;
 
-		regex attriPair(R"(\s*([a-zA-Z0-9-]+)=["']([^"']+)["'])");
+		regex attriPair(R"(\s*([a-zA-Z0-9-]+)\s*=\s*["']([^"']+)["'])");
 		smatch match;
 
 		std::map<std::string, std::string> attributes;
@@ -977,7 +1042,6 @@ vector <Shape*> FileProcess::ReadFile() {
 			attributes[match[1]] = match[2]; // match[1]: tên thuộc tính, match[2]: giá trị thuộc tính (còn match[0] là nguyên chuỗi khớp)
 			it = match[0].second; // Cập nhật vị trí để tìm kiếm tiếp ( trỏ đến vị trí tiếp theo)
 		}
-
 
 		if (name == "svg") {
 			// doc viewbox
@@ -1002,12 +1066,13 @@ vector <Shape*> FileProcess::ReadFile() {
 			if (attributes["height"] != "") {
 				this->viewbox->setPortHeight(stof(attributes["height"]));
 			}
+			//ShowViewBox(this->viewbox);
 		}
 		// xu li def
 		if (name == "defs") {
 			this->gradientMap = this->ReadGradient(fi);
-			cout << " Show GRADIENT " << endl;
-			ShowGradient(gradientMap);
+			//cout << " Show GRADIENT " << endl;
+			//ShowGradient(gradientMap);
 		}
 
 		//ShowGradient(mapGra);

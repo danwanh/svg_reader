@@ -35,12 +35,36 @@ void Draw::renderFillGradient(Graphics& graphics, GraphicsPath* path, gradient* 
 						colorStops[i].stopColor.getGreen(),
 						colorStops[i].stopColor.getBlue()
 					);
-					positions[i] = static_cast<REAL>(colorStops[i].offset);
+					positions[i] = static_cast<REAL>(colorStops[i].offset / 100);
 				}
+				auto x1 = linearGrad->getX1();
+				auto x2 = linearGrad->getX2();
+				auto y1 = linearGrad->getY1();
+				auto y2 = linearGrad->getY2();
 
+				double startX, startY, endX, endY;
+				if (x1 < 1.0 && x1 > 0.0) {
+					startX = x + width * x1;
+				}
+				else startX = x1;
+
+				if (y1 < 1.0 && y1 > 0.0) {
+					startY = y + height * y1;
+				}
+				else startY = y1;
+
+				if (x2 < 1.0 && x2 > 0.0) {
+					endX = x + width * x2;
+				}
+				else endX = x2;
+
+				if (y2 < 1.0 && y2 > 0.0) {
+					endY = y + height * y2;
+				}
+				else endY = y2;
 				LinearGradientBrush linearBrush(
-					PointF(x + width * linearGrad->getX1(), y + height * linearGrad->getY1()),
-					PointF(x + width * linearGrad->getX2(), y + height * linearGrad->getY2()),
+					PointF(startX, startY),
+					PointF(endX, endY),
 					colors[numStops - 1],  // Màu bắt đầu
 					colors[0]  // Màu kết thúc
 				);
@@ -58,10 +82,11 @@ void Draw::renderFillGradient(Graphics& graphics, GraphicsPath* path, gradient* 
 						linearBrush.ScaleTransform(t.getScaleX(), t.getScaleY());
 					}
 				}
-				if (grad->getSpreadMethod() == "reflect") linearBrush.SetWrapMode(WrapModeTileFlipXY); //reflect
-				else if (grad->getSpreadMethod() == "repeat") {
+				if (grad->getSpreadMethod() == "repeat") {
 					linearBrush.SetWrapMode(WrapModeClamp); //repeat
 				}
+				else linearBrush.SetWrapMode(WrapModeTileFlipXY); //reflect
+
 
 				linearBrush.SetInterpolationColors(colors.data(), positions.data(), numStops);
 				GraphicsState save = graphics.Save();
@@ -92,21 +117,52 @@ void Draw::renderFillGradient(Graphics& graphics, GraphicsPath* path, gradient* 
 						colorStops[i].stopColor.getGreen(),
 						colorStops[i].stopColor.getBlue()
 					);
-					positions[i] = static_cast<REAL>(colorStops[i].offset);
+					positions[i] = static_cast<REAL>(colorStops[i].offset / 100);
 				}
 
 
 				// Tâm gradient (cx, cy)
-				REAL centerX = x + width * radialGrad->getCx();
-				REAL centerY = y + height * radialGrad->getCy();
+				REAL centerX, centerY, focusX, focusY, radiusX, radiusY;
+
+				// Tâm gradient (cx, cy)
+				if (radialGrad->getCx() < 1.0) {
+					centerX = x + width * radialGrad->getCx();
+				}
+				else {
+					centerX = radialGrad->getCx();
+				}
+
+				if (radialGrad->getCy() < 1.0) {
+					centerY = y + height * radialGrad->getCy();
+				}
+				else {
+					centerY = radialGrad->getCy();
+				}
 
 				// Tâm tiêu cự (fx, fy)
-				REAL focusX = x + width * radialGrad->getFx();
-				REAL focusY = y + height * radialGrad->getFy();
+				if (radialGrad->getFx() < 1.0) {
+					focusX = x + width * radialGrad->getFx();
+				}
+				else {
+					focusX = radialGrad->getFx();
+				}
 
-				// Bán kính x và y
-				REAL radiusX = width * radialGrad->getR();
-				REAL radiusY = height * radialGrad->getR();
+				if (radialGrad->getFy() < 1.0) {
+					focusY = y + height * radialGrad->getFy();
+				}
+				else {
+					focusY = radialGrad->getFy();
+				}
+
+				// Bán kính x và y (r)
+				if (radialGrad->getR() < 1.0) {
+					radiusX = width * radialGrad->getR();
+					radiusY = height * radialGrad->getR();
+				}
+				else {
+					radiusX = radialGrad->getR();
+					radiusY = radialGrad->getR();
+				}
 
 				// Tạo ellipse path cho gradient
 				GraphicsPath ellipsePath;
@@ -290,12 +346,37 @@ void Draw::renderStrokeGradient(Graphics& graphics, GraphicsPath* path, gradient
 						colorStops[i].stopColor.getGreen(),
 						colorStops[i].stopColor.getBlue()
 					);
-					positions[i] = static_cast<REAL>(colorStops[i].offset);
+					positions[i] = static_cast<REAL>(colorStops[i].offset/100);
 				}
 
+				auto x1 = linearGrad->getX1();
+				auto x2 = linearGrad->getX2();
+				auto y1 = linearGrad->getY1();
+				auto y2 = linearGrad->getY2();
+
+				double startX, startY, endX, endY;
+				if (x1 < 1.0 && x1 > 0.0) {
+					startX = x + width * x1;
+				}
+				else startX = x1;
+
+				if (y1 < 1.0 && y1 > 0.0) {
+					startY = y + height * y1;
+				}
+				else startY = y1;
+
+				if (x2 < 1.0 && x2 > 0.0) {
+					endX = x + width * x2;
+				}
+				else endX = x2;
+
+				if (y2 < 1.0 && y2 > 0.0) {
+					endY = y + height * y2;
+				}
+				else endY = y2;
 				LinearGradientBrush linearBrush(
-					PointF(x + width * linearGrad->getX1(), y + height * linearGrad->getY1()),
-					PointF(x + width * linearGrad->getX2(), y + height * linearGrad->getY2()),
+					PointF(startX, startY),
+					PointF(endX, endY),
 					colors[numStops - 1],  // Màu bắt đầu
 					colors[0]  // Màu kết thúc
 				);
@@ -344,7 +425,7 @@ void Draw::renderStrokeGradient(Graphics& graphics, GraphicsPath* path, gradient
 						colorStops[i].stopColor.getGreen(),
 						colorStops[i].stopColor.getBlue()
 					);
-					positions[i] = static_cast<REAL>(colorStops[i].offset);
+					positions[i] = static_cast<REAL>(colorStops[i].offset/100);
 				}
 
 
@@ -444,7 +525,7 @@ void Draw::drawCircle(Graphics& graphics, circle* cir, ViewBox *vb) {
 	if(grad == NULL)
 	{
 		Pen pen(Color(str.getStrokeColor().getOpacity() * 255, str.getStrokeColor().getRed(), str.getStrokeColor().getGreen(), str.getStrokeColor().getBlue()), str.getStrokeWidth());
-		//if (str.getStrokeWidth() != 0) 
+		if (str.getStrokeWidth() != 0) 
 		graphics.DrawEllipse(&pen, cir->getCx() - cir->getRadius(), cir->getCy() - cir->getRadius(), cir->getRadius() * 2, cir->getRadius() * 2);
 	}
 	else {
