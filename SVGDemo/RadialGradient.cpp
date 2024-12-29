@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "RadialGradient.h"
 
-radialGradient::radialGradient()
+radialGradient::radialGradient() : gradient()
 {
     cx = 0.5;
     cy = 0.5;

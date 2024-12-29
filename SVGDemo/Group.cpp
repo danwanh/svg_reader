@@ -23,9 +23,9 @@ void group::addChild(Shape* shape) {
 	children.push_back(shape);
 }
 group::~group() {
-	for (Shape* child : children) {
+/*	for (Shape* child : children) {
 		delete child;
-	}
+	}*/
 }
 
 GraphicsPath* group::createGraphicsPath()

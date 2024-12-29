@@ -70,14 +70,14 @@ int Shape::nameTonum() {
 
 Shape::~Shape()
 {
-	if (fillGrad) {
-		delete fillGrad;
-		fillGrad = nullptr;
-	}
-	if (strokeGrad) {
-		delete strokeGrad;
-		strokeGrad = nullptr;
-	}
+	//if (fillGrad) {
+	//	delete fillGrad;
+	//	fillGrad = nullptr;
+	//}
+	//if (strokeGrad) {
+	//	delete strokeGrad;
+	//	strokeGrad = nullptr;
+	//}
 }
 
 vector<TransformCommand> Shape::getTransform() const {

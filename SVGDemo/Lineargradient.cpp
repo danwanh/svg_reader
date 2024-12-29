@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "LinearGradient.h"
 
-linearGradient::linearGradient()
+linearGradient::linearGradient() : gradient()
 {
     x1 = 0;
     x2 = 1;
