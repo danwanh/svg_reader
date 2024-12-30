@@ -974,3 +974,8 @@ MediumVioletRed#C71585
 SlateBlue#6A5ACD
 tomato#FF6347
 LightCoral#F08080
+lightcoral#F08080
+lightblue#ADD8E6
+LightBlue#ADD8E6
+yellow#FFFF00
+green#008000

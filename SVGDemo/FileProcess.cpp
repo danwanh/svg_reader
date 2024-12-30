@@ -5,6 +5,7 @@ FileProcess::FileProcess() {
 	this->fileName = "";
 	LoadColorMap();
 }
+
 FileProcess::FileProcess(string name) {
 	viewbox = new ViewBox();
 	this->fileName = name;
@@ -169,6 +170,8 @@ void FileProcess::ReadStrokeAndFill(map<string, string> attributes, Shape* shape
 			shape->setFillColor(color);
 		}
 
+		if (colorAttri["opacity"] != "")
+			shape->getFillColor().setOpacity(stof(colorAttri["opacity"]));
 		// ReadStroke
 		if (colorAttri["stroke"] != "" && colorAttri["stroke"] != "none") {
 			stroke = ReadColor(colorAttri["stroke"]);
@@ -185,6 +188,9 @@ void FileProcess::ReadStrokeAndFill(map<string, string> attributes, Shape* shape
 		}
 		if (colorAttri["stroke"] == "none") {
 			shape->getStroke().setStrokeWidth(0);
+		}
+		if (colorAttri["stroke-miterlimit"] != "") {
+			shape->getStroke().setStrokeMiterLimit(stof(colorAttri["stroke-miterlimit"]));
 		}
 	}
 	else {
@@ -221,6 +227,13 @@ void FileProcess::ReadStrokeAndFill(map<string, string> attributes, Shape* shape
 			shape->getStroke().setStrokeWidth(0);
 		}
 	}
+
+		if (attributes["stroke-miterlimit"] != "") {
+			shape->getStroke().setStrokeMiterLimit(stof(attributes["stroke-miterlimit"]));
+		}
+	
+
+
 }
 
 vector<TransformCommand> FileProcess::ReadTranCom(string trans) {
@@ -698,6 +711,8 @@ void FileProcess::ShowShape(Shape* shape) {
 	cout << " stroke width " << shape->getStroke().getStrokeWidth() << endl;
 	cout << " fill " << shape->getFillColor().getRed() << " " << shape->getFillColor().getGreen() << " " << shape->getFillColor().getBlue() << " " << shape->getFillColor().getOpacity() << endl;
 	cout << " stroke " << shape->getStroke().getStrokeColor().getRed() << " " << shape->getStroke().getStrokeColor().getGreen() << " " << shape->getStroke().getStrokeColor().getBlue() << " " << shape->getStroke().getStrokeColor().getOpacity() << endl;
+
+	cout << " stroke miterlimit " << shape->getStroke().getStrokeMiterLimit() << endl;
 	vector<TransformCommand>  Trans = shape->getTransform();
 	int size = Trans.size();
 	if (size > 0)
