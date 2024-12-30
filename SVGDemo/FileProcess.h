@@ -23,6 +23,7 @@ class FileProcess {
 	unordered_map <string, MyColor> colorMap;
 	map <string, gradient*> gradientMap;
 	ViewBox* viewbox;
+	map<string, map<string, string>> styleMap;
 
 public:
 	string GetFileName();
@@ -31,8 +32,7 @@ public:
 	void LoadColorMap();
 	MyColor ReadColor(string);
 	void ReadStrokeAndFill(map<string, string>, Shape*);
-	map <string, gradient*> ReadGradient(fstream& fi);
-
+	void ReadDefs(fstream& fi);
 	vector <point> ReadPoint(string);
 	path ReadPath(string);
 	vector< TransformCommand> ReadTranCom(string);
