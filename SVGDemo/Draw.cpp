@@ -1,13 +1,13 @@
-﻿#include "stdafx.h"
+﻿#include"stdafx.h"
 #include "Draw.h"
-void Draw::renderFillGradient(Graphics& graphics, GraphicsPath* path, gradient* grad, Shape* shape, ViewBox *vb) {
+void Draw::renderFillGradient(Graphics& graphics, GraphicsPath* path, gradient* grad, Shape* shape, ViewBox* vb) {
 	if (shape->getName() != "path") {
 		path = shape->createGraphicsPath();
 	}
 	if (!path) return;
 
 	float x = 0, y = 0, width = 0, height = 0;
-	
+
 	if (grad->getGradientUnits() == "userSpaceOnUse") {
 		x = vb->getMinX();
 		y = vb->getMinY();
@@ -310,7 +310,7 @@ void Draw::renderFillGradient(Graphics& graphics, GraphicsPath* path, gradient* 
 		}
 	}
 }
-void Draw::renderStrokeGradient(Graphics& graphics, GraphicsPath* path, gradient* grad, Shape* shape, ViewBox *vb) {
+void Draw::renderStrokeGradient(Graphics& graphics, GraphicsPath* path, gradient* grad, Shape* shape, ViewBox* vb) {
 	if (shape->getName() != "path") {
 		path = shape->createGraphicsPath();
 	}
@@ -346,7 +346,7 @@ void Draw::renderStrokeGradient(Graphics& graphics, GraphicsPath* path, gradient
 						colorStops[i].stopColor.getGreen(),
 						colorStops[i].stopColor.getBlue()
 					);
-					positions[i] = static_cast<REAL>(colorStops[i].offset/100);
+					positions[i] = static_cast<REAL>(colorStops[i].offset / 100);
 				}
 
 				auto x1 = linearGrad->getX1();
@@ -425,7 +425,7 @@ void Draw::renderStrokeGradient(Graphics& graphics, GraphicsPath* path, gradient
 						colorStops[i].stopColor.getGreen(),
 						colorStops[i].stopColor.getBlue()
 					);
-					positions[i] = static_cast<REAL>(colorStops[i].offset/100);
+					positions[i] = static_cast<REAL>(colorStops[i].offset / 100);
 				}
 
 
@@ -448,7 +448,7 @@ void Draw::renderStrokeGradient(Graphics& graphics, GraphicsPath* path, gradient
 				PathGradientBrush radialBrush(&ellipsePath);
 
 				Pen fallbackPen(colors[0], shape->getStroke().getStrokeWidth()); //màu cuối cùng trong color stop (100%)
-				graphics.DrawPath(&fallbackPen, path); 
+				graphics.DrawPath(&fallbackPen, path);
 
 				vector<TransformCommand> trans = grad->getTransform();
 
@@ -477,9 +477,9 @@ void Draw::renderStrokeGradient(Graphics& graphics, GraphicsPath* path, gradient
 			}
 		}
 	}
-	if(shape->getName() !="path") delete path;
+	if (shape->getName() != "path") delete path;
 }
-void Draw::drawRectangle(Graphics& graphics, rectangle* rect, ViewBox *vb) {
+void Draw::drawRectangle(Graphics& graphics, rectangle* rect, ViewBox* vb) {
 	GraphicsState save = graphics.Save();
 	GraphicsPath* p = NULL;
 	rect->applyTransform(graphics);
@@ -496,7 +496,7 @@ void Draw::drawRectangle(Graphics& graphics, rectangle* rect, ViewBox *vb) {
 		renderFillGradient(graphics, p, grad, rect, vb);
 	}
 	grad = rect->getStrokeGradient();
-	if(grad == NULL) {
+	if (grad == NULL) {
 		Pen pen(Color(str.getStrokeColor().getOpacity() * 255, str.getStrokeColor().getRed(), str.getStrokeColor().getGreen(), str.getStrokeColor().getBlue()), str.getStrokeWidth());
 		if (str.getStrokeWidth() != 0) graphics.DrawRectangle(&pen, rect->getRecX(), rect->getRecY(), rect->getWidth(), rect->getHeight());
 	}
@@ -507,7 +507,7 @@ void Draw::drawRectangle(Graphics& graphics, rectangle* rect, ViewBox *vb) {
 	graphics.Restore(save);
 	delete p;
 }
-void Draw::drawCircle(Graphics& graphics, circle* cir, ViewBox *vb) {
+void Draw::drawCircle(Graphics& graphics, circle* cir, ViewBox* vb) {
 	GraphicsState save = graphics.Save();
 	GraphicsPath* p = NULL;
 	cir->applyTransform(graphics);
@@ -519,14 +519,14 @@ void Draw::drawCircle(Graphics& graphics, circle* cir, ViewBox *vb) {
 		graphics.FillEllipse(&fillBrush, cir->getCx() - cir->getRadius(), cir->getCy() - cir->getRadius(), cir->getRadius() * 2, cir->getRadius() * 2);
 	}
 	else {
-		renderFillGradient(graphics,p, grad, cir, vb);
+		renderFillGradient(graphics, p, grad, cir, vb);
 	}
 	grad = cir->getStrokeGradient();
-	if(grad == NULL)
+	if (grad == NULL)
 	{
 		Pen pen(Color(str.getStrokeColor().getOpacity() * 255, str.getStrokeColor().getRed(), str.getStrokeColor().getGreen(), str.getStrokeColor().getBlue()), str.getStrokeWidth());
-		if (str.getStrokeWidth() != 0) 
-		graphics.DrawEllipse(&pen, cir->getCx() - cir->getRadius(), cir->getCy() - cir->getRadius(), cir->getRadius() * 2, cir->getRadius() * 2);
+		if (str.getStrokeWidth() != 0)
+			graphics.DrawEllipse(&pen, cir->getCx() - cir->getRadius(), cir->getCy() - cir->getRadius(), cir->getRadius() * 2, cir->getRadius() * 2);
 	}
 	else {
 		renderStrokeGradient(graphics, p, grad, cir, vb);
@@ -535,7 +535,7 @@ void Draw::drawCircle(Graphics& graphics, circle* cir, ViewBox *vb) {
 	delete p;
 }
 
-void Draw::drawText(Graphics& graphics, text* text, ViewBox *vb) {
+void Draw::drawText(Graphics& graphics, text* text, ViewBox* vb) {
 	GraphicsState save = graphics.Save();
 	text->applyTransform(graphics);
 	stroke str = text->getStroke();
@@ -545,7 +545,7 @@ void Draw::drawText(Graphics& graphics, text* text, ViewBox *vb) {
 	wstring wFontFamily = converter.from_bytes(text->getFontFamily());
 	Gdiplus::FontFamily* fontFamily = new Gdiplus::FontFamily(wFontFamily.c_str());
 	if (!fontFamily->IsAvailable()) {
-		delete fontFamily;  
+		delete fontFamily;
 		fontFamily = new Gdiplus::FontFamily(L"Times New Roman");  // Thay thế bằng font mới
 	}
 	int gdiFontStyle = FontStyleRegular;
@@ -593,7 +593,7 @@ void Draw::drawText(Graphics& graphics, text* text, ViewBox *vb) {
 		renderFillGradient(graphics, p, grad, text, vb);
 	}
 	grad = text->getStrokeGradient();
-	if(grad == NULL)
+	if (grad == NULL)
 	{
 		Pen outlinePen(Color(str.getStrokeColor().getOpacity() * 255,
 			str.getStrokeColor().getRed(),
@@ -612,7 +612,7 @@ void Draw::drawText(Graphics& graphics, text* text, ViewBox *vb) {
 	delete p;
 }
 
-void Draw::drawPolyline(Graphics& graphics, polyline* polyline, ViewBox *vb) {
+void Draw::drawPolyline(Graphics& graphics, polyline* polyline, ViewBox* vb) {
 	GraphicsState save = graphics.Save();
 	GraphicsPath* p = NULL;
 	polyline->applyTransform(graphics);
@@ -633,14 +633,14 @@ void Draw::drawPolyline(Graphics& graphics, polyline* polyline, ViewBox *vb) {
 		SolidBrush fillBrush(Color(polyline->getFillColor().getOpacity() * 255,
 			polyline->getFillColor().getRed(),
 			polyline->getFillColor().getGreen(),
-			polyline->getFillColor().getBlue()));		
+			polyline->getFillColor().getBlue()));
 		graphics.FillPolygon(&fillBrush, gdiPoints, numPoints);
 	}
 	else {
 		renderFillGradient(graphics, p, grad, polyline, vb);
 	}
 	grad = polyline->getStrokeGradient();
-	if(grad == NULL)
+	if (grad == NULL)
 	{
 		Pen pen(Color(str.getStrokeColor().getOpacity() * 255,
 			str.getStrokeColor().getRed(),
@@ -658,7 +658,7 @@ void Draw::drawPolyline(Graphics& graphics, polyline* polyline, ViewBox *vb) {
 	delete p;
 	delete[] gdiPoints;
 }
-void Draw::drawPolygon(Graphics& graphics, polygon* polygon, ViewBox *vb) {
+void Draw::drawPolygon(Graphics& graphics, polygon* polygon, ViewBox* vb) {
 	GraphicsState save = graphics.Save();
 	polygon->applyTransform(graphics);
 	stroke str = polygon->getStroke();
@@ -670,7 +670,7 @@ void Draw::drawPolygon(Graphics& graphics, polygon* polygon, ViewBox *vb) {
 		gdiPoints[i].Y = points[i].getY();
 	}
 
-	
+
 	graphics.SetSmoothingMode(SmoothingModeAntiAlias);
 	gradient* grad = polygon->getFillGradient();
 	if (grad == NULL) {
@@ -681,7 +681,7 @@ void Draw::drawPolygon(Graphics& graphics, polygon* polygon, ViewBox *vb) {
 		renderFillGradient(graphics, p, grad, polygon, vb);
 	}
 	grad = polygon->getStrokeGradient();
-	if(grad == NULL)
+	if (grad == NULL)
 	{
 		Pen pen(Color(str.getStrokeColor().getOpacity() * 255, str.getStrokeColor().getRed(), str.getStrokeColor().getGreen(), str.getStrokeColor().getBlue()), str.getStrokeWidth());
 		pen.SetAlignment(PenAlignmentCenter);
@@ -695,7 +695,7 @@ void Draw::drawPolygon(Graphics& graphics, polygon* polygon, ViewBox *vb) {
 	delete p;
 	delete[] gdiPoints;
 }
-void Draw::drawEllipse(Graphics& graphics, ellipse* ellipse, ViewBox *vb) {
+void Draw::drawEllipse(Graphics& graphics, ellipse* ellipse, ViewBox* vb) {
 	GraphicsState save = graphics.Save();
 	GraphicsPath* p = NULL;
 	ellipse->applyTransform(graphics);
@@ -710,10 +710,10 @@ void Draw::drawEllipse(Graphics& graphics, ellipse* ellipse, ViewBox *vb) {
 		graphics.FillEllipse(&fillBrush, x, y, ellipse->getRx() * 2, ellipse->getRy() * 2);
 	}
 	else {
-		renderFillGradient(graphics, p,  grad, ellipse, vb);
+		renderFillGradient(graphics, p, grad, ellipse, vb);
 	}
 	grad = ellipse->getStrokeGradient();
-	if(grad == NULL)
+	if (grad == NULL)
 	{
 		Pen pen(Color(str.getStrokeColor().getOpacity() * 255, str.getStrokeColor().getRed(), str.getStrokeColor().getGreen(), str.getStrokeColor().getBlue()), str.getStrokeWidth());
 		graphics.SetSmoothingMode(SmoothingModeAntiAlias);
@@ -725,13 +725,13 @@ void Draw::drawEllipse(Graphics& graphics, ellipse* ellipse, ViewBox *vb) {
 	graphics.Restore(save);
 	delete p;
 }
-void Draw::drawLine(Graphics& graphics, line* line, ViewBox *vb) {
+void Draw::drawLine(Graphics& graphics, line* line, ViewBox* vb) {
 	GraphicsState save = graphics.Save();
 	line->applyTransform(graphics);
 	stroke str = line->getStroke();
 	graphics.SetSmoothingMode(SmoothingModeAntiAlias);
 	gradient* grad = line->getStrokeGradient();
-	if(grad == NULL){
+	if (grad == NULL) {
 		Pen pen(Color(str.getStrokeColor().getOpacity() * 255, str.getStrokeColor().getRed(), str.getStrokeColor().getGreen(), str.getStrokeColor().getBlue()), str.getStrokeWidth());
 		if (str.getStrokeWidth() != 0) graphics.DrawLine(&pen, line->getX1(), line->getY1(), line->getX2(), line->getY2());
 	}
@@ -862,7 +862,7 @@ std::vector<PointF> approximateArcToBezier(
 }
 
 
-void Draw::drawPath(Graphics& graphics, path* path, ViewBox *vb) {
+void Draw::drawPath(Graphics& graphics, path* path, ViewBox* vb) {
 	GraphicsState save = graphics.Save();
 	path->applyTransform(graphics);
 	stroke str = path->getStroke();
@@ -1042,9 +1042,9 @@ void Draw::drawPath(Graphics& graphics, path* path, ViewBox *vb) {
 				currentPoint = endPoint;
 			}
 		}
-		
+
 		else if (command == "A") { // Elliptical arc (absolute)
-	
+
 			for (size_t i = 0; i + 3 < points.size(); i += 4) {
 				float rx = points[i].getX();
 				float ry = points[i].getY();
@@ -1076,8 +1076,8 @@ void Draw::drawPath(Graphics& graphics, path* path, ViewBox *vb) {
 			}
 		}
 		else if (command == "a") { // Elliptical arc (relative)
-			for (size_t i = 0; i + 3 < points.size(); i += 4) 
-				{
+			for (size_t i = 0; i + 3 < points.size(); i += 4)
+			{
 				float rx = points[i].getX();
 				float ry = points[i].getY();
 				float xAxisRotation = points[i + 1].getX();
@@ -1127,7 +1127,7 @@ void Draw::drawPath(Graphics& graphics, path* path, ViewBox *vb) {
 	}
 	// Vẽ các đường path
 	grad = path->getStrokeGradient();
-	if(grad == NULL){
+	if (grad == NULL) {
 		Pen pen(Color(
 			str.getStrokeColor().getOpacity() * 255,
 			str.getStrokeColor().getRed(),
@@ -1146,7 +1146,7 @@ void Draw::drawPath(Graphics& graphics, path* path, ViewBox *vb) {
 }
 
 
-void Draw::drawGroup(Graphics& graphics, group* g, ViewBox *vb) {
+void Draw::drawGroup(Graphics& graphics, group* g, ViewBox* vb) {
 	GraphicsState save = graphics.Save();
 	g->applyTransform(graphics);
 
@@ -1214,7 +1214,7 @@ void Draw::drawGroup(Graphics& graphics, group* g, ViewBox *vb) {
 	}
 	graphics.Restore(save);
 }
-void Draw::drawFigure(Graphics& graphics, Figure& figure, float angle, float scale, float transX, float transY, ViewBox *vb) {
+void Draw::drawFigure(Graphics& graphics, Figure& figure, float angle, float scale, float transX, float transY, ViewBox* vb) {
 	GraphicsState save = graphics.Save();
 
 	graphics.TranslateTransform(transX, transY);

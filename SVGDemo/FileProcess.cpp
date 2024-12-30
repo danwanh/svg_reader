@@ -1,4 +1,4 @@
-﻿#include "stdafx.h"
+﻿#include"stdafx.h"
 #include "FileProcess.h"
 FileProcess::FileProcess() {
 	viewbox = new ViewBox();
@@ -228,10 +228,10 @@ void FileProcess::ReadStrokeAndFill(map<string, string> attributes, Shape* shape
 		}
 	}
 
-		if (attributes["stroke-miterlimit"] != "") {
-			shape->getStroke().setStrokeMiterLimit(stof(attributes["stroke-miterlimit"]));
-		}
-	
+	if (attributes["stroke-miterlimit"] != "") {
+		shape->getStroke().setStrokeMiterLimit(stof(attributes["stroke-miterlimit"]));
+	}
+
 
 
 }
@@ -841,6 +841,7 @@ void FileProcess::ShowShape(Shape* shape) {
 
 
 void FileProcess::ReadDefs(fstream& fi) {
+	map <string, gradient*> gradientMap;
 	string s;
 	gradient* temp = NULL;
 	vector <stop> Stops;
@@ -1121,6 +1122,7 @@ void ShowViewBox(ViewBox* viewbox) {
 
 
 vector <Shape*> FileProcess::ReadFile() {
+	map <string, gradient*> gradientMap; // neu nhu viet ham chinh thuc thi khong can
 	vector <Shape*> figure;
 	LoadColorMap();
 	string key;
