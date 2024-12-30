@@ -332,7 +332,11 @@ path FileProcess::ReadPath(string d) {
 	}
 
 	vector<pair<string, vector<point>>> pathVct;
+<<<<<<< Updated upstream
 	regex commandRegex(R"(([MLHVZCSQAmlhvzcsqa])([^MLHVZCSQAmlhvzcsqa]*))");
+=======
+	regex commandRegex(R"(([MLHVZCSQTAqamlhvzcs])([^MLHVZCSQTAqamlhvzcs]*))");
+>>>>>>> Stashed changes
 	smatch match;
 
 	point lastPoint = { 0, 0 };
@@ -344,8 +348,53 @@ path FileProcess::ReadPath(string d) {
 
 		pair<string, vector<point>> pathSegment;
 		pathSegment.first = command;
+<<<<<<< Updated upstream
 		if (command == "M" || command == "L" || command == "C" || command == "m" || command == "l" || command == "c" || command == "S" || command == "s" || command == "q" || command == "Q") {
+=======
+		if (command == "M" || command == "L" || command == "C" || command == "m" || command == "l" || command == "c" ||
+			command == "S" || command == "s" || command == "Q" || command == "q" ||
+			command == "T" || command == "t") {
+>>>>>>> Stashed changes
 			vector<point> points = ReadPoint(args); // Chuyển chuỗi tọa độ thành vector<point>
+			pathSegment.second = points;
+			if (!points.empty()) {
+				lastPoint = points.back(); // Cập nhật điểm cuối
+			}
+		}
+		else if (command == "A" || command == "a") {
+			int len = args.length();
+			for (int i = 0; i < len; i++) {
+				if (args[i] == ',')
+					args[i] = ' ';
+			}
+			stringstream ss(args);
+
+			vector<point> points;
+
+			float x, y;
+			point coord;
+			ss >> x;
+			ss >> y;
+			// Toa do dau cua A
+			coord.setX(x);
+			coord.setY(y);
+			points.push_back(coord);
+
+			// Reset lai coordY = 0 => Vi khong xet den y
+			coord.setY(0);
+			for (int i = 0; i < 3; i++) {
+				ss >> x;
+				coord.setX(x);
+				points.push_back(coord);
+			}
+
+			// Toa do diem cuoi cung cua A
+			ss >> x;
+			ss >> y;
+			coord.setX(x);
+			coord.setY(y);
+			points.push_back(coord);
+
 			pathSegment.second = points;
 			if (!points.empty()) {
 				lastPoint = points.back(); // Cập nhật điểm cuối

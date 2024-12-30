@@ -948,7 +948,6 @@ void Draw::drawPath(Graphics& graphics, path* path, ViewBox *vb) {
 				else {
 					control1 = currentPoint; // Nếu không có, sử dụng currentPoint
 				}
-
 				PointF control2(points[i].getX(), points[i].getY());
 				PointF endPoint(points[i + 1].getX(), points[i + 1].getY());
 				graphicsPath.AddBezier(currentPoint, control1, control2, endPoint);
@@ -967,7 +966,6 @@ void Draw::drawPath(Graphics& graphics, path* path, ViewBox *vb) {
 				else {
 					control1 = currentPoint;
 				}
-
 				PointF control2(points[i].getX() + currentPoint.X, points[i].getY() + currentPoint.Y);
 				PointF endPoint(points[i + 1].getX() + currentPoint.X, points[i + 1].getY() + currentPoint.Y);
 				graphicsPath.AddBezier(currentPoint, control1, control2, endPoint);
@@ -1004,9 +1002,75 @@ void Draw::drawPath(Graphics& graphics, path* path, ViewBox *vb) {
 				currentPoint = nextPoint;
 			}
 		}
+		///
+		else if (command == "A") { // Elliptical Arc (absolute)
+			if (points.size() < 5) continue;
+
+			REAL rx = points[0].getX(); // Bán kính trục X
+			REAL ry = points[0].getY(); // Bán kính trục Y
+			REAL xAxisRotation = points[1].getX(); // Góc xoay trục X
+			int largeArcFlag = static_cast<int>(points[2].getX()); // Cờ cung lớn (0 hoặc 1)
+			int sweepFlag = static_cast<int>(points[3].getX()); // Cờ chiều cung (0 hoặc 1)
+
+			// Tính toán chiều rộng và chiều cao của elip
+			REAL width = rx * 2;
+			REAL height = ry * 2;
+
+			// Chênh lệch giữa currentPoint và startPoint
+			REAL deltaX = currentPoint.X - points[0].getX(); // Tính từ startPoint (rx) đến currentPoint
+			REAL deltaY = currentPoint.Y - points[0].getY(); // Tính từ startPoint (ry) đến currentPoint
+
+			// Tính toán góc bắt đầu (tính theo độ)
+			REAL startAngle = atan2(deltaY, deltaX) * (180.0 / 3.14159265358979); // Góc bắt đầu của cung
+
+			// Tính toán góc quét của cung
+			REAL sweepAngle = (largeArcFlag == 1 ? 180.0f : 0.0f); // Cung lớn hay nhỏ (cung > 180 độ)
+			sweepAngle *= (sweepFlag == 1 ? 1.0f : -1.0f); // Xác định chiều cung (kim đồng hồ hay ngược chiều kim đồng hồ)
+
+			// Điểm kết thúc của cung (điểm thứ 4 trong `points`)
+			PointF endPoint(points[4].getX() + currentPoint.X, points[4].getY() + currentPoint.Y);
+
+			// Vẽ cung elip bằng phương thức AddArc của GDI+
+			graphicsPath.AddArc(currentPoint.X, currentPoint.Y, width, height, startAngle, sweepAngle);
+
+			// Cập nhật currentPoint và các điểm điều khiển
+			currentPoint = endPoint;
+			}
+
+
+		else if (command == "Q") { // Smooth Cubic Bézier Curve (absolute)
+			if (points.size() < 2) continue;
+			for (size_t i = 0; i + 1 < points.size(); i += 2) {
+				// Tính toán control1 dựa trên lastControlPoint nếu có
+				PointF control1;
+				if (hasPreviousControlPoint) {
+					// Nếu có điểm điều khiển trước đó, sử dụng làm control1
+					control1 = PointF(lastControlPoint.X * 2 - currentPoint.X, lastControlPoint.Y * 2 - currentPoint.Y);
+				}
+				else {
+					// Nếu không có, sử dụng currentPoint làm control1
+					control1 = currentPoint;
+				}
+
+				// Điểm điều khiển thứ hai và điểm kết thúc
+				PointF control2(points[i].getX(), points[i].getY());
+				PointF endPoint(points[i + 1].getX(), points[i + 1].getY());
+
+				// Thêm đường cong Bézier vào path
+				graphicsPath.AddBezier(currentPoint, control1, control2, endPoint);
+
+				// Cập nhật currentPoint và lastControlPoint
+				currentPoint = endPoint;
+				lastControlPoint = control2;
+				hasPreviousControlPoint = true;
+			}
+			}
+
+		///
 		else if (command == "Z" || command == "z") { // Close path
 			graphicsPath.CloseFigure();
 		}
+<<<<<<< Updated upstream
 		else if (command == "Q") { // Quadratic Bézier Curve (absolute)
 			for (size_t i = 0; i + 1 < points.size(); i += 2) {
 				PointF controlPoint(points[i].getX(), points[i].getY());
@@ -1112,6 +1176,8 @@ void Draw::drawPath(Graphics& graphics, path* path, ViewBox *vb) {
 
 
 
+=======
+>>>>>>> Stashed changes
 	}
 	gradient* grad = path->getFillGradient();
 	if (grad == NULL) {
