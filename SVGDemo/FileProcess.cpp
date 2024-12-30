@@ -5,7 +5,15 @@ FileProcess::FileProcess() {
 	this->fileName = "";
 	LoadColorMap();
 }
-
+//FileProcess::~FileProcess() {
+//	if (this->viewbox != NULL) {
+//		delete this->viewbox;
+//	}
+//	for (auto& pair : gradientMap) {
+//		delete pair.second;  // Giải phóng bộ nhớ của con trỏ
+//	}
+//	gradientMap.clear(); // Xóa tất cả các phần tử trong map
+//}
 FileProcess::FileProcess(string name) {
 	viewbox = new ViewBox();
 	this->fileName = name;
@@ -136,6 +144,7 @@ vector<point> FileProcess::ReadPoint(string Point) {
 
 void FileProcess::ReadStrokeAndFill(map<string, string> attributes, Shape* shape) {
 	MyColor color;
+	MyColor stroke;
 
 	if (attributes["style"] != "") {
 		std::regex colorPair(R"((\w+-?\w*):\s*([^;]+))");
@@ -150,6 +159,7 @@ void FileProcess::ReadStrokeAndFill(map<string, string> attributes, Shape* shape
 			it = colorMatch[0].second; // update position for next search
 		}
 
+		// ReadFill
 		if (colorAttri["fill"] != "") {
 			color = ReadColor(colorAttri["fill"]);
 			shape->getFillColor().setBlue(color.getBlue());
@@ -161,8 +171,26 @@ void FileProcess::ReadStrokeAndFill(map<string, string> attributes, Shape* shape
 			color = MyColor(255, 255, 255, 0);
 			shape->setFillColor(color);
 		}
+		// Read Stroke
+		if (colorAttri["stroke"] != "" && colorAttri["stroke"] != "none") {
+			stroke = ReadColor(colorAttri["stroke"]);
+			shape->getStroke().setStrokeWidth(1);
+			shape->getStroke().getStrokeColor().setRed(stroke.getRed());
+			shape->getStroke().getStrokeColor().setBlue(stroke.getBlue());
+			shape->getStroke().getStrokeColor().setGreen(stroke.getGreen());
+		}
+		if (colorAttri["stroke-opacity"] != "") {
+			shape->getStroke().getStrokeColor().setOpacity(stof(colorAttri["stroke-opacity"]));
+		}
+		if (colorAttri["stroke-width"] != "") {
+			shape->getStroke().setStrokeWidth(stof(colorAttri["stroke-width"]));
+		}
+		if (colorAttri["stroke"] == "none") {
+			shape->getStroke().setStrokeWidth(0);
+		}
 	}
 	else {
+		// Readfill
 		if (attributes["fill-opacity"] != "") {
 			shape->getFillColor().setOpacity(stof(attributes["fill-opacity"]));
 		}
@@ -176,24 +204,23 @@ void FileProcess::ReadStrokeAndFill(map<string, string> attributes, Shape* shape
 			color = MyColor(255, 255, 255, 0);
 			shape->setFillColor(color);
 		}
-	}
-
-	MyColor stroke;
-	if (attributes["stroke"] != "" && attributes["stroke"] != "none") {
-		stroke = ReadColor(attributes["stroke"]);
-		shape->getStroke().setStrokeWidth(1);
-		shape->getStroke().getStrokeColor().setRed(stroke.getRed());
-		shape->getStroke().getStrokeColor().setBlue(stroke.getBlue());
-		shape->getStroke().getStrokeColor().setGreen(stroke.getGreen());
-	}
-	if (attributes["stroke-opacity"] != "") {
-		shape->getStroke().getStrokeColor().setOpacity(stof(attributes["stroke-opacity"]));
-	}
-	if (attributes["stroke-width"] != "") {
-		shape->getStroke().setStrokeWidth(stof(attributes["stroke-width"]));
-	}
-	if (attributes["stroke"] == "none") {
-		shape->getStroke().setStrokeWidth(0);
+		// Read stroke
+		if (attributes["stroke"] != "" && attributes["stroke"] != "none") {
+			stroke = ReadColor(attributes["stroke"]);
+			shape->getStroke().setStrokeWidth(1);
+			shape->getStroke().getStrokeColor().setRed(stroke.getRed());
+			shape->getStroke().getStrokeColor().setBlue(stroke.getBlue());
+			shape->getStroke().getStrokeColor().setGreen(stroke.getGreen());
+		}
+		if (attributes["stroke-opacity"] != "") {
+			shape->getStroke().getStrokeColor().setOpacity(stof(attributes["stroke-opacity"]));
+		}
+		if (attributes["stroke-width"] != "") {
+			shape->getStroke().setStrokeWidth(stof(attributes["stroke-width"]));
+		}
+		if (attributes["stroke"] == "none") {
+			shape->getStroke().setStrokeWidth(0);
+		}
 	}
 }
 
@@ -1160,3 +1187,5 @@ void FileProcess::SetViewBox(ViewBox* vb) {
 }
 
 // Sửa lại viewbox, TH có dấu cách hai bên dấu bằng (" = ") 
+// đọc style trong gradient
+// Đọc style trong color
