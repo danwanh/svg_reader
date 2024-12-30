@@ -36,7 +36,7 @@ public:
 	vector <point> ReadPoint(string);
 	path ReadPath(string);
 	vector< TransformCommand> ReadTranCom(string);
-	
+
 	ViewBox* GetViewBox();
 	void SetViewBox(ViewBox* vb);
 
