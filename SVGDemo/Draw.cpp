@@ -938,22 +938,27 @@ void Draw::drawPath(Graphics& graphics, path* path, ViewBox* vb) {
 				hasPreviousControlPoint = true;
 			}
 		}
+		
 		else if (command == "S") { // Smooth Cubic Bézier Curve (absolute)
 			if (points.size() < 2) continue;
 			for (size_t i = 0; i + 1 < points.size(); i += 2) {
 				PointF control1;
 				if (hasPreviousControlPoint) {
-					control1 = PointF(lastControlPoint.X, lastControlPoint.Y);
+					control1 = PointF(
+						2 * currentPoint.X - lastControlPoint.X,
+						2 * currentPoint.Y - lastControlPoint.Y
+					);
 				}
 				else {
-					control1 = currentPoint; // Nếu không có, sử dụng currentPoint
+					control1 = currentPoint; // No reflection, use current point
 				}
 
 				PointF control2(points[i].getX(), points[i].getY());
 				PointF endPoint(points[i + 1].getX(), points[i + 1].getY());
 				graphicsPath.AddBezier(currentPoint, control1, control2, endPoint);
+
 				currentPoint = endPoint;
-				lastControlPoint = control2;
+				lastControlPoint = control2; // Update the last control point
 				hasPreviousControlPoint = true;
 			}
 		}
@@ -962,20 +967,25 @@ void Draw::drawPath(Graphics& graphics, path* path, ViewBox* vb) {
 			for (size_t i = 0; i + 1 < points.size(); i += 2) {
 				PointF control1;
 				if (hasPreviousControlPoint) {
-					control1 = PointF(currentPoint.X + lastControlPoint.X, currentPoint.Y + lastControlPoint.Y);
+					control1 = PointF(
+						2 * currentPoint.X - lastControlPoint.X,
+						2 * currentPoint.Y - lastControlPoint.Y
+					);
 				}
 				else {
-					control1 = currentPoint;
+					control1 = currentPoint; // No reflection, use current point
 				}
 
 				PointF control2(points[i].getX() + currentPoint.X, points[i].getY() + currentPoint.Y);
 				PointF endPoint(points[i + 1].getX() + currentPoint.X, points[i + 1].getY() + currentPoint.Y);
 				graphicsPath.AddBezier(currentPoint, control1, control2, endPoint);
+
 				currentPoint = endPoint;
-				lastControlPoint = control2;
+				lastControlPoint = control2; // Update the last control point
 				hasPreviousControlPoint = true;
 			}
 		}
+
 		else if (command == "H") { // Horizontal line (absolute)
 			for (auto& pt : points) {
 				PointF nextPoint(pt.getX(), currentPoint.Y);
