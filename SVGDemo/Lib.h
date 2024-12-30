@@ -19,6 +19,7 @@
 #include <codecvt>
 #include <regex>
 #include <map>
+#include <minwindef.h>
 #include <cfloat>
 using namespace std;
 using namespace rapidxml;

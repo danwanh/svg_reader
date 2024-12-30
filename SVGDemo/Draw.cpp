@@ -742,6 +742,126 @@ void Draw::drawLine(Graphics& graphics, line* line, ViewBox *vb) {
 	}
 	graphics.Restore(save);
 }
+std::vector<PointF> approximateArcToBezier(
+	const PointF& startPoint,
+	double rx, double ry,
+	double xAxisRotation,
+	bool largeArcFlag,
+	bool sweepFlag,
+	const PointF& endPoint)
+{
+	std::vector<PointF> bezierSegments;
+
+	if (startPoint.X == endPoint.X && startPoint.Y == endPoint.Y) {
+		return bezierSegments; // No arc needed for identical points
+	}
+
+	if (rx == 0 || ry == 0) {
+		bezierSegments.push_back(startPoint);
+		bezierSegments.push_back(endPoint);
+		return bezierSegments; // Degenerate case
+	}
+
+	rx = std::abs(rx);
+	ry = std::abs(ry);
+	double angleRad = xAxisRotation * (M_PI / 180.0);
+	double cosAngle = std::cos(angleRad);
+	double sinAngle = std::sin(angleRad);
+
+	double dx2 = (startPoint.X - endPoint.X) / 2.0;
+	double dy2 = (startPoint.Y - endPoint.Y) / 2.0;
+	double x1 = cosAngle * dx2 + sinAngle * dy2;
+	double y1 = -sinAngle * dx2 + cosAngle * dy2;
+
+	double rxSq = rx * rx;
+	double rySq = ry * ry;
+	double x1Sq = x1 * x1;
+	double y1Sq = y1 * y1;
+
+	double radiiCheck = x1Sq / rxSq + y1Sq / rySq;
+	if (radiiCheck > 1.0) {
+		double scale = std::sqrt(radiiCheck);
+		rx *= scale;
+		ry *= scale;
+		rxSq = rx * rx;
+		rySq = ry * ry;
+	}
+
+	double sign = (largeArcFlag != sweepFlag) ? 1 : -1;
+	double sq = ((rxSq * rySq) - (rxSq * y1Sq) - (rySq * x1Sq)) / ((rxSq * y1Sq) + (rySq * x1Sq));
+	sq = (sq < 0) ? 0 : sq;
+	double coef = sign * std::sqrt(sq);
+	double cx1 = coef * ((rx * y1) / ry);
+	double cy1 = coef * -((ry * x1) / rx);
+
+	double sx2 = (startPoint.X + endPoint.X) / 2.0;
+	double sy2 = (startPoint.Y + endPoint.Y) / 2.0;
+	double cx = cosAngle * cx1 - sinAngle * cy1 + sx2;
+	double cy = sinAngle * cx1 + cosAngle * cy1 + sy2;
+
+	double ux = (x1 - cx1) / rx;
+	double uy = (y1 - cy1) / ry;
+	double vx = (-x1 - cx1) / rx;
+	double vy = (-y1 - cy1) / ry;
+
+	double n = std::sqrt((ux * ux) + (uy * uy));
+	double p = ux;
+	sign = (uy < 0) ? -1.0 : 1.0;
+	double angleStart = sign * std::acos(p / n);
+
+	n = std::sqrt((ux * ux + uy * uy) * (vx * vx + vy * vy));
+	p = ux * vx + uy * vy;
+	sign = (ux * vy - uy * vx < 0) ? -1.0 : 1.0;
+	double angleExtent = sign * std::acos(p / n);
+
+	if (!sweepFlag && angleExtent > 0) {
+		angleExtent -= 2 * M_PI;
+	}
+	else if (sweepFlag && angleExtent < 0) {
+		angleExtent += 2 * M_PI;
+	}
+
+	int numSegments = std::ceil(std::abs(angleExtent) / (M_PI / 2));
+	double segmentAngle = angleExtent / numSegments;
+
+	for (int i = 0; i < numSegments; ++i) {
+		double theta1 = angleStart + i * segmentAngle;
+		double theta2 = theta1 + segmentAngle;
+
+		double cosTheta1 = std::cos(theta1);
+		double sinTheta1 = std::sin(theta1);
+		double cosTheta2 = std::cos(theta2);
+		double sinTheta2 = std::sin(theta2);
+
+		PointF p1 = {
+			static_cast<Gdiplus::REAL>(cosAngle * rx * cosTheta1 - sinAngle * ry * sinTheta1 + cx),
+			static_cast<Gdiplus::REAL>(sinAngle * rx * cosTheta1 + cosAngle * ry * sinTheta1 + cy)
+		};
+		PointF p2 = {
+			static_cast<Gdiplus::REAL>(cosAngle * rx * cosTheta2 - sinAngle * ry * sinTheta2 + cx),
+			static_cast<Gdiplus::REAL>(sinAngle * rx * cosTheta2 + cosAngle * ry * sinTheta2 + cy)
+		};
+
+		double alpha = std::sin(segmentAngle) * (std::sqrt(4 + 3 * std::pow(std::tan(segmentAngle / 2), 2)) - 1) / 3;
+
+		PointF cp1 = {
+			static_cast<Gdiplus::REAL>(p1.X + alpha * (-cosAngle * rx * sinTheta1 - sinAngle * ry * cosTheta1)),
+			static_cast<Gdiplus::REAL>(p1.Y + alpha * (-sinAngle * rx * sinTheta1 + cosAngle * ry * cosTheta1))
+		};
+		PointF cp2 = {
+			static_cast<Gdiplus::REAL>(p2.X - alpha * (-cosAngle * rx * sinTheta2 - sinAngle * ry * cosTheta2)),
+			static_cast<Gdiplus::REAL>(p2.Y - alpha * (-sinAngle * rx * sinTheta2 + cosAngle * ry * cosTheta2))
+		};
+
+		bezierSegments.push_back(cp1);
+		bezierSegments.push_back(cp2);
+		bezierSegments.push_back(p2);
+	}
+
+	return bezierSegments;
+}
+
+
 void Draw::drawPath(Graphics& graphics, path* path, ViewBox *vb) {
 	GraphicsState save = graphics.Save();
 	path->applyTransform(graphics);
@@ -887,7 +1007,109 @@ void Draw::drawPath(Graphics& graphics, path* path, ViewBox *vb) {
 		else if (command == "Z" || command == "z") { // Close path
 			graphicsPath.CloseFigure();
 		}
+		else if (command == "Q") { // Quadratic Bézier Curve (absolute)
+			for (size_t i = 0; i + 1 < points.size(); i += 2) {
+				PointF controlPoint(points[i].getX(), points[i].getY());
+				PointF endPoint(points[i + 1].getX(), points[i + 1].getY());
+
+				// Tính điểm điều khiển trung gian để chuyển sang cubic Bézier
+				PointF cubicControl1 = PointF(
+					currentPoint.X + (2.0f / 3.0f) * (controlPoint.X - currentPoint.X),
+					currentPoint.Y + (2.0f / 3.0f) * (controlPoint.Y - currentPoint.Y));
+				PointF cubicControl2 = PointF(
+					endPoint.X + (2.0f / 3.0f) * (controlPoint.X - endPoint.X),
+					endPoint.Y + (2.0f / 3.0f) * (controlPoint.Y - endPoint.Y));
+
+				graphicsPath.AddBezier(currentPoint, cubicControl1, cubicControl2, endPoint);
+				currentPoint = endPoint;
+			}
+			}
+		else if (command == "q") { // Quadratic Bézier Curve (relative)
+			for (size_t i = 0; i + 1 < points.size(); i += 2) {
+				PointF controlPoint(points[i].getX() + currentPoint.X,
+					points[i].getY() + currentPoint.Y);
+				PointF endPoint(points[i + 1].getX() + currentPoint.X,
+					points[i + 1].getY() + currentPoint.Y);
+
+				PointF cubicControl1 = PointF(
+					currentPoint.X + (2.0f / 3.0f) * (controlPoint.X - currentPoint.X),
+					currentPoint.Y + (2.0f / 3.0f) * (controlPoint.Y - currentPoint.Y));
+				PointF cubicControl2 = PointF(
+					endPoint.X + (2.0f / 3.0f) * (controlPoint.X - endPoint.X),
+					endPoint.Y + (2.0f / 3.0f) * (controlPoint.Y - endPoint.Y));
+
+				graphicsPath.AddBezier(currentPoint, cubicControl1, cubicControl2, endPoint);
+				currentPoint = endPoint;
+			}
+		}
 		
+		else if (command == "A") { // Elliptical arc (absolute)
+	
+			for (size_t i = 0; i + 3 < points.size(); i += 4) {
+				float rx = points[i].getX();
+				float ry = points[i].getY();
+				float xAxisRotation = points[i + 1].getX(); // Rotation angle
+				bool largeArcFlag = points[i + 1].getY() != 0;
+				bool sweepFlag = points[i + 2].getX() != 0;
+				PointF endPoint(points[i + 2].getY(), points[i + 3].getX());
+
+				// Chuyển đổi từ arc thành Bézier curves
+				vector<PointF> bezierSegments = approximateArcToBezier(
+					currentPoint,
+					rx, ry,
+					xAxisRotation,
+					largeArcFlag, sweepFlag,
+					endPoint
+				);
+
+				// Add each Bezier segment to the GraphicsPath
+				for (size_t j = 0; j + 2 < bezierSegments.size(); j += 3) {
+					graphicsPath.AddBezier(
+						currentPoint,
+						bezierSegments[j],
+						bezierSegments[j + 1],
+						bezierSegments[j + 2]
+					);
+					currentPoint = bezierSegments[j + 2];
+				}
+
+			}
+		}
+		else if (command == "a") { // Elliptical arc (relative)
+			for (size_t i = 0; i + 3 < points.size(); i += 4) 
+				{
+				float rx = points[i].getX();
+				float ry = points[i].getY();
+				float xAxisRotation = points[i + 1].getX();
+				bool largeArcFlag = points[i + 1].getY() != 0;
+				bool sweepFlag = points[i + 2].getX() != 0;
+				PointF endPoint(points[i + 2].getY() + currentPoint.X,
+					points[i + 3].getX() + currentPoint.Y);
+
+				// Chuyển đổi từ arc thành Bézier curves
+				vector<PointF> bezierSegments = approximateArcToBezier(
+					currentPoint,
+					rx, ry,
+					xAxisRotation,
+					largeArcFlag, sweepFlag,
+					endPoint
+				);
+
+				// Add each Bezier segment to the GraphicsPath
+				for (size_t j = 0; j + 2 < bezierSegments.size(); j += 3) {
+					graphicsPath.AddBezier(
+						currentPoint,
+						bezierSegments[j],
+						bezierSegments[j + 1],
+						bezierSegments[j + 2]
+					);
+					currentPoint = bezierSegments[j + 2];
+				}
+
+			}
+		}
+
+
 
 
 	}

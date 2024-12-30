@@ -141,73 +141,123 @@ void FileProcess::ReadStrokeAndFill(map<string, string> attributes, Shape* shape
 		ReadStrokeAndFill(styleMap[attributes["class"]], shape);
 	}
 	MyColor color;
-	if (attributes["fill-opacity"] != "") {
-		shape->getFillColor().setOpacity(stof(attributes["fill-opacity"]));
-	}
-	if (attributes["fill"] != "") {
-		color = ReadColor(attributes["fill"]);
-		shape->getFillColor().setBlue(color.getBlue());
-		shape->getFillColor().setRed(color.getRed());
-		shape->getFillColor().setGreen(color.getGreen());
-	}
-	if (attributes["fill"] == "none") {
-		color = MyColor(255, 255, 255, 0);
-		shape->setFillColor(color);
-	}
-
 	MyColor stroke;
-	if (attributes["stroke"] != "" && attributes["stroke"] != "none") {
-		stroke = ReadColor(attributes["stroke"]);
-		shape->getStroke().setStrokeWidth(1);
-		shape->getStroke().getStrokeColor().setRed(stroke.getRed());
-		shape->getStroke().getStrokeColor().setBlue(stroke.getBlue());
-		shape->getStroke().getStrokeColor().setGreen(stroke.getGreen());
+
+	if (attributes["style"] != "") {
+		std::regex colorPair(R"((\w+-?\w*):\s*([^;]+))");
+		std::smatch colorMatch;
+
+		std::map<std::string, std::string> colorAttri;
+		std::string ss = attributes["style"];
+		auto it = ss.cbegin();
+
+		while (std::regex_search(it, ss.cend(), colorMatch, colorPair)) {
+			colorAttri[colorMatch[1]] = colorMatch[2]; // store attribute name and value
+			it = colorMatch[0].second; // update position for next search
+		}
+
+		//	ReadFill
+		if (colorAttri["fill"] != "") {
+			color = ReadColor(colorAttri["fill"]);
+			shape->getFillColor().setBlue(color.getBlue());
+			shape->getFillColor().setRed(color.getRed());
+			shape->getFillColor().setGreen(color.getGreen());
+
+		}
+		if (colorAttri["fill"] == "none") {
+			color = MyColor(255, 255, 255, 0);
+			shape->setFillColor(color);
+		}
+
+		// ReadStroke
+		if (colorAttri["stroke"] != "" && colorAttri["stroke"] != "none") {
+			stroke = ReadColor(colorAttri["stroke"]);
+			shape->getStroke().setStrokeWidth(1);
+			shape->getStroke().getStrokeColor().setRed(stroke.getRed());
+			shape->getStroke().getStrokeColor().setBlue(stroke.getBlue());
+			shape->getStroke().getStrokeColor().setGreen(stroke.getGreen());
+		}
+		if (colorAttri["stroke-opacity"] != "") {
+			shape->getStroke().getStrokeColor().setOpacity(stof(colorAttri["stroke-opacity"]));
+		}
+		if (colorAttri["stroke-width"] != "") {
+			shape->getStroke().setStrokeWidth(stof(colorAttri["stroke-width"]));
+		}
+		if (colorAttri["stroke"] == "none") {
+			shape->getStroke().setStrokeWidth(0);
+		}
 	}
-	if (attributes["stroke-opacity"] != "") {
-		shape->getStroke().getStrokeColor().setOpacity(stof(attributes["stroke-opacity"]));
-	}
-	if (attributes["stroke-width"] != "") {
-		shape->getStroke().setStrokeWidth(stof(attributes["stroke-width"]));
-	}
-	if (attributes["stroke"] == "none") {
-		shape->getStroke().setStrokeWidth(0);
+	else {
+		// ReadFill
+		if (attributes["fill-opacity"] != "") {
+			shape->getFillColor().setOpacity(stof(attributes["fill-opacity"]));
+		}
+		if (attributes["fill"] != "") {
+			color = ReadColor(attributes["fill"]);
+			shape->getFillColor().setBlue(color.getBlue());
+			shape->getFillColor().setRed(color.getRed());
+			shape->getFillColor().setGreen(color.getGreen());
+		}
+		if (attributes["fill"] == "none") {
+			color = MyColor(255, 255, 255, 0);
+			shape->setFillColor(color);
+		}
+
+		// ReadStroke
+		if (attributes["stroke"] != "" && attributes["stroke"] != "none") {
+			stroke = ReadColor(attributes["stroke"]);
+			shape->getStroke().setStrokeWidth(1);
+			shape->getStroke().getStrokeColor().setRed(stroke.getRed());
+			shape->getStroke().getStrokeColor().setBlue(stroke.getBlue());
+			shape->getStroke().getStrokeColor().setGreen(stroke.getGreen());
+		}
+		if (attributes["stroke-opacity"] != "") {
+			shape->getStroke().getStrokeColor().setOpacity(stof(attributes["stroke-opacity"]));
+		}
+		if (attributes["stroke-width"] != "") {
+			shape->getStroke().setStrokeWidth(stof(attributes["stroke-width"]));
+		}
+		if (attributes["stroke"] == "none") {
+			shape->getStroke().setStrokeWidth(0);
+		}
 	}
 }
 
-// Xu li transform neu no la ma tran
 vector<TransformCommand> FileProcess::ReadTranCom(string trans) {
 	vector <TransformCommand> transcom;
 	// Xu li transform khi no la matrix
 	if (trans.find("matrix") != string::npos) {
-		regex pattern(R"(matrix\(([-+]?[0-9]*\.?[0-9]+)[ ,]+([-+]?[0-9]*\.?[0-9]+)[ ,]+([-+]?[0-9]*\.?[0-9]+)[ ,]+([-+]?[0-9]*\.?[0-9]+)[ ,]+([-+]?[0-9]*\.?[0-9]+)[ ,]+([-+]?[0-9]*\.?[0-9]+)\))");
+		regex pattern(R"(\(([^)]+)\))");
 		smatch matches;
 
 		if (regex_search(trans, matches, pattern)) {
-			int size = matches.size();
+
 			TransformCommand temp;
+			stringstream ss(matches[1]);
+			cout << ss.str() << endl;
+			float x[6] = { 1, 1, 0, 0, 0, 0 };
+
+			int size = 0;
+			while (ss >> x[size++]);
 
 			if (size > 1) {
 				temp.setName("scale");
-				temp.setScale(stof(matches[1]), stof(matches[2]));
+				temp.setScale(x[0], x[1]);
 				transcom.push_back(temp);
 			}
-
 			if (size > 3) {
-				temp.setName("skewX");
-				temp.setSkewX(stof(matches[3]));
+				temp.setName("skew");
+				temp.setSkew(x[2], x[3]);
 				transcom.push_back(temp);
 
-				temp.setName("skewY");
-				temp.setSkewY(stof(matches[4]));
-				transcom.push_back(temp);
 			}
 			if (size > 5) {
 				temp.setName("translate");
-				temp.setTranslate(stof(matches[5]), stof(matches[6]));
+				temp.setTranslate(x[4], x[5]);
+				transcom.push_back(temp);
 			}
 		}
 	}
-
 	regex attriPair(R"((\b[a-zA-Z]+\b)\(([^)]+)\))");
 	smatch match;
 	std::map<std::string, std::string> attributes;
@@ -218,11 +268,22 @@ vector<TransformCommand> FileProcess::ReadTranCom(string trans) {
 		TransformCommand temp;
 		if (name == "translate") {
 			temp.setName("translate");
-			smatch valMatch;
-			regex transVal(R"(\s*(-?\d+(\.\d+)?)[\s,]*(-?\d+(\.\d+)?)\s*)");
-			if (regex_search(value, valMatch, transVal)) {
-				temp.setTranslate(stof(valMatch[1]), stof(valMatch[3]));
+			int length = value.length();
+			for (int i = 0; i < length; i++) {
+				if (isdigit(value[i]) == false)
+					if (value[i] == 'e' || value[i] == 'E' ||
+						value[i] == '+' || value[i] == '-' || value[i] == '.')
+						continue;
+					else
+						value[i] = ' ';
+
 			}
+			cout << " TRANSLATE " << value << endl;
+			stringstream ss(value);
+			float x = 0, y = 0;
+			ss >> x;
+			ss >> y;
+			temp.setTranslate(x, y);
 		}
 		else if (name == "rotate") {
 			temp.setName("rotate");
@@ -245,7 +306,8 @@ vector<TransformCommand> FileProcess::ReadTranCom(string trans) {
 				temp.setScale(stof(valMatch[1]));
 			}
 		}
-		transcom.push_back(temp);
+		if (name == "scale" || name == "rotate" || name == "translate")
+			transcom.push_back(temp);
 		it = match[0].second;
 	}
 	return transcom;
@@ -257,7 +319,7 @@ path FileProcess::ReadPath(string d) {
 	}
 
 	vector<pair<string, vector<point>>> pathVct;
-	regex commandRegex(R"(([MLHVZCSmlhvzcs])([^MLHVZCSmlhvzcs]*))");
+	regex commandRegex(R"(([MLHVZCSQAmlhvzcsqa])([^MLHVZCSQAmlhvzcsqa]*))");
 	smatch match;
 
 	point lastPoint = { 0, 0 };
@@ -268,9 +330,8 @@ path FileProcess::ReadPath(string d) {
 		string args = match[2].str();    // Lấy tham số liên quan đến lệnh
 
 		pair<string, vector<point>> pathSegment;
-
 		pathSegment.first = command;
-		if (command == "M" || command == "L" || command == "C" || command == "m" || command == "l" || command == "c" || command == "S" || command == "s") {
+		if (command == "M" || command == "L" || command == "C" || command == "m" || command == "l" || command == "c" || command == "S" || command == "s" || command == "q" || command == "Q") {
 			vector<point> points = ReadPoint(args); // Chuyển chuỗi tọa độ thành vector<point>
 			pathSegment.second = points;
 			if (!points.empty()) {
@@ -306,10 +367,44 @@ path FileProcess::ReadPath(string d) {
 				pathVct.push_back({ "L", { tmp[i] } });
 			}
 		}
-		else pathVct.push_back(pathSegment);
+		if (command == "A" || command == "a") {
+			float rx, ry, xAxisRotation, largeArcFlag, sweepFlag, x, y;
+			regex numberRegex(R"((-?\d+(\.\d+)?))"); // Regex để tìm các số có thể âm và có hoặc không có phần thập phân
+			smatch match;
+			auto it = args.cbegin();
+			int i = 0;
+
+			// Đọc các số trong chuỗi args
+			while (regex_search(it, args.cend(), match, numberRegex)) {
+				// Lấy giá trị từ match và chuyển sang float
+				float value = stof(match[1].str());
+				//cout << "========================" << value << endl;
+				if (i == 0) rx = value;
+				else if (i == 1) ry = value;
+				else if (i == 2) xAxisRotation = value;
+				else if (i == 3) largeArcFlag = value;
+				else if (i == 4) sweepFlag = value;
+				else if (i == 5) x = value;
+				else if (i == 6) y = value;
+
+				// Tiến hành tăng chỉ số i
+				i++;
+				if (i == 7) break;
+				it = match[0].second;
+			}
+			//cout << rx << ry << xAxisRotation << largeArcFlag << sweepFlag << x << y << "---------------" << endl;
+			pathSegment.second.push_back(point(rx, ry));  // Lưu bán kính
+			pathSegment.second.push_back(point(xAxisRotation, largeArcFlag)); // Góc quay và cờ largeArc
+			pathSegment.second.push_back(point(sweepFlag, x));  // Cờ sweep và tọa độ x của điểm kết thúc
+			pathSegment.second.push_back(point(y, 0));
+
+			lastPoint.setX(x);
+			lastPoint.setY(y);
+		}
+		pathVct.push_back(pathSegment);
+
 		it = match[0].second;
 	}
-
 	path P;
 	P.setPath(pathVct);
 	return P;
@@ -600,6 +695,17 @@ void FileProcess::ReadGroupChild(map<string, string>& pAttributes, group* parent
 void FileProcess::ShowShape(Shape* shape) {
 	if (shape == NULL)
 		return;
+	cout << " stroke width " << shape->getStroke().getStrokeWidth() << endl;
+	cout << " fill " << shape->getFillColor().getRed() << " " << shape->getFillColor().getGreen() << " " << shape->getFillColor().getBlue() << " " << shape->getFillColor().getOpacity() << endl;
+	cout << " stroke " << shape->getStroke().getStrokeColor().getRed() << " " << shape->getStroke().getStrokeColor().getGreen() << " " << shape->getStroke().getStrokeColor().getBlue() << " " << shape->getStroke().getStrokeColor().getOpacity() << endl;
+	vector<TransformCommand>  Trans = shape->getTransform();
+	int size = Trans.size();
+	if (size > 0)
+		cout << " TRANSFORM " << endl;
+	for (int i = 0; i < size; i++) {
+		cout << Trans[i].getName() << " transX: " << Trans[i].getTransX() << " transY:  " << Trans[i].getTransY() << " rotate: " << Trans[i].getAngle() << " scaleX: " << Trans[i].getScaleX() << " scaleY: " << Trans[i].getScaleY() << " " " skewX: " << Trans[i].getSkewX() << " " << " skewY: " << Trans[i].getSkewY() << endl;
+	}
+
 	if (shape->getName() == "rect") {
 		rectangle* temp = dynamic_cast<rectangle*>(shape);
 		cout << " name " << temp->getName() << endl;
@@ -645,7 +751,10 @@ void FileProcess::ShowShape(Shape* shape) {
 		cout << " font-size " << temp->getFontSize() << endl;
 		cout << " font-family " << temp->getFontFamily() << endl;
 		cout << " text-anchor " << temp->getTextAnchor() << endl;
+		cout << " font-style " << temp->getFontStyle() << endl;
 		cout << " content " << temp->getContent() << endl;
+		cout << " x " << temp->getDx() << " y " << temp->getDy() << endl;
+
 	}
 
 	else if (shape->getName() == "path") {
@@ -663,8 +772,9 @@ void FileProcess::ShowShape(Shape* shape) {
 	}
 	else if (shape->getName() == "g") {
 		group* temp = dynamic_cast<group*>(shape);
-		//cout << " name " << temp->getName() << endl;
+		cout << " name " << temp->getName() << endl;
 		cout << "GROUP G: \n";
+
 		ShowShape(temp->getParent());
 		cout << endl;
 		vector<Shape*> children = temp->getChildren();
@@ -683,7 +793,7 @@ void FileProcess::ShowShape(Shape* shape) {
 		int i = 0;
 		for (auto itt : stops) {
 			cout << i++;
-			cout << " -----------offset " << itt.offset / 100 << " " << endl;
+			cout << " ffset " << itt.offset / 100 << " " << endl;
 			cout << " stop - color: " << itt.stopColor.getRed() << " " << itt.stopColor.getGreen() << " " << itt.stopColor.getBlue();
 			cout << " stop - opacity: " << itt.stopColor.getOpacity() << endl;
 		}
@@ -700,16 +810,7 @@ void FileProcess::ShowShape(Shape* shape) {
 		}
 		cout << endl;
 	}
-	//}
 
-	cout << " stroke width " << shape->getStroke().getStrokeWidth() << endl;
-	cout << " fill " << shape->getFillColor().getRed() << " " << shape->getFillColor().getGreen() << " " << shape->getFillColor().getBlue() << " " << shape->getFillColor().getOpacity() << endl;
-	cout << " stroke " << shape->getStroke().getStrokeColor().getRed() << " " << shape->getStroke().getStrokeColor().getGreen() << " " << shape->getStroke().getStrokeColor().getBlue() << " " << shape->getStroke().getStrokeColor().getOpacity() << endl;
-	vector<TransformCommand>  Trans = shape->getTransform();
-	int size = Trans.size();
-	for (int i = 0; i < size; i++) {
-		cout << Trans[i].getName() << " transX: " << Trans[i].getTransX() << " transY:  " << Trans[i].getTransY() << " rotate: " << Trans[i].getAngle() << " scaleX: " << Trans[i].getScaleX() << " scaleY: " << Trans[i].getScaleY() << " " << endl;
-	}
 }
 
 
@@ -781,22 +882,46 @@ void FileProcess::ReadDefs(fstream& fi) {
 				temp->setId(attributes["id"]);
 			}
 			if (attributes["r"] != "") {
-				dynamic_cast<radialGradient*>(temp)->setR(stod(attributes["r"]));
+				if (attributes["r"].find("%") != string::npos) {
+					dynamic_cast<radialGradient*>(temp)->setR(stod(attributes["r"]) / 100);
+				}
+				else
+					dynamic_cast<radialGradient*>(temp)->setR(stod(attributes["r"]));
 			}
 			if (attributes["cx"] != "") {
-				dynamic_cast<radialGradient*>(temp)->setCx(stod(attributes["cx"]));
+				if (attributes["cx"].find("%") != string::npos) {
+					dynamic_cast<radialGradient*>(temp)->setCx(stod(attributes["cx"]) / 100);
+				}
+				else
+					dynamic_cast<radialGradient*>(temp)->setCx(stod(attributes["cx"]));
 			}
 			if (attributes["cy"] != "") {
-				dynamic_cast<radialGradient*>(temp)->setCy(stod(attributes["cy"]));
+				if (attributes["cy"].find("%") != string::npos) {
+					dynamic_cast<radialGradient*>(temp)->setCy(stod(attributes["cy"]) / 100);
+				}
+				else
+					dynamic_cast<radialGradient*>(temp)->setCy(stod(attributes["cy"]));
 			}
 			if (attributes["fx"] != "") {
-				dynamic_cast<radialGradient*>(temp)->setFx(stod(attributes["fx"]));
+				if (attributes["fx"].find("%") != string::npos) {
+					dynamic_cast<radialGradient*>(temp)->setFx(stod(attributes["fx"]) / 100);
+				}
+				else
+					dynamic_cast<radialGradient*>(temp)->setFx(stod(attributes["fx"]));
 			}
 			if (attributes["fy"] != "") {
-				dynamic_cast<radialGradient*>(temp)->setFy(stod(attributes["fy"]));
+				if (attributes["fy"].find("%") != string::npos) {
+					dynamic_cast<radialGradient*>(temp)->setFy(stod(attributes["fy"]) / 100);
+				}
+				else
+					dynamic_cast<radialGradient*>(temp)->setFy(stod(attributes["fy"]));
 			}
 			if (attributes["fr"] != "") {
-				dynamic_cast<radialGradient*>(temp)->setFy(stod(attributes["fr"]));
+				if (attributes["fr"].find("%") != string::npos) {
+					dynamic_cast<radialGradient*>(temp)->setFr(stod(attributes["fr"]) / 100);
+				}
+				else
+					dynamic_cast<radialGradient*>(temp)->setFy(stod(attributes["fr"]));
 			}
 		}
 		else if (name == "linearGradient") {
@@ -861,13 +986,34 @@ void FileProcess::ReadDefs(fstream& fi) {
 				MyColor stopColor = this->ReadColor(attributes["stop-color"]);
 				Stop.stopColor = stopColor;
 			}
+			else if (attributes["style"] != "") {
+				std::regex colorPair(R"((\w+-?\w*):\s*([^;]+))");
+				std::smatch colorMatch;
+
+				std::map<std::string, std::string> colorAttri;
+				std::string ss = attributes["style"];
+				auto it = ss.cbegin();
+
+				while (std::regex_search(it, ss.cend(), colorMatch, colorPair)) {
+					colorAttri[colorMatch[1]] = colorMatch[2]; // store attribute name and value
+					it = colorMatch[0].second; // update position for next search
+				}
+
+				if (colorAttri["stop-color"] != "") {
+					MyColor stopColor = this->ReadColor(colorAttri["stop-color"]);
+					if (colorAttri["stop-opacity"] != "") {
+						stopColor.setOpacity(stof(colorAttri["stop-opacity"]));
+					}
+					Stop.stopColor = stopColor;
+				}
+
+			}
 			Stops.push_back(Stop);
 		}
 
 		if (name == "/linearGradient" || name == "/radialGradient" || radial) {
 			temp->setColorStop(Stops);
 			gradientMap.insert(make_pair(temp->getId(), temp));
-			//temp = NULL;
 			Stops.clear();
 		}
 	}
@@ -884,20 +1030,22 @@ void ShowGradient(map <string, gradient*> gradientMap) {
 			cout << " y1 " << temp->getY1();
 			cout << " x2 " << temp->getX2();
 			cout << " y2 " << temp->getY2();
-			cout << endl << " units: " << temp->getGradientUnits();
+			cout << endl << " gradientUnits: " << temp->getGradientUnits();
+			cout << endl << " spreadMethod: " << temp->getSpreadMethod();
+			cout << endl << "gradientTransform : ";
+			vector<TransformCommand>  Trans = temp->getTransform();
+			int size = Trans.size();
+			for (int i = 0; i < size; i++) {
+				cout << Trans[i].getName() << " transX: " << Trans[i].getTransX() << " transY:  " << Trans[i].getTransY() << " rotate: " << Trans[i].getAngle() << " scaleX: " << Trans[i].getScaleX() << " scaleY: " << Trans[i].getScaleY() << " " <<
+					" skewX: " << Trans[i].getSkewX() << " " << " skewY: " << Trans[i].getSkewY() << endl;
+			}
+
 			vector<stop> stops = temp->getColorStop();
 			cout << endl;
 			for (auto itt : stops) {
 				cout << " offset: " << itt.offset << " ";
 				cout << " stop - color: " << itt.stopColor.getRed() << " " << itt.stopColor.getGreen() << " " << itt.stopColor.getBlue();
 				cout << " stop - opacity: " << itt.stopColor.getOpacity() << endl;
-			}
-
-			vector<TransformCommand>  Trans = temp->getTransform();
-			int size = Trans.size();
-			for (int i = 0; i < size; i++) {
-				cout << Trans[i].getName() << " transX: " << Trans[i].getTransX() << " transY:  " << Trans[i].getTransY() << " rotate: " << Trans[i].getAngle() << " scaleX: " << Trans[i].getScaleX() << " scaleY: " << Trans[i].getScaleY() << " " <<
-					" skewX: " << Trans[i].getSkewX() << " " << " skewY: " << Trans[i].getSkewY() << endl;
 			}
 		}
 
@@ -911,7 +1059,16 @@ void ShowGradient(map <string, gradient*> gradientMap) {
 			cout << " fx " << temp->getFx();
 			cout << " fy " << temp->getFy();
 			cout << " fr " << temp->getFr();
-			cout << endl << " units: " << temp->getGradientUnits();
+			cout << endl << " gradientUnits: " << temp->getGradientUnits();
+			cout << endl << " spreadMethod: " << temp->getSpreadMethod();
+			cout << endl << "gradientTransform : ";
+			vector<TransformCommand>  Trans = temp->getTransform();
+			int size = Trans.size();
+			for (int i = 0; i < size; i++) {
+				cout << Trans[i].getName() << " transX: " << Trans[i].getTransX() << " transY:  " << Trans[i].getTransY() << " rotate: " << Trans[i].getAngle() << " scaleX: " << Trans[i].getScaleX() << " scaleY: " << Trans[i].getScaleY() << " " <<
+					" skewX: " << Trans[i].getSkewX() << " " << " skewY: " << Trans[i].getSkewY() << endl;
+			}
+
 
 			vector<stop> stops = temp->getColorStop();
 			cout << endl;
@@ -921,12 +1078,6 @@ void ShowGradient(map <string, gradient*> gradientMap) {
 				cout << " stop - opacity: " << itt.stopColor.getOpacity() << endl;
 			}
 
-			vector<TransformCommand>  Trans = temp->getTransform();
-			int size = Trans.size();
-			for (int i = 0; i < size; i++) {
-				cout << Trans[i].getName() << " transX: " << Trans[i].getTransX() << " transY:  " << Trans[i].getTransY() << " rotate: " << Trans[i].getAngle() << " scaleX: " << Trans[i].getScaleX() << " scaleY: " << Trans[i].getScaleY() << " " <<
-					" skewX: " << Trans[i].getSkewX() << " " << " skewY: " << Trans[i].getSkewY() << endl;
-			}
 		}
 	}
 }
@@ -973,7 +1124,7 @@ vector <Shape*> FileProcess::ReadFile() {
 		string name;
 		ss >> name;
 
-		regex attriPair(R"(\s*([a-zA-Z0-9-]+)=["']([^"']+)["'])");
+		regex attriPair(R"(\s*([a-zA-Z0-9-]+)\s?=\s?["']([^"']+)["'])");
 		smatch match;
 
 		std::map<std::string, std::string> attributes;
@@ -1015,16 +1166,13 @@ vector <Shape*> FileProcess::ReadFile() {
 		// xu li def
 		if (name == "defs") {
 			this->ReadDefs(fi);
-			cout << " Show GRADIENT " << endl;
-			ShowGradient(gradientMap);
+			//cout << " Show GRADIENT " << endl;
+			//ShowGradient(gradientMap);
 		}
-
-
-		//ShowGradient(gradientMap);
-
 
 		Shape* shape = this->ReadShape(attributes, name);
 		if (name == "text") {
+			cout << " TEXT" << s << endl;
 			getline(fi, s, '>');
 			s += '>';
 			smatch matchContent;
