@@ -136,18 +136,46 @@ vector<point> FileProcess::ReadPoint(string Point) {
 
 void FileProcess::ReadStrokeAndFill(map<string, string> attributes, Shape* shape) {
 	MyColor color;
-	if (attributes["fill-opacity"] != "") {
-		shape->getFillColor().setOpacity(stof(attributes["fill-opacity"]));
+
+	if (attributes["style"] != "") {
+		std::regex colorPair(R"((\w+-?\w*):\s*([^;]+))");
+		std::smatch colorMatch;
+
+		std::map<std::string, std::string> colorAttri;
+		std::string ss = attributes["style"];
+		auto it = ss.cbegin();
+
+		while (std::regex_search(it, ss.cend(), colorMatch, colorPair)) {
+			colorAttri[colorMatch[1]] = colorMatch[2]; // store attribute name and value
+			it = colorMatch[0].second; // update position for next search
+		}
+
+		if (colorAttri["fill"] != "") {
+			color = ReadColor(colorAttri["fill"]);
+			shape->getFillColor().setBlue(color.getBlue());
+			shape->getFillColor().setRed(color.getRed());
+			shape->getFillColor().setGreen(color.getGreen());
+
+		}
+		if (colorAttri["fill"] == "none") {
+			color = MyColor(255, 255, 255, 0);
+			shape->setFillColor(color);
+		}
 	}
-	if (attributes["fill"] != "") {
-		color = ReadColor(attributes["fill"]);
-		shape->getFillColor().setBlue(color.getBlue());
-		shape->getFillColor().setRed(color.getRed());
-		shape->getFillColor().setGreen(color.getGreen());
-	}
-	if (attributes["fill"] == "none") {
-		color = MyColor(255, 255, 255, 0);
-		shape->setFillColor(color);
+	else {
+		if (attributes["fill-opacity"] != "") {
+			shape->getFillColor().setOpacity(stof(attributes["fill-opacity"]));
+		}
+		if (attributes["fill"] != "") {
+			color = ReadColor(attributes["fill"]);
+			shape->getFillColor().setBlue(color.getBlue());
+			shape->getFillColor().setRed(color.getRed());
+			shape->getFillColor().setGreen(color.getGreen());
+		}
+		if (attributes["fill"] == "none") {
+			color = MyColor(255, 255, 255, 0);
+			shape->setFillColor(color);
+		}
 	}
 
 	MyColor stroke;
@@ -215,6 +243,17 @@ vector<TransformCommand> FileProcess::ReadTranCom(string trans) {
 		TransformCommand temp;
 		if (name == "translate") {
 			temp.setName("translate");
+			int length = value.length();
+			for (int i = 0; i < length; i++) {
+				if (isdigit(value[i]) == false)
+					if (value[i] == 'e' || value[i] == 'E' ||
+						value[i] == '+' || value[i] == '-' || value[i] == '.')
+						continue;
+					else
+						value[i] = ' ';
+
+			}
+			cout << " TRANSLATE " << value << endl;
 			stringstream ss(value);
 			float x = 0, y = 0;
 			ss >> x;
@@ -606,7 +645,7 @@ void FileProcess::ShowShape(Shape* shape) {
 	if (size > 0)
 		cout << " TRANSFORM " << endl;
 	for (int i = 0; i < size; i++) {
-		cout << Trans[i].getName() << " transX: " << Trans[i].getTransX() << " transY:  " << Trans[i].getTransY() << " rotate: " << Trans[i].getAngle() << " scaleX: " << Trans[i].getScaleX() << " scaleY: " << Trans[i].getScaleY() << " " << endl;
+		cout << Trans[i].getName() << " transX: " << Trans[i].getTransX() << " transY:  " << Trans[i].getTransY() << " rotate: " << Trans[i].getAngle() << " scaleX: " << Trans[i].getScaleX() << " scaleY: " << Trans[i].getScaleY() << " " " skewX: " << Trans[i].getSkewX() << " " << " skewY: " << Trans[i].getSkewY() << endl;
 	}
 
 	if (shape->getName() == "rect") {
@@ -654,7 +693,10 @@ void FileProcess::ShowShape(Shape* shape) {
 		cout << " font-size " << temp->getFontSize() << endl;
 		cout << " font-family " << temp->getFontFamily() << endl;
 		cout << " text-anchor " << temp->getTextAnchor() << endl;
+		cout << " font-style " << temp->getFontStyle() << endl;
 		cout << " content " << temp->getContent() << endl;
+		cout << " x " << temp->getDx() << " y " << temp->getDy() << endl;
+
 	}
 
 	else if (shape->getName() == "path") {
@@ -674,8 +716,6 @@ void FileProcess::ShowShape(Shape* shape) {
 		group* temp = dynamic_cast<group*>(shape);
 		cout << " name " << temp->getName() << endl;
 		//cout << "GROUP G: \n";
-		//cout << " name " << temp->getName() << endl;
-		cout << "GROUP G: \n";
 		ShowShape(temp->getParent());
 		cout << endl;
 		vector<Shape*> children = temp->getChildren();
@@ -711,6 +751,14 @@ void FileProcess::ShowShape(Shape* shape) {
 		}
 	}
 
+	//cout << " stroke width " << shape->getStroke().getStrokeWidth() << endl;
+	//cout << " fill " << shape->getFillColor().getRed() << " " << shape->getFillColor().getGreen() << " " << shape->getFillColor().getBlue() << " " << shape->getFillColor().getOpacity() << endl;
+	//cout << " stroke " << shape->getStroke().getStrokeColor().getRed() << " " << shape->getStroke().getStrokeColor().getGreen() << " " << shape->getStroke().getStrokeColor().getBlue() << " " << shape->getStroke().getStrokeColor().getOpacity() << endl;
+	//vector<TransformCommand>  Trans = shape->getTransform();
+	//int size = Trans.size();
+	//for (int i = 0; i < size; i++) {
+	//	cout << Trans[i].getName() << " transX: " << Trans[i].getTransX() << " transY:  " << Trans[i].getTransY() << " rotate: " << Trans[i].getAngle() << " scaleX: " << Trans[i].getScaleX() << " scaleY: " << Trans[i].getScaleY() << " " << endl;
+	//}
 }
 
 // Doc gradient
@@ -750,22 +798,46 @@ map <string, gradient*> FileProcess::ReadGradient(fstream& fi) {
 				temp->setId(attributes["id"]);
 			}
 			if (attributes["r"] != "") {
-				dynamic_cast<radialGradient*>(temp)->setR(stod(attributes["r"]));
+				if (attributes["r"].find("%") != string::npos) {
+					dynamic_cast<radialGradient*>(temp)->setR(stod(attributes["r"]) / 100);
+				}
+				else
+					dynamic_cast<radialGradient*>(temp)->setR(stod(attributes["r"]));
 			}
 			if (attributes["cx"] != "") {
-				dynamic_cast<radialGradient*>(temp)->setCx(stod(attributes["cx"]));
+				if (attributes["cx"].find("%") != string::npos) {
+					dynamic_cast<radialGradient*>(temp)->setCx(stod(attributes["cx"]) / 100);
+				}
+				else
+					dynamic_cast<radialGradient*>(temp)->setCx(stod(attributes["cx"]));
 			}
 			if (attributes["cy"] != "") {
-				dynamic_cast<radialGradient*>(temp)->setCy(stod(attributes["cy"]));
+				if (attributes["cy"].find("%") != string::npos) {
+					dynamic_cast<radialGradient*>(temp)->setCy(stod(attributes["cy"]) / 100);
+				}
+				else
+					dynamic_cast<radialGradient*>(temp)->setCy(stod(attributes["cy"]));
 			}
 			if (attributes["fx"] != "") {
-				dynamic_cast<radialGradient*>(temp)->setFx(stod(attributes["fx"]));
+				if (attributes["fx"].find("%") != string::npos) {
+					dynamic_cast<radialGradient*>(temp)->setFx(stod(attributes["fx"]) / 100);
+				}
+				else
+					dynamic_cast<radialGradient*>(temp)->setFx(stod(attributes["fx"]));
 			}
 			if (attributes["fy"] != "") {
-				dynamic_cast<radialGradient*>(temp)->setFy(stod(attributes["fy"]));
+				if (attributes["fy"].find("%") != string::npos) {
+					dynamic_cast<radialGradient*>(temp)->setFy(stod(attributes["fy"]) / 100);
+				}
+				else
+					dynamic_cast<radialGradient*>(temp)->setFy(stod(attributes["fy"]));
 			}
 			if (attributes["fr"] != "") {
-				dynamic_cast<radialGradient*>(temp)->setFy(stod(attributes["fr"]));
+				if (attributes["fr"].find("%") != string::npos) {
+					dynamic_cast<radialGradient*>(temp)->setFr(stod(attributes["fr"]) / 100);
+				}
+				else
+					dynamic_cast<radialGradient*>(temp)->setFy(stod(attributes["fr"]));
 			}
 		}
 		else if (name == "linearGradient") {
@@ -843,23 +915,11 @@ map <string, gradient*> FileProcess::ReadGradient(fstream& fi) {
 				std::map<std::string, std::string> colorAttri;
 				std::string ss = attributes["style"];
 				auto it = ss.cbegin();
-				Stops.push_back(Stop);
-				//string S;
-				//while (getline(fi, S, '>')) {
-				//	stringstream sss(S);
-				//	string subName;
-				//	sss >> subName;
 
 				while (std::regex_search(it, ss.cend(), colorMatch, colorPair)) {
 					colorAttri[colorMatch[1]] = colorMatch[2]; // store attribute name and value
 					it = colorMatch[0].second; // update position for next search
 				}
-				//	if (subName == "/linearGradient" || subName == "/radialGradient") {
-				//		break;
-				//	}
-				//	else {
-				//		regex AttriPair(R"(\s*([a-zA-Z0-9-]+)=["']([^"']+)["'])");
-				//		smatch Match;
 
 				if (colorAttri["stop-color"] != "") {
 					MyColor stopColor = this->ReadColor(colorAttri["stop-color"]);
@@ -868,40 +928,15 @@ map <string, gradient*> FileProcess::ReadGradient(fstream& fi) {
 					}
 					Stop.stopColor = stopColor;
 				}
-				//		std::map<std::string, std::string> Attributes;
-				//		auto It = S.cbegin();
-				//		while (regex_search(It, S.cend(), Match, AttriPair)) {
-				//			Attributes[Match[1]] = Match[2]; // store attribute name and value
-				//			It = Match[0].second; // update position for next search
-				//		}
-				//		if (S == "<stop") {
-				//			stop STOP;
-				//			double Offset = 0;
-				//			if (Attributes["offset"] != "")
-				//				Offset = stod(Attributes["offset"]);
-				//			STOP.offset = Offset;
-				//			if (Attributes["stop-color"] != "") {
-				//				MyColor StopColor = this->ReadColor(Attributes["stop-color"]);
-				//				STOP.stopColor = StopColor;
-				//			}
-				//			Stops.push_back(STOP);
-				//		}
-				//	}
 
 			}
 			Stops.push_back(Stop);
-			//}
-			//temp->setColorStop(Stops);
 		}
 
 		if (name == "/linearGradient" || name == "/radialGradient" || radial) {
 			temp->setColorStop(Stops);
-			if (name == "/linearGradient" || name == "/radialGradient" || radial) {
-				mapGra.insert(make_pair(temp->getId(), temp));
-				temp->setColorStop(Stops);
-				temp = NULL;
-				Stops.clear();
-			}
+			mapGra.insert(make_pair(temp->getId(), temp));
+			Stops.clear();
 		}
 	}
 }
@@ -916,20 +951,22 @@ void ShowGradient(map <string, gradient*> MapGra) {
 			cout << " y1 " << temp->getY1();
 			cout << " x2 " << temp->getX2();
 			cout << " y2 " << temp->getY2();
-			cout << endl << " units: " << temp->getGradientUnits();
+			cout << endl << " gradientUnits: " << temp->getGradientUnits();
+			cout << endl << " spreadMethod: " << temp->getSpreadMethod();
+			cout << endl << "gradientTransform : ";
+			vector<TransformCommand>  Trans = temp->getTransform();
+			int size = Trans.size();
+			for (int i = 0; i < size; i++) {
+				cout << Trans[i].getName() << " transX: " << Trans[i].getTransX() << " transY:  " << Trans[i].getTransY() << " rotate: " << Trans[i].getAngle() << " scaleX: " << Trans[i].getScaleX() << " scaleY: " << Trans[i].getScaleY() << " " <<
+					" skewX: " << Trans[i].getSkewX() << " " << " skewY: " << Trans[i].getSkewY() << endl;
+			}
+
 			vector<stop> stops = temp->getColorStop();
 			cout << endl;
 			for (auto itt : stops) {
 				cout << " offset: " << itt.offset << " ";
 				cout << " stop - color: " << itt.stopColor.getRed() << " " << itt.stopColor.getGreen() << " " << itt.stopColor.getBlue();
 				cout << " stop - opacity: " << itt.stopColor.getOpacity() << endl;
-			}
-
-			vector<TransformCommand>  Trans = temp->getTransform();
-			int size = Trans.size();
-			for (int i = 0; i < size; i++) {
-				cout << Trans[i].getName() << " transX: " << Trans[i].getTransX() << " transY:  " << Trans[i].getTransY() << " rotate: " << Trans[i].getAngle() << " scaleX: " << Trans[i].getScaleX() << " scaleY: " << Trans[i].getScaleY() << " " <<
-					" skewX: " << Trans[i].getSkewX() << " " << " skewY: " << Trans[i].getSkewY() << endl;
 			}
 		}
 
@@ -943,7 +980,16 @@ void ShowGradient(map <string, gradient*> MapGra) {
 			cout << " fx " << temp->getFx();
 			cout << " fy " << temp->getFy();
 			cout << " fr " << temp->getFr();
-			cout << endl << " units: " << temp->getGradientUnits();
+			cout << endl << " gradientUnits: " << temp->getGradientUnits();
+			cout << endl << " spreadMethod: " << temp->getSpreadMethod();
+			cout << endl << "gradientTransform : ";
+			vector<TransformCommand>  Trans = temp->getTransform();
+			int size = Trans.size();
+			for (int i = 0; i < size; i++) {
+				cout << Trans[i].getName() << " transX: " << Trans[i].getTransX() << " transY:  " << Trans[i].getTransY() << " rotate: " << Trans[i].getAngle() << " scaleX: " << Trans[i].getScaleX() << " scaleY: " << Trans[i].getScaleY() << " " <<
+					" skewX: " << Trans[i].getSkewX() << " " << " skewY: " << Trans[i].getSkewY() << endl;
+			}
+
 
 			vector<stop> stops = temp->getColorStop();
 			cout << endl;
@@ -953,12 +999,6 @@ void ShowGradient(map <string, gradient*> MapGra) {
 				cout << " stop - opacity: " << itt.stopColor.getOpacity() << endl;
 			}
 
-			vector<TransformCommand>  Trans = temp->getTransform();
-			int size = Trans.size();
-			for (int i = 0; i < size; i++) {
-				cout << Trans[i].getName() << " transX: " << Trans[i].getTransX() << " transY:  " << Trans[i].getTransY() << " rotate: " << Trans[i].getAngle() << " scaleX: " << Trans[i].getScaleX() << " scaleY: " << Trans[i].getScaleY() << " " <<
-					" skewX: " << Trans[i].getSkewX() << " " << " skewY: " << Trans[i].getSkewY() << endl;
-			}
 		}
 	}
 }
@@ -1005,7 +1045,8 @@ vector <Shape*> FileProcess::ReadFile() {
 		string name;
 		ss >> name;
 
-		regex attriPair(R"(\s*([a-zA-Z0-9-]+)\s*=\s*["']([^"']+)["'])");
+
+		regex attriPair(R"(\s*([a-zA-Z0-9-]+)\s?=\s?["']([^"']+)["'])");
 		smatch match;
 
 		std::map<std::string, std::string> attributes;
@@ -1049,9 +1090,9 @@ vector <Shape*> FileProcess::ReadFile() {
 			ShowGradient(gradientMap);
 		}
 
-
 		Shape* shape = this->ReadShape(attributes, name);
 		if (name == "text") {
+			cout << " TEXT" << s << endl;
 			getline(fi, s, '>');
 			s += '>';
 			smatch matchContent;
@@ -1117,3 +1158,5 @@ ViewBox* FileProcess::GetViewBox() {
 void FileProcess::SetViewBox(ViewBox* vb) {
 	this->viewbox = vb;
 }
+
+// Sửa lại viewbox, TH có dấu cách hai bên dấu bằng (" = ") 
