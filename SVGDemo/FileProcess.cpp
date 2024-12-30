@@ -232,8 +232,6 @@ void FileProcess::ReadStrokeAndFill(map<string, string> attributes, Shape* shape
 			shape->getStroke().setStrokeMiterLimit(stof(attributes["stroke-miterlimit"]));
 		}
 	
-
-
 }
 
 vector<TransformCommand> FileProcess::ReadTranCom(string trans) {
@@ -332,11 +330,7 @@ path FileProcess::ReadPath(string d) {
 	}
 
 	vector<pair<string, vector<point>>> pathVct;
-<<<<<<< Updated upstream
-	regex commandRegex(R"(([MLHVZCSQAmlhvzcsqa])([^MLHVZCSQAmlhvzcsqa]*))");
-=======
 	regex commandRegex(R"(([MLHVZCSQTAqamlhvzcs])([^MLHVZCSQTAqamlhvzcs]*))");
->>>>>>> Stashed changes
 	smatch match;
 
 	point lastPoint = { 0, 0 };
@@ -348,13 +342,7 @@ path FileProcess::ReadPath(string d) {
 
 		pair<string, vector<point>> pathSegment;
 		pathSegment.first = command;
-<<<<<<< Updated upstream
 		if (command == "M" || command == "L" || command == "C" || command == "m" || command == "l" || command == "c" || command == "S" || command == "s" || command == "q" || command == "Q") {
-=======
-		if (command == "M" || command == "L" || command == "C" || command == "m" || command == "l" || command == "c" ||
-			command == "S" || command == "s" || command == "Q" || command == "q" ||
-			command == "T" || command == "t") {
->>>>>>> Stashed changes
 			vector<point> points = ReadPoint(args); // Chuyển chuỗi tọa độ thành vector<point>
 			pathSegment.second = points;
 			if (!points.empty()) {
