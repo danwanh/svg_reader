@@ -796,8 +796,8 @@ map <string, gradient*> FileProcess::ReadGradient(fstream& fi) {
 			temp->setSpreadMethod(attributes["spreadMethod"]);
 		}
 
-		if (attributes["gradientTransfrom"] != "") {
-			Trans = ReadTranCom(attributes["gradientTransfrom"]);
+		if (attributes["gradientTransform"] != "") {
+			Trans = ReadTranCom(attributes["gradientTransform"]);
 			temp->setTransform(Trans);
 		}
 		else if (attributes["transform"] != "") {
@@ -1005,7 +1005,7 @@ vector <Shape*> FileProcess::ReadFile() {
 		string name;
 		ss >> name;
 
-		regex attriPair(R"(\s*([a-zA-Z0-9-]+)=["']([^"']+)["'])");
+		regex attriPair(R"(\s*([a-zA-Z0-9-]+)\s*=\s*["']([^"']+)["'])");
 		smatch match;
 
 		std::map<std::string, std::string> attributes;
