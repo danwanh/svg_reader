@@ -903,6 +903,7 @@ map <string, gradient*> FileProcess::ReadGradient(fstream& fi) {
 				Stops.clear();
 			}
 		}
+		return mapGra;
 	}
 }
 // Show gradient
