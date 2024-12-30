@@ -887,6 +887,9 @@ void Draw::drawPath(Graphics& graphics, path* path, ViewBox *vb) {
 		else if (command == "Z" || command == "z") { // Close path
 			graphicsPath.CloseFigure();
 		}
+		
+
+
 	}
 	gradient* grad = path->getFillGradient();
 	if (grad == NULL) {
