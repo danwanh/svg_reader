@@ -257,7 +257,7 @@ path FileProcess::ReadPath(string d) {
 	}
 
 	vector<pair<string, vector<point>>> pathVct;
-	regex commandRegex(R"(([MLHVZCSAQmlhvzcsaq])([^MLHVZCSAQmlhvzcsaq]*))");
+	regex commandRegex(R"(([MLHVZCSmlhvzcs])([^MLHVZCSmlhvzcs]*))");
 	smatch match;
 
 	point lastPoint = { 0, 0 };
@@ -270,11 +270,7 @@ path FileProcess::ReadPath(string d) {
 		pair<string, vector<point>> pathSegment;
 
 		pathSegment.first = command;
-		if (command == "M" ||  command == "m" ||
-			command == "L" || command == "l" || 
-			command == "c" || command == "C" ||
-			command == "S" || command == "s" ||
-			command == "Q" || command == "q") {
+		if (command == "M" || command == "L" || command == "C" || command == "m" || command == "l" || command == "c" || command == "S" || command == "s") {
 			vector<point> points = ReadPoint(args); // Chuyển chuỗi tọa độ thành vector<point>
 			pathSegment.second = points;
 			if (!points.empty()) {
@@ -308,21 +304,6 @@ path FileProcess::ReadPath(string d) {
 
 			for (size_t i = 1; i < tmp.size(); ++i) {
 				pathVct.push_back({ "L", { tmp[i] } });
-			}
-		}
-		else if (command == "A" || command == "a") {
-			stringstream ss(args);
-			float rx, ry, xAxisRotation, x, y;
-			int largeArcFlag, sweepFlag;
-
-			while (ss >> rx >> ry >> xAxisRotation >> largeArcFlag >> sweepFlag >> x >> y) {
-				if (command == "a") { // Tọa độ tương đối
-					x += lastPoint.getX();
-					y += lastPoint.getY();
-				}
-				point arcPoint(x, y);
-				pathSegment.second.push_back(arcPoint);
-				lastPoint = arcPoint; // Cập nhật điểm cuối
 			}
 		}
 		else pathVct.push_back(pathSegment);
@@ -730,6 +711,7 @@ void FileProcess::ShowShape(Shape* shape) {
 		cout << Trans[i].getName() << " transX: " << Trans[i].getTransX() << " transY:  " << Trans[i].getTransY() << " rotate: " << Trans[i].getAngle() << " scaleX: " << Trans[i].getScaleX() << " scaleY: " << Trans[i].getScaleY() << " " << endl;
 	}
 }
+
 
 
 void FileProcess::ReadDefs(fstream& fi) {

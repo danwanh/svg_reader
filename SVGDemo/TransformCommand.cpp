@@ -3,7 +3,7 @@
 TransformCommand::TransformCommand() : name(""), transX(0), transY(0), angle(0), scaleX(1), scaleY(1), skewX(0), skewY(0) {
 
 }
-TransformCommand::TransformCommand(string n, float x, float y, float a, float sx, float sy) : name(n), transX(x), transY(y), angle(a), scaleX(sx), scaleY(sy){
+TransformCommand::TransformCommand(string n, float x, float y, float a, float sx, float sy) : name(n), transX(x), transY(y), angle(a), scaleX(sx), scaleY(sy) {
 
 }
 TransformCommand::TransformCommand(string n, float x, float y, float a, float sx, float sy, float skX, float skY) : name(n), transX(x), transY(y), angle(a), scaleX(sx), scaleY(sy), skewX(skX), skewY(skY) {
@@ -17,6 +17,8 @@ void TransformCommand::setTranslate(float x, float y) {
 	transX = x;
 	transY = y;
 	angle = 0;
+	skewX = 0;
+	skewY = 0;
 	scaleX = 1;
 	scaleY = 1;
 }
@@ -25,6 +27,8 @@ void TransformCommand::setScale(float sx, float sy) {
 	transX = 0;
 	transY = 0;
 	angle = 0;
+	skewX = 0;
+	skewY = 0;
 	scaleX = sx;
 	scaleY = sy;
 }
@@ -33,6 +37,8 @@ void TransformCommand::setScale(float d) {
 	transX = 0;
 	transY = 0;
 	angle = 0;
+	skewX = 0;
+	skewY = 0;
 	scaleX = d;
 	scaleY = d;
 }
@@ -41,6 +47,19 @@ void TransformCommand::setRotate(float a) {
 	transX = 0;
 	transY = 0;
 	angle = a;
+	skewX = 0;
+	skewY = 0;
+	scaleX = 1;
+	scaleY = 1;
+}
+
+void TransformCommand::setSkew(float skx, float sky) {
+	name = "skew";
+	transX = 0;
+	transY = 0;
+	angle = 0;
+	skewX = skx;
+	skewY = sky;
 	scaleX = 1;
 	scaleY = 1;
 }
@@ -62,13 +81,6 @@ float TransformCommand::getScaleX() {
 }
 float TransformCommand::getScaleY() {
 	return scaleY;
-}
-
-void TransformCommand::setSkewX(float a) {
-	this->skewX = a;
-}
-void TransformCommand::setSkewY(float a) {
-	this->skewY = a;
 }
 
 float TransformCommand::getSkewX() {
