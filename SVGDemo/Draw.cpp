@@ -1023,7 +1023,7 @@ void Draw::drawPath(Graphics& graphics, path* path, ViewBox *vb) {
 				graphicsPath.AddBezier(currentPoint, cubicControl1, cubicControl2, endPoint);
 				currentPoint = endPoint;
 			}
-			}
+		}
 		else if (command == "q") { // Quadratic Bézier Curve (relative)
 			for (size_t i = 0; i + 1 < points.size(); i += 2) {
 				PointF controlPoint(points[i].getX() + currentPoint.X,

@@ -124,7 +124,7 @@ MyColor FileProcess::ReadColor(string color) {
 
 vector<point> FileProcess::ReadPoint(string Point) {
 	vector<point> points;
-	regex pointRegex(R"((-?\d*\.?\d+)\s*,?\s*(-?\d*\.?\d+))"); // Xử lý cặp tọa độ
+	regex pointRegex(R"((-?\d*\.?\d+)\s*,?\s*(-?\d*\.?\d+))");
 	smatch match;
 	auto it = Point.cbegin();
 
@@ -382,38 +382,48 @@ path FileProcess::ReadPath(string d) {
 		}
 		if (command == "A" || command == "a") {
 			float rx, ry, xAxisRotation, largeArcFlag, sweepFlag, x, y;
-			regex numberRegex(R"((-?\d+(\.\d+)?))"); // Regex để tìm các số có thể âm và có hoặc không có phần thập phân
+			regex numberRegex(R"((-?(\d+(\.\d*)?|\.\d+)))");
 			smatch match;
 			auto it = args.cbegin();
-			int i = 0;
 
-			// Đọc các số trong chuỗi args
+			// While there are numbers to process
 			while (regex_search(it, args.cend(), match, numberRegex)) {
-				// Lấy giá trị từ match và chuyển sang float
-				float value = stof(match[1].str());
-				//cout << "========================" << value << endl;
-				if (i == 0) rx = value;
-				else if (i == 1) ry = value;
-				else if (i == 2) xAxisRotation = value;
-				else if (i == 3) largeArcFlag = value;
-				else if (i == 4) sweepFlag = value;
-				else if (i == 5) x = value;
-				else if (i == 6) y = value;
+				int i = 0; // Reset i for each new set of 7 numbers
 
-				// Tiến hành tăng chỉ số i
-				i++;
-				if (i == 7) break;
-				it = match[0].second;
+				// Read the next 7 numbers for one arc command
+				while (i < 7 && regex_search(it, args.cend(), match, numberRegex)) {
+					float value = stof(match[1].str()); // Convert matched string to float
+
+					switch (i) {
+					case 0: rx = value; break;
+					case 1: ry = value; break;
+					case 2: xAxisRotation = value; break;
+					case 3: largeArcFlag = value; break;
+					case 4: sweepFlag = value; break;
+					case 5: x = value; break;
+					case 6: y = value; break;
+					}
+
+					i++;
+					it = match[0].second; // Move to the next match
+				}
+
+				// Now that we have all 7 values for one arc, push them to pathSegment
+				pathSegment.second.push_back(point(rx, ry));  // Radii
+				pathSegment.second.push_back(point(xAxisRotation, largeArcFlag)); // Rotation angle and large arc flag
+				pathSegment.second.push_back(point(sweepFlag, x));  // Sweep flag and end x-coordinate
+				pathSegment.second.push_back(point(y, 0));  // End y-coordinate
+
+				lastPoint.setX(x);
+				lastPoint.setY(y);
+
+				// Optionally, print the values for debugging
+				// cout << "rx: " << rx << " ry: " << ry << " xAxisRotation: " << xAxisRotation 
+				//      << " largeArcFlag: " << largeArcFlag << " sweepFlag: " << sweepFlag
+				//      << " x: " << x << " y: " << y << endl;
 			}
-			//cout << rx << ry << xAxisRotation << largeArcFlag << sweepFlag << x << y << "---------------" << endl;
-			pathSegment.second.push_back(point(rx, ry));  // Lưu bán kính
-			pathSegment.second.push_back(point(xAxisRotation, largeArcFlag)); // Góc quay và cờ largeArc
-			pathSegment.second.push_back(point(sweepFlag, x));  // Cờ sweep và tọa độ x của điểm kết thúc
-			pathSegment.second.push_back(point(y, 0));
-
-			lastPoint.setX(x);
-			lastPoint.setY(y);
 		}
+
 		pathVct.push_back(pathSegment);
 
 		it = match[0].second;
