@@ -11,7 +11,7 @@ FileProcess::FileProcess(string name) {
 }
 void FileProcess::LoadColorMap() {
 	// COPY PATH de test
-	string C = "Color.txt";
+	string C = "D:\\TestReadFile1\\Color.txt";
 	//ifstream color_file(C.c_str(), ios::in);
 	ifstream color_file("Color.txt", ios::in);
 
@@ -137,6 +137,9 @@ vector<point> FileProcess::ReadPoint(string Point) {
 }
 
 void FileProcess::ReadStrokeAndFill(map<string, string> attributes, Shape* shape) {
+	if (attributes["class"] != "") {
+		ReadStrokeAndFill(styleMap[attributes["class"]], shape);
+	}
 	MyColor color;
 	if (attributes["fill-opacity"] != "") {
 		shape->getFillColor().setOpacity(stof(attributes["fill-opacity"]));
@@ -254,7 +257,7 @@ path FileProcess::ReadPath(string d) {
 	}
 
 	vector<pair<string, vector<point>>> pathVct;
-	regex commandRegex(R"(([MLHVZCSmlhvzcs])([^MLHVZCSmlhvzcs]*))");
+	regex commandRegex(R"(([MLHVZCSAQmlhvzcsaq])([^MLHVZCSAQmlhvzcsaq]*))");
 	smatch match;
 
 	point lastPoint = { 0, 0 };
@@ -267,7 +270,11 @@ path FileProcess::ReadPath(string d) {
 		pair<string, vector<point>> pathSegment;
 
 		pathSegment.first = command;
-		if (command == "M" || command == "L" || command == "C" || command == "m" || command == "l" || command == "c" || command == "S" || command == "s") {
+		if (command == "M" ||  command == "m" ||
+			command == "L" || command == "l" || 
+			command == "c" || command == "C" ||
+			command == "S" || command == "s" ||
+			command == "Q" || command == "q") {
 			vector<point> points = ReadPoint(args); // Chuyển chuỗi tọa độ thành vector<point>
 			pathSegment.second = points;
 			if (!points.empty()) {
@@ -301,6 +308,21 @@ path FileProcess::ReadPath(string d) {
 
 			for (size_t i = 1; i < tmp.size(); ++i) {
 				pathVct.push_back({ "L", { tmp[i] } });
+			}
+		}
+		else if (command == "A" || command == "a") {
+			stringstream ss(args);
+			float rx, ry, xAxisRotation, x, y;
+			int largeArcFlag, sweepFlag;
+
+			while (ss >> rx >> ry >> xAxisRotation >> largeArcFlag >> sweepFlag >> x >> y) {
+				if (command == "a") { // Tọa độ tương đối
+					x += lastPoint.getX();
+					y += lastPoint.getY();
+				}
+				point arcPoint(x, y);
+				pathSegment.second.push_back(arcPoint);
+				lastPoint = arcPoint; // Cập nhật điểm cuối
 			}
 		}
 		else pathVct.push_back(pathSegment);
@@ -672,30 +694,32 @@ void FileProcess::ShowShape(Shape* shape) {
 		}
 	}
 	// xem gradient
-	if (shape->isUsingGradient() == true) {
-		if (shape->getFillGradient() != NULL) {
-			cout << " url " << shape->getFillGradient()->getId() << endl;
-			cout << " fill gradient " << endl;
-			vector <stop> stops = shape->getFillGradient()->getColorStop();
-			for (auto itt : stops) {
-				cout << " offset " << itt.offset << " " << endl;
-				cout << " stop - color: " << itt.stopColor.getRed() << " " << itt.stopColor.getGreen() << " " << itt.stopColor.getBlue();
-				cout << " stop - opacity: " << itt.stopColor.getOpacity() << endl;
-			}
-			cout << endl;
+	//if (shape->isUsingGradient() == true) {
+	if (shape->getFillGradient() != NULL) {
+		cout << " url " << shape->getFillGradient()->getId() << endl;
+		cout << " fill gradient " << endl;
+		vector <stop> stops = shape->getFillGradient()->getColorStop();
+		int i = 0;
+		for (auto itt : stops) {
+			cout << i++;
+			cout << " -----------offset " << itt.offset / 100 << " " << endl;
+			cout << " stop - color: " << itt.stopColor.getRed() << " " << itt.stopColor.getGreen() << " " << itt.stopColor.getBlue();
+			cout << " stop - opacity: " << itt.stopColor.getOpacity() << endl;
 		}
-
-		if (shape->getStrokeGradient() != NULL) {
-			cout << " stroke gradient " << endl;
-			vector <stop> stops = shape->getStrokeGradient()->getColorStop();
-			for (auto itt : stops) {
-				cout << " offset " << itt.offset << " " << endl;
-				cout << " stop - color: " << itt.stopColor.getRed() << " " << itt.stopColor.getGreen() << " " << itt.stopColor.getBlue();
-				cout << " stop - opacity: " << itt.stopColor.getOpacity() << endl;
-			}
-			cout << endl;
-		}
+		cout << endl;
 	}
+
+	if (shape->getStrokeGradient() != NULL) {
+		cout << " stroke gradient " << endl;
+		vector <stop> stops = shape->getStrokeGradient()->getColorStop();
+		for (auto itt : stops) {
+			cout << " offset " << itt.offset << " " << endl;
+			cout << " stop - color: " << itt.stopColor.getRed() << " " << itt.stopColor.getGreen() << " " << itt.stopColor.getBlue();
+			cout << " stop - opacity: " << itt.stopColor.getOpacity() << endl;
+		}
+		cout << endl;
+	}
+	//}
 
 	cout << " stroke width " << shape->getStroke().getStrokeWidth() << endl;
 	cout << " fill " << shape->getFillColor().getRed() << " " << shape->getFillColor().getGreen() << " " << shape->getFillColor().getBlue() << " " << shape->getFillColor().getOpacity() << endl;
@@ -707,24 +731,55 @@ void FileProcess::ShowShape(Shape* shape) {
 	}
 }
 
-// Doc gradient
 
-map <string, gradient*> FileProcess::ReadGradient(fstream& fi) {
-	map <string, gradient*> mapGra;
+void FileProcess::ReadDefs(fstream& fi) {
+	map <string, gradient*> gradientMap;
 	string s;
 	gradient* temp = NULL;
 	vector <stop> Stops;
 	vector <TransformCommand> Trans;
+
 	while (getline(fi, s, '>')) {
 		stringstream ss(s);
+		cout << "S: " << s << endl;
+		if (s == "/style") {
+			continue;
+		}
 		char c;
 		ss >> c;
 		string name;
 		ss >> name;
-
+		cout << name << endl;
 		if (name == "/defs") {
-			return mapGra;
+			return;
 		}
+
+		if (name == "style") {
+			string style;
+			getline(fi, style, '<');
+			string css = style;
+			regex classRegex(R"(\.([a-zA-Z0-9\-]+)\{([^}]*)\})");
+			regex propertyRegex(R"(([a-zA-Z\-]+):([^;]+);?)");
+			smatch classMatch, propertyMatch;
+
+			auto classStart = css.cbegin();
+			while (regex_search(classStart, css.cend(), classMatch, classRegex)) {
+				string className = classMatch[1];
+				string properties = classMatch[2];
+				cout << className << "  :   " << properties << endl;
+				map<string, string> propertyMap;
+				auto propertyStart = properties.cbegin();
+				while (regex_search(propertyStart, properties.cend(), propertyMatch, propertyRegex)) {
+					propertyMap[propertyMatch[1]] = propertyMatch[2];
+					propertyStart = propertyMatch.suffix().first;
+					cout << propertyMatch[1] << " -- " << propertyMatch[2] << endl;
+				}
+
+				styleMap[className] = propertyMap;
+				classStart = classMatch.suffix().first;
+			}
+		}
+
 		regex attriPair(R"(\s*([a-zA-Z0-9-]+)=["']([^"']+)["'])");
 		smatch match;
 
@@ -744,103 +799,42 @@ map <string, gradient*> FileProcess::ReadGradient(fstream& fi) {
 				temp->setId(attributes["id"]);
 			}
 			if (attributes["r"] != "") {
-				string strTemp = attributes["r"];
-				if (strTemp.back() == '%') {
-					dynamic_cast<radialGradient*>(temp)->setR(stod(strTemp.substr(0, strTemp.size() - 1)) / 100.0);
-				}
-				else {
-					dynamic_cast<radialGradient*>(temp)->setR(stod(strTemp));
-				}
+				dynamic_cast<radialGradient*>(temp)->setR(stod(attributes["r"]));
 			}
-
 			if (attributes["cx"] != "") {
-				string strTemp = attributes["cx"];
-				if (strTemp.back() == '%') {
-					dynamic_cast<radialGradient*>(temp)->setCx(stod(strTemp.substr(0, strTemp.size() - 1)) / 100.0);
-				}
-				else {
-					dynamic_cast<radialGradient*>(temp)->setCx(stod(strTemp));
-				}
+				dynamic_cast<radialGradient*>(temp)->setCx(stod(attributes["cx"]));
 			}
-
 			if (attributes["cy"] != "") {
-				string strTemp = attributes["cy"];
-				if (strTemp.back() == '%') {
-					dynamic_cast<radialGradient*>(temp)->setCy(stod(strTemp.substr(0, strTemp.size() - 1)) / 100.0);
-				}
-				else {
-					dynamic_cast<radialGradient*>(temp)->setCy(stod(strTemp));
-				}
+				dynamic_cast<radialGradient*>(temp)->setCy(stod(attributes["cy"]));
 			}
-
 			if (attributes["fx"] != "") {
-				string strTemp = attributes["fx"];
-				if (strTemp.back() == '%') {
-					dynamic_cast<radialGradient*>(temp)->setFx(stod(strTemp.substr(0, strTemp.size() - 1)) / 100.0);
-				}
-				else {
-					dynamic_cast<radialGradient*>(temp)->setFx(stod(strTemp));
-				}
+				dynamic_cast<radialGradient*>(temp)->setFx(stod(attributes["fx"]));
 			}
-
 			if (attributes["fy"] != "") {
-				string strTemp = attributes["fy"];
-				if (strTemp.back() == '%') {
-					dynamic_cast<radialGradient*>(temp)->setFy(stod(strTemp.substr(0, strTemp.size() - 1)) / 100.0);
-				}
-				else {
-					dynamic_cast<radialGradient*>(temp)->setFy(stod(strTemp));
-				}
+				dynamic_cast<radialGradient*>(temp)->setFy(stod(attributes["fy"]));
 			}
-
 			if (attributes["fr"] != "") {
-				string strTemp = attributes["fr"];
-				if (strTemp.back() == '%') {
-					dynamic_cast<radialGradient*>(temp)->setFr(stod(strTemp.substr(0, strTemp.size() - 1)) / 100.0);
-				}
-				else {
-					dynamic_cast<radialGradient*>(temp)->setFr(stod(strTemp));
-				}
+				dynamic_cast<radialGradient*>(temp)->setFy(stod(attributes["fr"]));
 			}
-
 		}
 		else if (name == "linearGradient") {
 			temp = new linearGradient;
-			temp->setType(GradientType::LINEAR);
+			temp->setType(GradientType(1));
 
 			if (attributes["id"] != "") {
 				temp->setId(attributes["id"]);
 			}
 			if (attributes["x1"] != "") {
-				string strTemp = attributes["x1"];
-				if(strTemp.back() == '%')
-				{
-					dynamic_cast<linearGradient*>(temp)->setX1(stod(attributes["x1"])/100);
-				}
-				else dynamic_cast<linearGradient*>(temp)->setX1(stod(attributes["x1"]));
+				dynamic_cast<linearGradient*>(temp)->setX1(stod(attributes["x1"]));
 			}
 			if (attributes["x2"] != "") {
-				string strTemp = attributes["x2"];
-				if (strTemp.back() == '%')
-				{
-					dynamic_cast<linearGradient*>(temp)->setX2(stod(attributes["x2"]) / 100);
-				}
-				else dynamic_cast<linearGradient*>(temp)->setX2(stod(attributes["x2"]));
+				dynamic_cast<linearGradient*>(temp)->setX2(stod(attributes["x2"]));
 			}
 			if (attributes["y1"] != "") {
-				string strTemp = attributes["y1"];
-				if (strTemp.back() == '%')
-				{
-					dynamic_cast<linearGradient*>(temp)->setY1(stod(attributes["y1"]) / 100);
-				}
-				else dynamic_cast<linearGradient*>(temp)->setY1(stod(attributes["y1"]));
+				dynamic_cast<linearGradient*>(temp)->setY1(stod(attributes["y1"]));
 			}
 			if (attributes["y2"] != "") {
-				if (attributes["y2"].back() == '%')
-				{
-					dynamic_cast<linearGradient*>(temp)->setY2(stod(attributes["y2"]) / 100);
-				}
-				else dynamic_cast<linearGradient*>(temp)->setY2(stod(attributes["y2"]));
+				dynamic_cast<linearGradient*>(temp)->setY2(stod(attributes["y2"]));
 			}
 		}
 		if (attributes["gradientUnits"] != "") {
@@ -869,8 +863,8 @@ map <string, gradient*> FileProcess::ReadGradient(fstream& fi) {
 			getline(sslink, url, '#');
 			getline(sslink, url, '"');
 
-			if (mapGra[url] != NULL) {
-				vector <stop> STOP = mapGra[url]->getColorStop();
+			if (gradientMap[url] != NULL) {
+				vector <stop> STOP = gradientMap[url]->getColorStop();
 				temp->setColorStop(STOP);
 			}
 		}
@@ -886,55 +880,20 @@ map <string, gradient*> FileProcess::ReadGradient(fstream& fi) {
 				Stop.stopColor = stopColor;
 			}
 			Stops.push_back(Stop);
-			//string S;
-			//while (getline(fi, S, '>')) {
-			//	stringstream sss(S);
-			//	string subName;
-			//	sss >> subName;
-
-			//	if (subName == "/linearGradient" || subName == "/radialGradient") {
-			//		break;
-			//	}
-			//	else {
-			//		regex AttriPair(R"(\s*([a-zA-Z0-9-]+)=["']([^"']+)["'])");
-			//		smatch Match;
-
-			//		std::map<std::string, std::string> Attributes;
-			//		auto It = S.cbegin();
-			//		while (regex_search(It, S.cend(), Match, AttriPair)) {
-			//			Attributes[Match[1]] = Match[2]; // store attribute name and value
-			//			It = Match[0].second; // update position for next search
-			//		}
-			//		if (S == "<stop") {
-			//			stop STOP;
-			//			double Offset = 0;
-			//			if (Attributes["offset"] != "")
-			//				Offset = stod(Attributes["offset"]);
-			//			STOP.offset = Offset;
-			//			if (Attributes["stop-color"] != "") {
-			//				MyColor StopColor = this->ReadColor(Attributes["stop-color"]);
-			//				STOP.stopColor = StopColor;
-			//			}
-			//			Stops.push_back(STOP);
-			//		}
-			//	}
-
-			//}
-			//temp->setColorStop(Stops);
 		}
 
 		if (name == "/linearGradient" || name == "/radialGradient" || radial) {
 			temp->setColorStop(Stops);
-			mapGra.insert(make_pair(temp->getId(), temp));
+			gradientMap.insert(make_pair(temp->getId(), temp));
+			//temp = NULL;
 			Stops.clear();
 		}
 	}
-	return mapGra;
 }
 
 // Show gradient
-void ShowGradient(map <string, gradient*> MapGra) {
-	for (auto it : MapGra) {
+void ShowGradient(map <string, gradient*> gradientMap) {
+	for (auto it : gradientMap) {
 		if (it.second->getType() == GradientType(1)) {
 			cout << " type: linearGradient" << endl;
 			cout << " id " << it.second->getId() << endl;
@@ -1005,7 +964,7 @@ void ShowViewBox(ViewBox* viewbox) {
 
 
 vector <Shape*> FileProcess::ReadFile() {
-	map <string, gradient*> mapGra; // neu nhu viet ham chinh thuc thi khong can
+	map <string, gradient*> gradientMap; // neu nhu viet ham chinh thuc thi khong can
 	vector <Shape*> figure;
 	LoadColorMap();
 	string key;
@@ -1032,7 +991,7 @@ vector <Shape*> FileProcess::ReadFile() {
 		string name;
 		ss >> name;
 
-		regex attriPair(R"(\s*([a-zA-Z0-9-]+)\s*=\s*["']([^"']+)["'])");
+		regex attriPair(R"(\s*([a-zA-Z0-9-]+)=["']([^"']+)["'])");
 		smatch match;
 
 		std::map<std::string, std::string> attributes;
@@ -1043,9 +1002,12 @@ vector <Shape*> FileProcess::ReadFile() {
 			it = match[0].second; // Cập nhật vị trí để tìm kiếm tiếp ( trỏ đến vị trí tiếp theo)
 		}
 
+
 		if (name == "svg") {
 			// doc viewbox
 			if (attributes["viewBox"] != "") {
+				cout << attributes["viewBox"] << "--------------------------------";
+
 				stringstream sss(attributes["viewBox"]);
 				float vb;
 				sss >> vb;
@@ -1066,16 +1028,17 @@ vector <Shape*> FileProcess::ReadFile() {
 			if (attributes["height"] != "") {
 				this->viewbox->setPortHeight(stof(attributes["height"]));
 			}
-			//ShowViewBox(this->viewbox);
+			ShowViewBox(this->viewbox);
 		}
 		// xu li def
 		if (name == "defs") {
-			this->gradientMap = this->ReadGradient(fi);
-			//cout << " Show GRADIENT " << endl;
-			//ShowGradient(gradientMap);
+			this->ReadDefs(fi);
+			cout << " Show GRADIENT " << endl;
+			ShowGradient(gradientMap);
 		}
 
-		//ShowGradient(mapGra);
+
+		//ShowGradient(gradientMap);
 
 
 		Shape* shape = this->ReadShape(attributes, name);
@@ -1130,6 +1093,7 @@ vector <Shape*> FileProcess::ReadFile() {
 		if (shape != NULL) {
 			figure.push_back(shape);
 		}
+		cout << name << endl;
 	}
 	fi.close();
 	return figure;
