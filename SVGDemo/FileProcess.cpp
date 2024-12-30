@@ -225,40 +225,41 @@ void FileProcess::ReadStrokeAndFill(map<string, string> attributes, Shape* shape
 
 }
 
-// Xu li transform neu no la ma tran
 vector<TransformCommand> FileProcess::ReadTranCom(string trans) {
 	vector <TransformCommand> transcom;
 	// Xu li transform khi no la matrix
 	if (trans.find("matrix") != string::npos) {
-		regex pattern(R"(matrix\(([-+]?[0-9]*\.?[0-9]+)[ ,]+([-+]?[0-9]*\.?[0-9]+)[ ,]+([-+]?[0-9]*\.?[0-9]+)[ ,]+([-+]?[0-9]*\.?[0-9]+)[ ,]+([-+]?[0-9]*\.?[0-9]+)[ ,]+([-+]?[0-9]*\.?[0-9]+)\))");
+		regex pattern(R"(\(([^)]+)\))");
 		smatch matches;
 
 		if (regex_search(trans, matches, pattern)) {
-			int size = matches.size();
+
 			TransformCommand temp;
+			stringstream ss(matches[1]);
+			cout << ss.str() << endl;
+			float x[6] = { 1, 1, 0, 0, 0, 0 };
+
+			int size = 0;
+			while (ss >> x[size++]);
 
 			if (size > 1) {
 				temp.setName("scale");
-				temp.setScale(stof(matches[1]), stof(matches[2]));
+				temp.setScale(x[0], x[1]);
 				transcom.push_back(temp);
 			}
-
 			if (size > 3) {
-				temp.setName("skewX");
-				temp.setSkewX(stof(matches[3]));
+				temp.setName("skew");
+				temp.setSkew(x[2], x[3]);
 				transcom.push_back(temp);
 
-				temp.setName("skewY");
-				temp.setSkewY(stof(matches[4]));
-				transcom.push_back(temp);
 			}
 			if (size > 5) {
 				temp.setName("translate");
-				temp.setTranslate(stof(matches[5]), stof(matches[6]));
+				temp.setTranslate(x[4], x[5]);
+				transcom.push_back(temp);
 			}
 		}
 	}
-
 	regex attriPair(R"((\b[a-zA-Z]+\b)\(([^)]+)\))");
 	smatch match;
 	std::map<std::string, std::string> attributes;
@@ -269,7 +270,6 @@ vector<TransformCommand> FileProcess::ReadTranCom(string trans) {
 		TransformCommand temp;
 		if (name == "translate") {
 			temp.setName("translate");
-<<<<<<< HEAD
 			int length = value.length();
 			for (int i = 0; i < length; i++) {
 				if (isdigit(value[i]) == false)
@@ -286,13 +286,6 @@ vector<TransformCommand> FileProcess::ReadTranCom(string trans) {
 			ss >> x;
 			ss >> y;
 			temp.setTranslate(x, y);
-=======
-			smatch valMatch;
-			regex transVal(R"(\s*(-?\d+(\.\d+)?)[\s,]*(-?\d+(\.\d+)?)\s*)");
-			if (regex_search(value, valMatch, transVal)) {
-				temp.setTranslate(stof(valMatch[1]), stof(valMatch[3]));
-			}
->>>>>>> c76a73d935602fdbb82c3c6941813204350d9c99
 		}
 		else if (name == "rotate") {
 			temp.setName("rotate");
@@ -315,7 +308,8 @@ vector<TransformCommand> FileProcess::ReadTranCom(string trans) {
 				temp.setScale(stof(valMatch[1]));
 			}
 		}
-		transcom.push_back(temp);
+		if (name == "scale" || name == "rotate" || name == "translate")
+			transcom.push_back(temp);
 		it = match[0].second;
 	}
 	return transcom;
@@ -670,7 +664,6 @@ void FileProcess::ReadGroupChild(map<string, string>& pAttributes, group* parent
 void FileProcess::ShowShape(Shape* shape) {
 	if (shape == NULL)
 		return;
-<<<<<<< HEAD
 	cout << " stroke width " << shape->getStroke().getStrokeWidth() << endl;
 	cout << " fill " << shape->getFillColor().getRed() << " " << shape->getFillColor().getGreen() << " " << shape->getFillColor().getBlue() << " " << shape->getFillColor().getOpacity() << endl;
 	cout << " stroke " << shape->getStroke().getStrokeColor().getRed() << " " << shape->getStroke().getStrokeColor().getGreen() << " " << shape->getStroke().getStrokeColor().getBlue() << " " << shape->getStroke().getStrokeColor().getOpacity() << endl;
@@ -682,8 +675,6 @@ void FileProcess::ShowShape(Shape* shape) {
 		cout << Trans[i].getName() << " transX: " << Trans[i].getTransX() << " transY:  " << Trans[i].getTransY() << " rotate: " << Trans[i].getAngle() << " scaleX: " << Trans[i].getScaleX() << " scaleY: " << Trans[i].getScaleY() << " " " skewX: " << Trans[i].getSkewX() << " " << " skewY: " << Trans[i].getSkewY() << endl;
 	}
 
-=======
->>>>>>> c76a73d935602fdbb82c3c6941813204350d9c99
 	if (shape->getName() == "rect") {
 		rectangle* temp = dynamic_cast<rectangle*>(shape);
 		cout << " name " << temp->getName() << endl;
@@ -750,13 +741,9 @@ void FileProcess::ShowShape(Shape* shape) {
 	}
 	else if (shape->getName() == "g") {
 		group* temp = dynamic_cast<group*>(shape);
-<<<<<<< HEAD
 		cout << " name " << temp->getName() << endl;
-		//cout << "GROUP G: \n";
-=======
-		//cout << " name " << temp->getName() << endl;
 		cout << "GROUP G: \n";
->>>>>>> c76a73d935602fdbb82c3c6941813204350d9c99
+
 		ShowShape(temp->getParent());
 		cout << endl;
 		vector<Shape*> children = temp->getChildren();
@@ -775,23 +762,13 @@ void FileProcess::ShowShape(Shape* shape) {
 		int i = 0;
 		for (auto itt : stops) {
 			cout << i++;
-			cout << " -----------offset " << itt.offset / 100 << " " << endl;
+			cout << " ffset " << itt.offset / 100 << " " << endl;
 			cout << " stop - color: " << itt.stopColor.getRed() << " " << itt.stopColor.getGreen() << " " << itt.stopColor.getBlue();
 			cout << " stop - opacity: " << itt.stopColor.getOpacity() << endl;
 		}
 		cout << endl;
 	}
 
-<<<<<<< HEAD
-	//cout << " stroke width " << shape->getStroke().getStrokeWidth() << endl;
-	//cout << " fill " << shape->getFillColor().getRed() << " " << shape->getFillColor().getGreen() << " " << shape->getFillColor().getBlue() << " " << shape->getFillColor().getOpacity() << endl;
-	//cout << " stroke " << shape->getStroke().getStrokeColor().getRed() << " " << shape->getStroke().getStrokeColor().getGreen() << " " << shape->getStroke().getStrokeColor().getBlue() << " " << shape->getStroke().getStrokeColor().getOpacity() << endl;
-	//vector<TransformCommand>  Trans = shape->getTransform();
-	//int size = Trans.size();
-	//for (int i = 0; i < size; i++) {
-	//	cout << Trans[i].getName() << " transX: " << Trans[i].getTransX() << " transY:  " << Trans[i].getTransY() << " rotate: " << Trans[i].getAngle() << " scaleX: " << Trans[i].getScaleX() << " scaleY: " << Trans[i].getScaleY() << " " << endl;
-	//}
-=======
 	if (shape->getStrokeGradient() != NULL) {
 		cout << " stroke gradient " << endl;
 		vector <stop> stops = shape->getStrokeGradient()->getColorStop();
@@ -802,17 +779,7 @@ void FileProcess::ShowShape(Shape* shape) {
 		}
 		cout << endl;
 	}
-	//}
 
-	cout << " stroke width " << shape->getStroke().getStrokeWidth() << endl;
-	cout << " fill " << shape->getFillColor().getRed() << " " << shape->getFillColor().getGreen() << " " << shape->getFillColor().getBlue() << " " << shape->getFillColor().getOpacity() << endl;
-	cout << " stroke " << shape->getStroke().getStrokeColor().getRed() << " " << shape->getStroke().getStrokeColor().getGreen() << " " << shape->getStroke().getStrokeColor().getBlue() << " " << shape->getStroke().getStrokeColor().getOpacity() << endl;
-	vector<TransformCommand>  Trans = shape->getTransform();
-	int size = Trans.size();
-	for (int i = 0; i < size; i++) {
-		cout << Trans[i].getName() << " transX: " << Trans[i].getTransX() << " transY:  " << Trans[i].getTransY() << " rotate: " << Trans[i].getAngle() << " scaleX: " << Trans[i].getScaleX() << " scaleY: " << Trans[i].getScaleY() << " " << endl;
-	}
->>>>>>> c76a73d935602fdbb82c3c6941813204350d9c99
 }
 
 
@@ -988,8 +955,6 @@ void FileProcess::ReadDefs(fstream& fi) {
 				MyColor stopColor = this->ReadColor(attributes["stop-color"]);
 				Stop.stopColor = stopColor;
 			}
-<<<<<<< HEAD
-
 			else if (attributes["style"] != "") {
 				std::regex colorPair(R"((\w+-?\w*):\s*([^;]+))");
 				std::smatch colorMatch;
@@ -1012,22 +977,14 @@ void FileProcess::ReadDefs(fstream& fi) {
 				}
 
 			}
-=======
->>>>>>> c76a73d935602fdbb82c3c6941813204350d9c99
 			Stops.push_back(Stop);
 		}
 
 		if (name == "/linearGradient" || name == "/radialGradient" || radial) {
 			temp->setColorStop(Stops);
-<<<<<<< HEAD
-			mapGra.insert(make_pair(temp->getId(), temp));
-=======
 			gradientMap.insert(make_pair(temp->getId(), temp));
-			//temp = NULL;
->>>>>>> c76a73d935602fdbb82c3c6941813204350d9c99
 			Stops.clear();
 		}
-		return mapGra;
 	}
 }
 
@@ -1136,12 +1093,7 @@ vector <Shape*> FileProcess::ReadFile() {
 		string name;
 		ss >> name;
 
-<<<<<<< HEAD
-
 		regex attriPair(R"(\s*([a-zA-Z0-9-]+)\s?=\s?["']([^"']+)["'])");
-=======
-		regex attriPair(R"(\s*([a-zA-Z0-9-]+)=["']([^"']+)["'])");
->>>>>>> c76a73d935602fdbb82c3c6941813204350d9c99
 		smatch match;
 
 		std::map<std::string, std::string> attributes;
@@ -1187,13 +1139,6 @@ vector <Shape*> FileProcess::ReadFile() {
 			ShowGradient(gradientMap);
 		}
 
-<<<<<<< HEAD
-=======
-
-		//ShowGradient(gradientMap);
-
-
->>>>>>> c76a73d935602fdbb82c3c6941813204350d9c99
 		Shape* shape = this->ReadShape(attributes, name);
 		if (name == "text") {
 			cout << " TEXT" << s << endl;
@@ -1262,10 +1207,4 @@ ViewBox* FileProcess::GetViewBox() {
 }
 void FileProcess::SetViewBox(ViewBox* vb) {
 	this->viewbox = vb;
-<<<<<<< HEAD
 }
-
-// Sửa lại viewbox, TH có dấu cách hai bên dấu bằng (" = ") 
-=======
-}
->>>>>>> c76a73d935602fdbb82c3c6941813204350d9c99
