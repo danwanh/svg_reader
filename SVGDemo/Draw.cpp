@@ -1,4 +1,4 @@
-﻿#include"stdafx.h"
+﻿#include "stdafx.h"
 #include "Draw.h"
 void Draw::renderFillGradient(Graphics& graphics, GraphicsPath* path, gradient* grad, Shape* shape, ViewBox* vb) {
 	if (shape->getName() != "path") {
