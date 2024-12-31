@@ -669,6 +669,17 @@ void FileProcess::ReadGroupChild(map<string, string>& pAttributes, group* parent
 			regex textPattern(R"(([\s\S]*?)</text>)");
 			if (regex_search(s, matchContent, textPattern)) {
 				string content = matchContent[1].str();
+				/// Chỉnh sửa tạm thời TH cụ thể
+				string findStr[] = { "&lt;", "&gt;" };
+				string replaceStr[] = { "<", ">" };
+				for (int i = 0; i < 2; i++) {
+					int pos = 0;
+					while ((pos = content.find(findStr[i], pos)) != std::string::npos) {
+						content.replace(pos, findStr[i].length(), replaceStr[i]);
+						pos += replaceStr[i].length();
+					}
+				}
+				//
 				if (shape) {
 					text* temp = dynamic_cast<text*>(shape);
 					if (temp) {
@@ -1236,6 +1247,17 @@ vector <Shape*> FileProcess::ReadFile() {
 			if (regex_search(s, matchContent, textPattern)) {
 				// match[1] chứa nội dung giữa thẻ <text>
 				string content = matchContent[1].str();
+				/// Chỉnh sửa tạm thời TH cụ thể
+				string findStr[] = { "&lt;", "&gt;" };
+				string replaceStr[] = { "<", ">" };
+				for (int i = 0; i < 2; i++) {
+					int pos = 0;
+					while ((pos = content.find(findStr[i], pos)) != std::string::npos) {
+						content.replace(pos, findStr[i].length(), replaceStr[i]);
+						pos += replaceStr[i].length();
+					}
+				}
+				//
 				if (shape) {
 					text* temp = dynamic_cast<text*> (shape);
 					temp->setContent(content);
