@@ -1,4 +1,4 @@
-﻿//#include "stdafx.h"
+﻿﻿//#include "stdafx.h"
 //#include "FileProcess.h"
 //
 //FileProcess::~FileProcess() {
@@ -1678,7 +1678,12 @@ path FileProcess::ReadPath(string d) {
 			for (size_t i = 1; i < tmp.size(); ++i) {
 				pathVct.push_back({ "L", { tmp[i] } });
 			}
+<<<<<<< HEAD
+		}
+		else pathVct.push_back(pathSegment);
+=======
 		} else pathVct.push_back(pathSegment);
+>>>>>>> 6b71f12971b5b61305fcf61f14bd1fb554744450
 
 		it = match[0].second;
 	}
@@ -2580,4 +2585,3 @@ ViewBox* FileProcess::GetViewBox() {
 void FileProcess::SetViewBox(ViewBox* vb) {
 	this->viewbox = vb;
 }
-
