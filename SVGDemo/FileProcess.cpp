@@ -1553,6 +1553,22 @@ vector<TransformCommand> FileProcess::ReadTranCom(string trans) {
 			else if (regex_search(value, valMatch, transVal2)) {
 				temp.setScale(stof(valMatch[1]));
 			}
+			//	Xử lí tạm thời khi gặp scale dạng (a.b.c)
+			if (value.find(",") == string::npos) {
+				int count = 0;
+				int size = value.size();
+				for (int i = 0; i < size; i++) {
+					if (value[i] == '.')
+						count++;
+				}
+				if (count == 2) {
+					stringstream ss(value);
+					float x = 1, y = 1;
+					ss >> x;
+					ss >> y;
+					temp.setScale(x, y);
+				}
+			}
 		}
 		if (name == "scale" || name == "rotate" || name == "translate")
 			transcom.push_back(temp);
@@ -1653,9 +1669,21 @@ path FileProcess::ReadPath(string d) {
 				lastPoint.setY(y);
 			}
 		}
+<<<<<<< HEAD
 
 		pathVct.push_back(pathSegment);
 
+=======
+		if (command == "M" && pathSegment.second.size() > 1) {
+			vector<point> tmp = pathSegment.second;
+			pathVct.push_back({ "M", { tmp[0] } });
+			//neu M co nhieu diem theo sau thi L toi cac diem do
+
+			for (size_t i = 1; i < tmp.size(); ++i) {
+				pathVct.push_back({ "L", { tmp[i] } });
+			}
+		} else pathVct.push_back(pathSegment);
+>>>>>>> 69ef63c91a432d2b241f370afc7e764e4bfe6fa9
 		it = match[0].second;
 	}
 	/*if (pathVct.back().first != "Z" || pathVct.back().first != "z") {
@@ -1895,6 +1923,17 @@ void FileProcess::ReadGroupChild(map<string, string>& pAttributes, group* parent
 			regex textPattern(R"(([\s\S]*?)</text>)");
 			if (regex_search(s, matchContent, textPattern)) {
 				string content = matchContent[1].str();
+				/// Chỉnh sửa tạm thời TH cụ thể
+				string findStr[] = { "&lt;", "&gt;" };
+				string replaceStr[] = { "<", ">" };
+				for (int i = 0; i < 2; i++) {
+					int pos = 0;
+					while ((pos = content.find(findStr[i], pos)) != std::string::npos) {
+						content.replace(pos, findStr[i].length(), replaceStr[i]);
+						pos += replaceStr[i].length();
+					}
+				}
+				//
 				if (shape) {
 					text* temp = dynamic_cast<text*>(shape);
 					if (temp) {
@@ -2203,6 +2242,7 @@ map <string, gradient*> FileProcess::ReadDefs(fstream& fi) {
 				temp->setId(attributes["id"]);
 			}
 			if (attributes["x1"] != "") {
+<<<<<<< HEAD
 				string strTemp = attributes["x1"];
 				if (strTemp.back() == '%')
 				{
@@ -2232,6 +2272,34 @@ map <string, gradient*> FileProcess::ReadDefs(fstream& fi) {
 					dynamic_cast<linearGradient*>(temp)->setY2(stod(attributes["y2"]) / 100);
 				}
 				else dynamic_cast<linearGradient*>(temp)->setY2(stod(attributes["y2"]));
+=======
+				if (attributes["x1"].find("%") != string::npos) {
+					dynamic_cast<linearGradient*>(temp)->setX1(stod(attributes["x1"]) / 100);
+				}
+				else
+					dynamic_cast<linearGradient*>(temp)->setX1(stod(attributes["x1"]));
+			}
+			if (attributes["x2"] != "") {
+				if (attributes["x2"].find("%") != string::npos) {
+					dynamic_cast<linearGradient*>(temp)->setX2(stod(attributes["x2"]) / 100);
+				}
+				else
+					dynamic_cast<linearGradient*>(temp)->setX2(stod(attributes["x2"]));
+			}
+			if (attributes["y1"] != "") {
+				if (attributes["y1"].find("%") != string::npos) {
+					dynamic_cast<linearGradient*>(temp)->setY1(stod(attributes["y1"]) / 100);
+				}
+				else
+					dynamic_cast<linearGradient*>(temp)->setY1(stod(attributes["y1"]));
+			}
+			if (attributes["y2"] != "") {
+				if (attributes["y2"].find("%") != string::npos) {
+					dynamic_cast<linearGradient*>(temp)->setY2(stod(attributes["y2"]) / 100);
+				}
+				else
+					dynamic_cast<linearGradient*>(temp)->setY2(stod(attributes["y2"]));
+>>>>>>> 69ef63c91a432d2b241f370afc7e764e4bfe6fa9
 			}
 		}
 		if (attributes["gradientUnits"] != "") {
@@ -2475,6 +2543,17 @@ vector <Shape*> FileProcess::ReadFile() {
 			if (regex_search(s, matchContent, textPattern)) {
 				// match[1] chứa nội dung giữa thẻ <text>
 				string content = matchContent[1].str();
+				/// Chỉnh sửa tạm thời TH cụ thể
+				string findStr[] = { "&lt;", "&gt;" };
+				string replaceStr[] = { "<", ">" };
+				for (int i = 0; i < 2; i++) {
+					int pos = 0;
+					while ((pos = content.find(findStr[i], pos)) != std::string::npos) {
+						content.replace(pos, findStr[i].length(), replaceStr[i]);
+						pos += replaceStr[i].length();
+					}
+				}
+				//
 				if (shape) {
 					text* temp = dynamic_cast<text*> (shape);
 					temp->setContent(content);
