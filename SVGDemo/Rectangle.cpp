@@ -4,11 +4,18 @@
 rectangle::rectangle() {
 	start.setX(0);
 	start.setY(0);
+	rx = 0;
+	ry = 0;
 	width = 0;
 	height = 0;
 }
 
 rectangle::rectangle(float x, float y, float w, float h, MyColor stroke, float strokeW, MyColor fill, string name, vector<TransformCommand> t) : Shape(stroke, strokeW, fill, name, t),  width(w), height(h) {
+	start.setX(x);
+	start.setY(y);
+}
+
+rectangle::rectangle(float x, float y, float w, float h, float Rx, float Ry, MyColor stroke, float strokeW, MyColor fill, string name, vector<TransformCommand> t) : Shape(stroke, strokeW, fill, name, t), width(w), height(h), rx(Rx), ry(Ry) {
 	start.setX(x);
 	start.setY(y);
 }
@@ -19,6 +26,15 @@ float rectangle::getRecX() {
 
 float rectangle::getRecY() {
 	return this->start.getY();
+}
+
+
+float rectangle::getRx() {
+	return rx;
+}
+
+float rectangle::getRy() {
+	return ry;
 }
 
 float rectangle::getWidth() {
@@ -36,6 +52,15 @@ void rectangle::setRecX(float x) {
 void rectangle::setRecY(float y) {
 	start.setY(y);
 }
+
+void rectangle::setRx(float x) {
+	this->rx = (x);
+}
+
+void rectangle::setRy(float y) {
+	this->ry = y;
+}
+
 
 void rectangle::setWidth(float width) {
 	this->width = width;
