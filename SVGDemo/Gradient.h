@@ -7,6 +7,12 @@ class stop {
 public:
     MyColor stopColor; // Màu của điểm dừng (r, g, b, opa)
     double offset;         // Vị trí điểm dừng 
+    stop(MyColor c, double o) : stopColor(c), offset(o) {
+
+    }
+    stop() {
+
+    }
 };
 
 enum class GradientType {
