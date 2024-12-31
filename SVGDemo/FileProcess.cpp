@@ -370,8 +370,7 @@ path FileProcess::ReadPath(string d) {
 		else if (command == "Z" || command == "z") {
 			pathSegment.second.push_back(lastPoint);
 		}
-<<<<<<< HEAD
-	
+
 		if (command == "M" && pathSegment.second.size() > 1) {
 			vector<point> tmp = pathSegment.second;
 			pathVct.push_back({ "M", { tmp[0] } });
@@ -381,10 +380,6 @@ path FileProcess::ReadPath(string d) {
 				pathVct.push_back({ "L", { tmp[i] } });
 			}
 		}
-=======
-
-		
->>>>>>> 6fb409ad1081176f75f38b197ffb0a68bc5436d5
 		if (command == "A" || command == "a") {
 			float rx, ry, xAxisRotation, largeArcFlag, sweepFlag, x, y;
 			regex numberRegex(R"((-?(\d+(\.\d*)?|\.\d+)))");
@@ -421,26 +416,10 @@ path FileProcess::ReadPath(string d) {
 
 				lastPoint.setX(x);
 				lastPoint.setY(y);
-<<<<<<< HEAD
 			}
 		}
-		
+
 		pathVct.push_back(pathSegment);
-=======
-
-			}
-		}
-		if (command == "M" && pathSegment.second.size() > 1) {
-			vector<point> tmp = pathSegment.second;
-			pathVct.push_back({ "M", { tmp[0] } });
-			//neu M co nhieu diem theo sau thi L toi cac diem do
-
-			for (size_t i = 1; i < tmp.size(); ++i) {
-				pathVct.push_back({ "L", { tmp[i] } });
-			}
-		}
-		else pathVct.push_back(pathSegment);
->>>>>>> 6fb409ad1081176f75f38b197ffb0a68bc5436d5
 
 		it = match[0].second;
 	}
@@ -1063,7 +1042,7 @@ void FileProcess::ReadDefs(fstream& fi) {
             temp->setColorStop(Stops);
             gradientMap[temp->getId()] = temp;
             Stops.clear();
-        }
+		}
 	}
 }
 
