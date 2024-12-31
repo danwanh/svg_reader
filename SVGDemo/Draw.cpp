@@ -11,8 +11,8 @@ void Draw::renderFillGradient(Graphics& graphics, GraphicsPath* path, gradient* 
 	if (grad->getGradientUnits() == "userSpaceOnUse") {
 		x = vb->getMinX();
 		y = vb->getMinY();
-		width = vb->getPortHeight();
-		height = vb->getPortWidth();
+		width = vb->getPortWidth();
+		height = vb->getPortHeight();
 	}
 	else {
 		shape->getBoundingBox(x, y, width, height);
@@ -91,7 +91,7 @@ void Draw::renderFillGradient(Graphics& graphics, GraphicsPath* path, gradient* 
 				linearBrush.SetInterpolationColors(colors.data(), positions.data(), numStops);
 				GraphicsState save = graphics.Save();
 				graphics.FillPath(&linearBrush, path);
-
+				//graphics.SetClip(path, Gdiplus::CombineModeComplement);
 				// Vẽ gradient trên bounding box
 				//graphics.FillRectangle(&linearBrush, RectF(x, y, width, height));
 
@@ -125,14 +125,14 @@ void Draw::renderFillGradient(Graphics& graphics, GraphicsPath* path, gradient* 
 				REAL centerX, centerY, focusX, focusY, radiusX, radiusY;
 
 				// Tâm gradient (cx, cy)
-				if (radialGrad->getCx() < 1.0) {
+				if (radialGrad->getCx() <= 1.0) {
 					centerX = x + width * radialGrad->getCx();
 				}
 				else {
 					centerX = radialGrad->getCx();
 				}
 
-				if (radialGrad->getCy() < 1.0) {
+				if (radialGrad->getCy() <= 1.0) {
 					centerY = y + height * radialGrad->getCy();
 				}
 				else {
@@ -140,14 +140,14 @@ void Draw::renderFillGradient(Graphics& graphics, GraphicsPath* path, gradient* 
 				}
 
 				// Tâm tiêu cự (fx, fy)
-				if (radialGrad->getFx() < 1.0) {
+				if (radialGrad->getFx() <= 1.0) {
 					focusX = x + width * radialGrad->getFx();
 				}
 				else {
 					focusX = radialGrad->getFx();
 				}
 
-				if (radialGrad->getFy() < 1.0) {
+				if (radialGrad->getFy() <= 1.0) {
 					focusY = y + height * radialGrad->getFy();
 				}
 				else {
@@ -155,7 +155,7 @@ void Draw::renderFillGradient(Graphics& graphics, GraphicsPath* path, gradient* 
 				}
 
 				// Bán kính x và y (r)
-				if (radialGrad->getR() < 1.0) {
+				if (radialGrad->getR() <= 1.0) {
 					radiusX = width * radialGrad->getR();
 					radiusY = height * radialGrad->getR();
 				}
@@ -428,30 +428,168 @@ void Draw::renderStrokeGradient(Graphics& graphics, GraphicsPath* path, gradient
 						colorStops[i].stopColor.getGreen(),
 						colorStops[i].stopColor.getBlue()
 					);
-					positions[i] = static_cast<REAL>(colorStops[i].offset);
+					positions[i] = static_cast<REAL>(colorStops[i].offset / 100);
 				}
 
 
 				// Tâm gradient (cx, cy)
-				REAL centerX = x + width * radialGrad->getCx();
-				REAL centerY = y + height * radialGrad->getCy();
+				REAL centerX, centerY, focusX, focusY, radiusX, radiusY;
+
+				// Tâm gradient (cx, cy)
+				if (radialGrad->getCx() < 1.0) {
+					centerX = x + width * radialGrad->getCx();
+				}
+				else {
+					centerX = radialGrad->getCx();
+				}
+
+				if (radialGrad->getCy() < 1.0) {
+					centerY = y + height * radialGrad->getCy();
+				}
+				else {
+					centerY = radialGrad->getCy();
+				}
 
 				// Tâm tiêu cự (fx, fy)
-				REAL focusX = x + width * radialGrad->getFx();
-				REAL focusY = y + height * radialGrad->getFy();
+				if (radialGrad->getFx() < 1.0) {
+					focusX = x + width * radialGrad->getFx();
+				}
+				else {
+					focusX = radialGrad->getFx();
+				}
 
-				// Bán kính x và y
-				REAL radiusX = width * radialGrad->getR();
-				REAL radiusY = height * radialGrad->getR();
+				if (radialGrad->getFy() < 1.0) {
+					focusY = y + height * radialGrad->getFy();
+				}
+				else {
+					focusY = radialGrad->getFy();
+				}
+
+				// Bán kính x và y (r)
+				if (radialGrad->getR() < 1.0) {
+					radiusX = width * radialGrad->getR();
+					radiusY = height * radialGrad->getR();
+				}
+				else {
+					radiusX = radialGrad->getR();
+					radiusY = radialGrad->getR();
+				}
 
 				// Tạo ellipse path cho gradient
 				GraphicsPath ellipsePath;
 				ellipsePath.AddEllipse(centerX - radiusX, centerY - radiusY, radiusX * 2, radiusY * 2);
 
+				// Path gradient brush
 				PathGradientBrush radialBrush(&ellipsePath);
+				GraphicsState save = graphics.Save();
+				graphics.SetClip(path, CombineModeIntersect);
 
-				Pen fallbackPen(colors[0], shape->getStroke().getStrokeWidth()); //màu cuối cùng trong color stop (100%)
-				graphics.DrawPath(&fallbackPen, path);
+				SolidBrush fallbackBrush(colors[0]); //màu cuối cùng trong color stop (100%)
+				graphics.FillRectangle(&fallbackBrush, RectF(x, y, width, height));
+
+				if (grad->getSpreadMethod() == "repeat") {
+					REAL radiusX_ = radiusX * 4;
+					REAL radiusY_ = radiusY * 4;
+					int repeatCount = 5; // Số lần lặp (giảm dần bán kính)
+					REAL shrinkFactor = 0.5; // Tỉ lệ giảm bán kính mỗi lần lặp
+
+					for (int i = 0; i < repeatCount; ++i) {
+						// Bán kính giảm dần từ lớn xuống nhỏ
+						REAL newRadiusX = radiusX_ * (1.0 - i * shrinkFactor);
+						REAL newRadiusY = radiusY_ * (1.0 - i * shrinkFactor);
+
+						if (newRadiusX <= 0 || newRadiusY <= 0) break; // Dừng nếu bán kính <= 0
+
+						// Tạo ellipse gradient với bán kính thu nhỏ
+						GraphicsPath repeatedPath;
+						repeatedPath.AddEllipse(
+							centerX - newRadiusX,
+							centerY - newRadiusY,
+							newRadiusX * 2,
+							newRadiusY * 2
+						);
+						vector<TransformCommand> trans = grad->getTransform();
+						Matrix transformMatrix;
+						for (TransformCommand t : trans) {
+							if (t.getName() == "translate") {
+								transformMatrix.Translate(t.getTransX() * width, t.getTransY() * height);
+							}
+							else if (t.getName() == "rotate") {
+								transformMatrix.Rotate(t.getAngle());
+							}
+							else if (t.getName() == "scale") {
+								transformMatrix.Scale(t.getScaleX(), t.getScaleY());
+							}
+						}
+						// Áp dụng ma trận biến đổi lên repeatedPath
+						repeatedPath.Transform(&transformMatrix);
+						// Tạo PathGradientBrush cho mỗi vòng lặp
+						PathGradientBrush repeatedBrush(&repeatedPath);
+
+
+						// Đặt màu trung tâm và dải màu
+						repeatedBrush.SetCenterColor(colors[numStops - 1]);
+						repeatedBrush.SetInterpolationColors(colors.data(), positions.data(), numStops);
+
+						// Đặt tâm gradient cố định
+						repeatedBrush.SetCenterPoint(PointF(centerX, centerY));
+
+						// Vẽ gradient thu nhỏ
+						graphics.FillPath(&repeatedBrush, &repeatedPath);
+					}
+				}
+
+
+				else if (grad->getSpreadMethod() == "reflect") {
+					int reflectCount = 5; // Số lần lặp (giảm dần bán kính)
+					REAL shrinkFactor = 0.5; // Tỉ lệ giảm bán kính mỗi lần lặp
+					REAL radiusX_ = radiusX * 6;
+					REAL radiusY_ = radiusY * 6;
+					for (int i = 0; i < reflectCount; ++i) {
+						// Bán kính giảm dần từ lớn xuống nhỏ
+						REAL newRadiusX = radiusX_ * (1.0 - i * shrinkFactor);
+						REAL newRadiusY = radiusY_ * (1.0 - i * shrinkFactor);
+
+						if (newRadiusX <= 0 || newRadiusY <= 0) break; // Dừng nếu bán kính <= 0
+
+						// Tạo ellipse gradient với bán kính thu nhỏ
+						GraphicsPath reflectedPath;
+						reflectedPath.AddEllipse(
+							centerX - newRadiusX,
+							centerY - newRadiusY,
+							newRadiusX * 2,
+							newRadiusY * 2
+						);
+						vector<TransformCommand> trans = grad->getTransform();
+						Matrix transformMatrix;
+						for (TransformCommand t : trans) {
+							if (t.getName() == "translate") {
+								transformMatrix.Translate(t.getTransX() * width, t.getTransY() * height);
+							}
+							else if (t.getName() == "rotate") {
+								transformMatrix.Rotate(t.getAngle());
+							}
+							else if (t.getName() == "scale") {
+								transformMatrix.Scale(t.getScaleX(), t.getScaleY());
+							}
+						}
+						// Áp dụng ma trận biến đổi lên reflectedPath
+						reflectedPath.Transform(&transformMatrix);
+						// Tạo PathGradientBrush cho mỗi vòng lặp
+						PathGradientBrush reflectedBrush(&reflectedPath);
+
+
+						// Đặt màu trung tâm và dải màu
+						reflectedBrush.SetCenterColor(colors[numStops - 1]);
+						reflectedBrush.SetInterpolationColors(colors.data(), positions.data(), numStops);
+
+						// Đặt tâm gradient cố định
+						reflectedBrush.SetCenterPoint(PointF(centerX, centerY));
+						reflectedBrush.SetWrapMode(WrapModeTile);
+						// Vẽ gradient thu nhỏ
+						graphics.FillPath(&reflectedBrush, &reflectedPath);
+					}
+				}
 
 				vector<TransformCommand> trans = grad->getTransform();
 
@@ -474,9 +612,11 @@ void Draw::renderStrokeGradient(Graphics& graphics, GraphicsPath* path, gradient
 				// Đặt tâm tiêu cự (focus point)
 				radialBrush.SetCenterPoint(PointF(focusX, focusY));
 
-				Pen gradientPen(&radialBrush, shape->getStroke().getStrokeWidth()); // Dùng gradient pen với độ dày viền
-				graphics.DrawPath(&gradientPen, path); // Vẽ đường viền với gradient
+				// Vẽ gradient trong vùng path
+				graphics.FillRectangle(&radialBrush, RectF(x, y, width, height));
 
+				//xoa clip
+				graphics.Restore(save);
 			}
 		}
 	}
@@ -484,24 +624,67 @@ void Draw::renderStrokeGradient(Graphics& graphics, GraphicsPath* path, gradient
 }
 void Draw::drawRectangle(Graphics& graphics, rectangle* rect, ViewBox* vb) {
 	GraphicsState save = graphics.Save();
-	GraphicsPath* p = NULL;
+	GraphicsPath* p = new GraphicsPath();
 	rect->applyTransform(graphics);
 	stroke str = rect->getStroke();
 
 	graphics.SetSmoothingMode(SmoothingModeAntiAlias);
 
+	// Lấy thông tin rx và ry
+	float rx = rect->getRx();
+	float ry = rect->getRy();
+
+	// Giới hạn rx và ry để tránh giá trị vượt quá chiều dài hoặc chiều cao
+	float width = rect->getWidth();
+	float height = rect->getHeight();
+	rx = min(rx, width / 2.0f);
+	ry = min(ry, height / 2.0f);
+
+	// Tạo hình chữ nhật bo góc
+	float x = rect->getRecX();
+	float y = rect->getRecY();
+	if (rx > 0 && ry > 0) {
+		p->StartFigure();
+		// Góc trên trái
+		p->AddArc(x, y, 2 * rx, 2 * ry, 180, 90);
+		// Cạnh trên
+		p->AddLine(x + rx, y, x + width - rx, y);
+		// Góc trên phải
+		p->AddArc(x + width - 2 * rx, y, 2 * rx, 2 * ry, 270, 90);
+		// Cạnh phải
+		p->AddLine(x + width, y + ry, x + width, y + height - ry);
+		// Góc dưới phải
+		p->AddArc(x + width - 2 * rx, y + height - 2 * ry, 2 * rx, 2 * ry, 0, 90);
+		// Cạnh dưới
+		p->AddLine(x + width - rx, y + height, x + rx, y + height);
+		// Góc dưới trái
+		p->AddArc(x, y + height - 2 * ry, 2 * rx, 2 * ry, 90, 90);
+		// Cạnh trái
+		p->AddLine(x, y + height - ry, x, y + ry);
+		p->CloseFigure();
+	}
+	else {
+		// Nếu rx và ry bằng 0, chỉ tạo hình chữ nhật bình thường
+		p->AddRectangle(RectF(x, y, width, height));
+	}
+
+	// Vẽ phần nền (Fill)
 	gradient* grad = rect->getFillGradient();
 	if (grad == NULL) {
 		SolidBrush fillBrush(Color((rect->getFillColor().getOpacity() * 255), rect->getFillColor().getRed(), rect->getFillColor().getGreen(), rect->getFillColor().getBlue()));
-		graphics.FillRectangle(&fillBrush, rect->getRecX(), rect->getRecY(), rect->getWidth(), rect->getHeight());
+		graphics.FillPath(&fillBrush, p);
 	}
 	else {
 		renderFillGradient(graphics, p, grad, rect, vb);
 	}
+
+	// Vẽ phần viền (Stroke)
 	grad = rect->getStrokeGradient();
 	if (grad == NULL) {
 		Pen pen(Color(str.getStrokeColor().getOpacity() * 255, str.getStrokeColor().getRed(), str.getStrokeColor().getGreen(), str.getStrokeColor().getBlue()), str.getStrokeWidth());
-		if (str.getStrokeWidth() != 0) graphics.DrawRectangle(&pen, rect->getRecX(), rect->getRecY(), rect->getWidth(), rect->getHeight());
+		if (str.getStrokeWidth() != 0) {
+			graphics.DrawPath(&pen, p);
+		}
 	}
 	else {
 		renderStrokeGradient(graphics, p, grad, rect, vb);
@@ -510,6 +693,7 @@ void Draw::drawRectangle(Graphics& graphics, rectangle* rect, ViewBox* vb) {
 	graphics.Restore(save);
 	delete p;
 }
+
 void Draw::drawCircle(Graphics& graphics, circle* cir, ViewBox* vb) {
 	GraphicsState save = graphics.Save();
 	GraphicsPath* p = NULL;
