@@ -1101,8 +1101,8 @@ map <string, gradient*> FileProcess::ReadDefs(fstream& fi) {
 			getline(sslink, url, '"');
 
 			if (GradientMap[url] != NULL) {
-				vector <stop> STOP = GradientMap[url]->getColorStop();
-				temp->setColorStop(STOP);
+				Stops = GradientMap[url]->getColorStop();
+				
 			}
 		}
 
