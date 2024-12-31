@@ -977,8 +977,8 @@ void FileProcess::ReadDefs(fstream& fi) {
 			temp->setSpreadMethod(attributes["spreadMethod"]);
 		}
 
-		if (attributes["gradientTransfrom"] != "") {
-			Trans = ReadTranCom(attributes["gradientTransfrom"]);
+		if (attributes["gradientTransform"] != "") {
+			Trans = ReadTranCom(attributes["gradientTransform"]);
 			temp->setTransform(Trans);
 		}
 		else if (attributes["transform"] != "") {
