@@ -371,15 +371,7 @@ path FileProcess::ReadPath(string d) {
 			pathSegment.second.push_back(lastPoint);
 		}
 
-		if (command == "M" && pathSegment.second.size() > 1) {
-			vector<point> tmp = pathSegment.second;
-			pathVct.push_back({ "M", { tmp[0] } });
-			//neu M co nhieu diem theo sau thi L toi cac diem do
-
-			for (size_t i = 1; i < tmp.size(); ++i) {
-				pathVct.push_back({ "L", { tmp[i] } });
-			}
-		}
+		
 		if (command == "A" || command == "a") {
 			float rx, ry, xAxisRotation, largeArcFlag, sweepFlag, x, y;
 			regex numberRegex(R"((-?(\d+(\.\d*)?|\.\d+)))");
@@ -417,14 +409,18 @@ path FileProcess::ReadPath(string d) {
 				lastPoint.setX(x);
 				lastPoint.setY(y);
 
-				// Optionally, print the values for debugging
-				// cout << "rx: " << rx << " ry: " << ry << " xAxisRotation: " << xAxisRotation 
-				//      << " largeArcFlag: " << largeArcFlag << " sweepFlag: " << sweepFlag
-				//      << " x: " << x << " y: " << y << endl;
 			}
 		}
+		if (command == "M" && pathSegment.second.size() > 1) {
+			vector<point> tmp = pathSegment.second;
+			pathVct.push_back({ "M", { tmp[0] } });
+			//neu M co nhieu diem theo sau thi L toi cac diem do
 
-		pathVct.push_back(pathSegment);
+			for (size_t i = 1; i < tmp.size(); ++i) {
+				pathVct.push_back({ "L", { tmp[i] } });
+			}
+		}
+		else pathVct.push_back(pathSegment);
 
 		it = match[0].second;
 	}
