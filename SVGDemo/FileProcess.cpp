@@ -371,7 +371,19 @@ path FileProcess::ReadPath(string d) {
 			pathSegment.second.push_back(lastPoint);
 		}
 
+<<<<<<< HEAD
 
+=======
+		if (command == "M" && pathSegment.second.size() > 1) {
+			vector<point> tmp = pathSegment.second;
+			pathVct.push_back({ "M", { tmp[0] } });
+			//neu M co nhieu diem theo sau thi L toi cac diem do
+
+			for (size_t i = 1; i < tmp.size(); ++i) {
+				pathVct.push_back({ "L", { tmp[i] } });
+			}
+		}
+>>>>>>> 63c408dd2061262403a9b03152688f1c7455dc8e
 		if (command == "A" || command == "a") {
 			float rx, ry, xAxisRotation, largeArcFlag, sweepFlag, x, y;
 			regex numberRegex(R"((-?(\d+(\.\d*)?|\.\d+)))");
@@ -410,6 +422,7 @@ path FileProcess::ReadPath(string d) {
 				lastPoint.setY(y);
 			}
 		}
+<<<<<<< HEAD
 
 		if (command == "M" && pathSegment.second.size() > 1) {
 			vector<point> tmp = pathSegment.second;
@@ -420,6 +433,10 @@ path FileProcess::ReadPath(string d) {
 				pathVct.push_back({ "L", { tmp[i] } });
 			}
 		} else pathVct.push_back(pathSegment);
+=======
+
+		pathVct.push_back(pathSegment);
+>>>>>>> 63c408dd2061262403a9b03152688f1c7455dc8e
 
 		it = match[0].second;
 	}
