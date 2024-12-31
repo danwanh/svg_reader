@@ -1189,7 +1189,8 @@ vector <Shape*> FileProcess::ReadFile() {
 		}
 		// xu li def
 		if (name == "defs") {
-			this->gradientMap = this->ReadDefs(fi);
+			map <string, gradient*> mapCat = this->ReadDefs(fi);
+			this->gradientMap.insert(mapCat.begin(), mapCat.end());
 			//cout << " Show GRADIENT " << endl;
 			//ShowGradient(gradientMap);
 		}
