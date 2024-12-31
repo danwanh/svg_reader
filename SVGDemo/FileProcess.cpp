@@ -370,7 +370,7 @@ path FileProcess::ReadPath(string d) {
 		else if (command == "Z" || command == "z") {
 			pathSegment.second.push_back(lastPoint);
 		}
-
+	
 		if (command == "M" && pathSegment.second.size() > 1) {
 			vector<point> tmp = pathSegment.second;
 			pathVct.push_back({ "M", { tmp[0] } });
@@ -416,14 +416,9 @@ path FileProcess::ReadPath(string d) {
 
 				lastPoint.setX(x);
 				lastPoint.setY(y);
-
-				// Optionally, print the values for debugging
-				// cout << "rx: " << rx << " ry: " << ry << " xAxisRotation: " << xAxisRotation 
-				//      << " largeArcFlag: " << largeArcFlag << " sweepFlag: " << sweepFlag
-				//      << " x: " << x << " y: " << y << endl;
 			}
 		}
-
+		
 		pathVct.push_back(pathSegment);
 
 		it = match[0].second;
@@ -1038,11 +1033,16 @@ void FileProcess::ReadDefs(fstream& fi) {
 			Stops.push_back(Stop);
 		}
 
-		if (name == "/linearGradient" || name == "/radialGradient" || radial) {
+		/*if (name == "/linearGradient" || name == "/radialGradient" || radial) {
 			temp->setColorStop(Stops);
 			gradientMap.insert(make_pair(temp->getId(), temp));
 			Stops.clear();
-		}
+		}*/
+		if ((name == "/radialGradient" || name == "/linearGradient") && temp) {
+            temp->setColorStop(Stops);
+            gradientMap[temp->getId()] = temp;
+            Stops.clear();
+        }
 	}
 }
 
