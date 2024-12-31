@@ -1006,6 +1006,8 @@ void FileProcess::ReadDefs(fstream& fi) {
 			double offset = 0;
 			if (attributes["offset"] != "")
 				offset = stod(attributes["offset"]);
+			if (attributes["offset"].find("%") != string::npos) // Xu li phan tram
+				offset /= 100;
 			Stop.offset = offset;
 			if (attributes["stop-color"] != "") {
 				MyColor stopColor = this->ReadColor(attributes["stop-color"]);
