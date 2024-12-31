@@ -124,7 +124,7 @@ MyColor FileProcess::ReadColor(string color) {
 
 vector<point> FileProcess::ReadPoint(string Point) {
 	vector<point> points;
-	regex pointRegex(R"((-?\d*\.?\d+)\s*,?\s*(-?\d*\.?\d+))");
+	regex pointRegex(R"((-?\d*\.?\d+(?:[eE][-+]?\d+)?)\s*,?\s*(-?\d*\.?\d+(?:[eE][-+]?\d+)?))");
 	smatch match;
 	auto it = Point.cbegin();
 
@@ -169,7 +169,24 @@ void FileProcess::ReadStrokeAndFill(map<string, string> attributes, Shape* shape
 			color = MyColor(255, 255, 255, 0);
 			shape->setFillColor(color);
 		}
+		// fill la url
+		if (colorAttri["fill"].find("url") != string::npos) {
+			regex pattern(R"(url\(#([\w_-]+)\))");
+			smatch match;
 
+			string url;
+
+			if (regex_search(colorAttri["fill"], match, pattern)) {
+				url = match[1].str();
+			}
+
+			if (this->gradientMap[url] != NULL) {
+				shape->setUsingGradient(true);
+				shape->setFillGradient(this->gradientMap[url]);
+			}
+
+		}
+		///
 		if (colorAttri["opacity"] != "")
 			shape->getFillColor().setOpacity(stof(colorAttri["opacity"]));
 		// ReadStroke
@@ -179,6 +196,24 @@ void FileProcess::ReadStrokeAndFill(map<string, string> attributes, Shape* shape
 			shape->getStroke().getStrokeColor().setRed(stroke.getRed());
 			shape->getStroke().getStrokeColor().setBlue(stroke.getBlue());
 			shape->getStroke().getStrokeColor().setGreen(stroke.getGreen());
+		}
+
+		// stroke la url
+		if (colorAttri["stroke"].find("url") != string::npos) {
+			regex pattern(R"(url\(#([\w_-]+)\))");
+			smatch match;
+
+			string url;
+
+			if (regex_search(colorAttri["stroke"], match, pattern)) {
+				url = match[1].str();
+			}
+
+			if (this->gradientMap[url] != NULL) {
+				shape->setUsingGradient(true);
+				shape->setFillGradient(this->gradientMap[url]);
+			}
+
 		}
 		if (colorAttri["stroke-opacity"] != "") {
 			shape->getStroke().getStrokeColor().setOpacity(stof(colorAttri["stroke-opacity"]));
@@ -346,7 +381,9 @@ path FileProcess::ReadPath(string d) {
 	if (d.empty()) {
 		throw std::invalid_argument("Path string cannot be empty.");
 	}
-
+	int len = d.length();
+	if (d[len - 1] != 'z' || d[len - 1] != 'Z')
+		d = d + "Z";
 	vector<pair<string, vector<point>>> pathVct;
 	regex commandRegex(R"(([MLHVZCSQAmlhvzcsqa])([^MLHVZCSQAmlhvzcsqa]*))");
 	smatch match;
@@ -470,6 +507,12 @@ Shape* FileProcess::ReadShape(map<string, string> attributes, string name) {
 		}
 		if (attributes["y"] != "") {
 			temp->setRecY(stof(attributes["y"]));
+		}
+		if (attributes["rx"] != "") {
+			temp->setRx(stof(attributes["rx"]));
+		}
+		if (attributes["ry"] != "") {
+			temp->setRy(stof(attributes["ry"]));
 		}
 		if (attributes["width"] != "") {
 			temp->setWidth(stof(attributes["width"]));
@@ -767,6 +810,8 @@ void FileProcess::ShowShape(Shape* shape) {
 		cout << " name " << temp->getName() << endl;
 		cout << " x " << temp->getRecX() << endl;
 		cout << " y " << temp->getRecY() << endl;
+		cout << " rx " << temp->getRx() << endl;
+		cout << " ry " << temp->getRy() << endl;
 		cout << " width " << temp->getWidth() << endl;
 		cout << " height " << temp->getHeight() << endl;
 	}
