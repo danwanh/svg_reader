@@ -1669,11 +1669,7 @@ path FileProcess::ReadPath(string d) {
 				lastPoint.setY(y);
 			}
 		}
-<<<<<<< HEAD
 
-		pathVct.push_back(pathSegment);
-
-=======
 		if (command == "M" && pathSegment.second.size() > 1) {
 			vector<point> tmp = pathSegment.second;
 			pathVct.push_back({ "M", { tmp[0] } });
@@ -1683,7 +1679,7 @@ path FileProcess::ReadPath(string d) {
 				pathVct.push_back({ "L", { tmp[i] } });
 			}
 		} else pathVct.push_back(pathSegment);
->>>>>>> 69ef63c91a432d2b241f370afc7e764e4bfe6fa9
+
 		it = match[0].second;
 	}
 	/*if (pathVct.back().first != "Z" || pathVct.back().first != "z") {
@@ -2242,7 +2238,6 @@ map <string, gradient*> FileProcess::ReadDefs(fstream& fi) {
 				temp->setId(attributes["id"]);
 			}
 			if (attributes["x1"] != "") {
-<<<<<<< HEAD
 				string strTemp = attributes["x1"];
 				if (strTemp.back() == '%')
 				{
@@ -2272,34 +2267,6 @@ map <string, gradient*> FileProcess::ReadDefs(fstream& fi) {
 					dynamic_cast<linearGradient*>(temp)->setY2(stod(attributes["y2"]) / 100);
 				}
 				else dynamic_cast<linearGradient*>(temp)->setY2(stod(attributes["y2"]));
-=======
-				if (attributes["x1"].find("%") != string::npos) {
-					dynamic_cast<linearGradient*>(temp)->setX1(stod(attributes["x1"]) / 100);
-				}
-				else
-					dynamic_cast<linearGradient*>(temp)->setX1(stod(attributes["x1"]));
-			}
-			if (attributes["x2"] != "") {
-				if (attributes["x2"].find("%") != string::npos) {
-					dynamic_cast<linearGradient*>(temp)->setX2(stod(attributes["x2"]) / 100);
-				}
-				else
-					dynamic_cast<linearGradient*>(temp)->setX2(stod(attributes["x2"]));
-			}
-			if (attributes["y1"] != "") {
-				if (attributes["y1"].find("%") != string::npos) {
-					dynamic_cast<linearGradient*>(temp)->setY1(stod(attributes["y1"]) / 100);
-				}
-				else
-					dynamic_cast<linearGradient*>(temp)->setY1(stod(attributes["y1"]));
-			}
-			if (attributes["y2"] != "") {
-				if (attributes["y2"].find("%") != string::npos) {
-					dynamic_cast<linearGradient*>(temp)->setY2(stod(attributes["y2"]) / 100);
-				}
-				else
-					dynamic_cast<linearGradient*>(temp)->setY2(stod(attributes["y2"]));
->>>>>>> 69ef63c91a432d2b241f370afc7e764e4bfe6fa9
 			}
 		}
 		if (attributes["gradientUnits"] != "") {
