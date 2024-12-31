@@ -169,7 +169,24 @@ void FileProcess::ReadStrokeAndFill(map<string, string> attributes, Shape* shape
 			color = MyColor(255, 255, 255, 0);
 			shape->setFillColor(color);
 		}
+		// fill la url
+		if (colorAttri["fill"].find("url") != string::npos) {
+			regex pattern(R"(url\(#([\w_-]+)\))");
+			smatch match;
 
+			string url;
+
+			if (regex_search(colorAttri["fill"], match, pattern)) {
+				url = match[1].str();
+			}
+
+			if (this->gradientMap[url] != NULL) {
+				shape->setUsingGradient(true);
+				shape->setFillGradient(this->gradientMap[url]);
+			}
+
+		}
+		///
 		if (colorAttri["opacity"] != "")
 			shape->getFillColor().setOpacity(stof(colorAttri["opacity"]));
 		// ReadStroke
@@ -179,6 +196,24 @@ void FileProcess::ReadStrokeAndFill(map<string, string> attributes, Shape* shape
 			shape->getStroke().getStrokeColor().setRed(stroke.getRed());
 			shape->getStroke().getStrokeColor().setBlue(stroke.getBlue());
 			shape->getStroke().getStrokeColor().setGreen(stroke.getGreen());
+		}
+
+		// stroke la url
+		if (colorAttri["stroke"].find("url") != string::npos) {
+			regex pattern(R"(url\(#([\w_-]+)\))");
+			smatch match;
+
+			string url;
+
+			if (regex_search(colorAttri["stroke"], match, pattern)) {
+				url = match[1].str();
+			}
+
+			if (this->gradientMap[url] != NULL) {
+				shape->setUsingGradient(true);
+				shape->setFillGradient(this->gradientMap[url]);
+			}
+
 		}
 		if (colorAttri["stroke-opacity"] != "") {
 			shape->getStroke().getStrokeColor().setOpacity(stof(colorAttri["stroke-opacity"]));
