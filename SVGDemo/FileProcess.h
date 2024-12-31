@@ -32,7 +32,7 @@ public:
 	void LoadColorMap();
 	MyColor ReadColor(string);
 	void ReadStrokeAndFill(map<string, string>, Shape*);
-	void ReadDefs(fstream& fi);
+	map <string, gradient*> ReadDefs(fstream& fi);
 	vector <point> ReadPoint(string);
 	path ReadPath(string);
 	vector< TransformCommand> ReadTranCom(string);
