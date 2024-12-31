@@ -836,8 +836,9 @@ void FileProcess::ShowShape(Shape* shape) {
 
 
 
-void FileProcess::ReadDefs(fstream& fi) {
-	map <string, gradient*> gradientMap;
+
+map <string, gradient*> FileProcess::ReadDefs(fstream& fi) {
+	map <string, gradient*> GradientMap;
 	string s;
 	gradient* temp = NULL;
 	vector <stop> Stops;
@@ -855,7 +856,7 @@ void FileProcess::ReadDefs(fstream& fi) {
 		ss >> name;
 		cout << name << endl;
 		if (name == "/defs") {
-			return;
+			return GradientMap;
 		}
 
 		if (name == "style") {
@@ -991,8 +992,8 @@ void FileProcess::ReadDefs(fstream& fi) {
 			getline(sslink, url, '#');
 			getline(sslink, url, '"');
 
-			if (gradientMap[url] != NULL) {
-				vector <stop> STOP = gradientMap[url]->getColorStop();
+			if (GradientMap[url] != NULL) {
+				vector <stop> STOP = GradientMap[url]->getColorStop();
 				temp->setColorStop(STOP);
 			}
 		}
@@ -1034,15 +1035,10 @@ void FileProcess::ReadDefs(fstream& fi) {
 			Stops.push_back(Stop);
 		}
 
-		/*if (name == "/linearGradient" || name == "/radialGradient" || radial) {
+		if (name == "/linearGradient" || name == "/radialGradient" || radial) {
 			temp->setColorStop(Stops);
-			gradientMap.insert(make_pair(temp->getId(), temp));
+			GradientMap.insert(make_pair(temp->getId(), temp));
 			Stops.clear();
-		}*/
-		if ((name == "/radialGradient" || name == "/linearGradient") && temp) {
-            temp->setColorStop(Stops);
-            gradientMap[temp->getId()] = temp;
-            Stops.clear();
 		}
 	}
 }
@@ -1193,7 +1189,7 @@ vector <Shape*> FileProcess::ReadFile() {
 		}
 		// xu li def
 		if (name == "defs") {
-			this->ReadDefs(fi);
+			this->gradientMap = this->ReadDefs(fi);
 			//cout << " Show GRADIENT " << endl;
 			//ShowGradient(gradientMap);
 		}
