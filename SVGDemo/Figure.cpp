@@ -1,5 +1,8 @@
 ﻿#include "stdafx.h"
 #include "Figure.h"
+Figure::Figure() {
+    vb = new ViewBox();
+}
 void Figure::setViewBox(ViewBox* vb_) {
 	vb = vb_;
 }

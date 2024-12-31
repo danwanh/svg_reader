@@ -35,7 +35,7 @@ void Draw::renderFillGradient(Graphics& graphics, GraphicsPath* path, gradient* 
 						colorStops[i].stopColor.getGreen(),
 						colorStops[i].stopColor.getBlue()
 					);
-					positions[i] = static_cast<REAL>(colorStops[i].offset / 100);
+					positions[i] = static_cast<REAL>(colorStops[i].offset);
 				}
 				auto x1 = linearGrad->getX1();
 				auto x2 = linearGrad->getX2();
@@ -43,22 +43,22 @@ void Draw::renderFillGradient(Graphics& graphics, GraphicsPath* path, gradient* 
 				auto y2 = linearGrad->getY2();
 
 				double startX, startY, endX, endY;
-				if (x1 < 1.0 && x1 > 0.0) {
+				if (x1 <= 1.0 && x1 > 0.0) {
 					startX = x + width * x1;
 				}
 				else startX = x1;
 
-				if (y1 < 1.0 && y1 > 0.0) {
+				if (y1 <= 1.0 && y1 > 0.0) {
 					startY = y + height * y1;
 				}
 				else startY = y1;
 
-				if (x2 < 1.0 && x2 > 0.0) {
+				if (x2 <= 1.0 && x2 > 0.0) {
 					endX = x + width * x2;
 				}
 				else endX = x2;
 
-				if (y2 < 1.0 && y2 > 0.0) {
+				if (y2 <= 1.0 && y2 > 0.0) {
 					endY = y + height * y2;
 				}
 				else endY = y2;
@@ -82,11 +82,11 @@ void Draw::renderFillGradient(Graphics& graphics, GraphicsPath* path, gradient* 
 						linearBrush.ScaleTransform(t.getScaleX(), t.getScaleY());
 					}
 				}
-				if (grad->getSpreadMethod() == "repeat") {
+				if (grad->getSpreadMethod() == "reflect") linearBrush.SetWrapMode(WrapModeTileFlipXY); //reflect
+				else if (grad->getSpreadMethod() == "repeat") {
 					linearBrush.SetWrapMode(WrapModeClamp); //repeat
 				}
-				else linearBrush.SetWrapMode(WrapModeTileFlipXY); //reflect
-
+				else linearBrush.SetWrapMode(WrapModeTileFlipXY);
 
 				linearBrush.SetInterpolationColors(colors.data(), positions.data(), numStops);
 				GraphicsState save = graphics.Save();
@@ -117,7 +117,7 @@ void Draw::renderFillGradient(Graphics& graphics, GraphicsPath* path, gradient* 
 						colorStops[i].stopColor.getGreen(),
 						colorStops[i].stopColor.getBlue()
 					);
-					positions[i] = static_cast<REAL>(colorStops[i].offset / 100);
+					positions[i] = static_cast<REAL>(colorStops[i].offset);
 				}
 
 
@@ -346,7 +346,7 @@ void Draw::renderStrokeGradient(Graphics& graphics, GraphicsPath* path, gradient
 						colorStops[i].stopColor.getGreen(),
 						colorStops[i].stopColor.getBlue()
 					);
-					positions[i] = static_cast<REAL>(colorStops[i].offset / 100);
+					positions[i] = static_cast<REAL>(colorStops[i].offset);
 				}
 
 				auto x1 = linearGrad->getX1();
@@ -398,6 +398,9 @@ void Draw::renderStrokeGradient(Graphics& graphics, GraphicsPath* path, gradient
 				else if (grad->getSpreadMethod() == "repeat") {
 					linearBrush.SetWrapMode(WrapModeClamp); //repeat
 				}
+				else {
+					linearBrush.SetWrapMode(WrapModeTileFlipXY); //reflect
+				}
 
 				linearBrush.SetInterpolationColors(colors.data(), positions.data(), numStops);
 				Pen gradientPen(&linearBrush, shape->getStroke().getStrokeWidth()); // Dùng gradient pen với độ dày viền
@@ -425,7 +428,7 @@ void Draw::renderStrokeGradient(Graphics& graphics, GraphicsPath* path, gradient
 						colorStops[i].stopColor.getGreen(),
 						colorStops[i].stopColor.getBlue()
 					);
-					positions[i] = static_cast<REAL>(colorStops[i].offset / 100);
+					positions[i] = static_cast<REAL>(colorStops[i].offset);
 				}
 
 
@@ -882,31 +885,22 @@ void Draw::drawPath(Graphics& graphics, path* path, ViewBox* vb) {
 	// Đặt chế độ fill mode thành FillModeAlternate (even-odd rule)
 	//graphicsPath.SetFillMode(FillModeAlternate);
 
+	string command;
 	PointF currentPoint;
 	PointF lastControlPoint(0, 0); // Khởi tạo điểm điều khiển mặc định (0, 0)
 	bool hasPreviousControlPoint = false; // Cờ xác định có điểm điều khiển trước đó
 	PointF startPoint;
 	for (auto cmd : commands) {
-		string command = cmd.first;
+		command = cmd.first;
 		vector<point> points = cmd.second;
 
-		//if (command == "M") { // Move to
-		//	if (points.empty()) continue;
-		//	currentPoint = PointF(points[0].getX(), points[0].getY());
-		//	graphicsPath.StartFigure();
-		//}
-		//else if (command == "m") { // Move to (relative)
-		//	if (points.empty()) continue;
-		//	currentPoint = PointF(points[0].getX() + currentPoint.X, points[0].getY() + currentPoint.Y);
-
-		//	graphicsPath.StartFigure();
-		//}
 		if (command == "M") { // Move to
 			if (points.empty()) continue;
 			currentPoint = PointF(points[0].getX(), points[0].getY());
 			startPoint = currentPoint; // Lưu điểm bắt đầu
 			graphicsPath.StartFigure();
 		}
+
 		else if (command == "m") { // Move to (relative)
 			if (points.empty()) continue;
 			currentPoint = PointF(points[0].getX() + currentPoint.X, points[0].getY() + currentPoint.Y);
@@ -1132,10 +1126,6 @@ void Draw::drawPath(Graphics& graphics, path* path, ViewBox* vb) {
 
 			}
 		}
-
-
-
-
 	}
 	gradient* grad = path->getFillGradient();
 	if (grad == NULL) {

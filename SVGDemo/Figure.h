@@ -11,6 +11,7 @@ private:
 	vector<Shape*> list;
 	map<string, gradient*> grad;
 public:
+	Figure();
 	void setViewBox(ViewBox* vb_);
 	ViewBox* getViewBox();
 	vector<Shape*> getList();
