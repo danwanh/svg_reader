@@ -382,8 +382,8 @@ path FileProcess::ReadPath(string d) {
 		throw std::invalid_argument("Path string cannot be empty.");
 	}
 	int len = d.length();
-	if (d[len - 1] != 'z' || d[len - 1] != 'Z')
-		d = d + "Z";
+	/*if (d[len - 1] != 'z' || d[len - 1] != 'Z')
+		d = d + "Z";*/
 	vector<pair<string, vector<point>>> pathVct;
 	regex commandRegex(R"(([MLHVZCSQAmlhvzcsqa])([^MLHVZCSQAmlhvzcsqa]*))");
 	smatch match;
