@@ -1,4 +1,4 @@
-﻿#include"stdafx.h"
+#include "stdafx.h"
 #include "FileProcess.h"
 FileProcess::FileProcess() {
 	viewbox = new ViewBox();
@@ -450,12 +450,6 @@ path FileProcess::ReadPath(string d) {
 
 		it = match[0].second;
 	}
-	/*if (pathVct.back().first != "Z" || pathVct.back().first != "z") {
-		pair<string, vector<point>> temp;
-		temp.first = "Z";
-		temp.second.push_back(point(0, 0));
-		pathVct.push_back(temp);
-	}*/
 	path P;
 	P.setPath(pathVct);
 	return P;
