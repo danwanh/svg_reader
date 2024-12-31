@@ -938,7 +938,44 @@ void Draw::drawPath(Graphics& graphics, path* path, ViewBox* vb) {
 				hasPreviousControlPoint = true;
 			}
 		}
-		
+		//else if (command == "S") { // Smooth Cubic Bézier Curve (absolute)
+		//	if (points.size() < 2) continue;
+		//	for (size_t i = 0; i + 1 < points.size(); i += 2) {
+		//		PointF control1;
+		//		if (hasPreviousControlPoint) {
+		//			control1 = PointF(lastControlPoint.X, lastControlPoint.Y);
+		//		}
+		//		else {
+		//			control1 = currentPoint; // Nếu không có, sử dụng currentPoint
+		//		}
+
+		//		PointF control2(points[i].getX(), points[i].getY());
+		//		PointF endPoint(points[i + 1].getX(), points[i + 1].getY());
+		//		graphicsPath.AddBezier(currentPoint, control1, control2, endPoint);
+		//		currentPoint = endPoint;
+		//		lastControlPoint = control2;
+		//		hasPreviousControlPoint = true;
+		//	}
+		//}
+		//else if (command == "s") { // Smooth Cubic Bézier Curve (relative)
+		//	if (points.size() < 2) continue;
+		//	for (size_t i = 0; i + 1 < points.size(); i += 2) {
+		//		PointF control1;
+		//		if (hasPreviousControlPoint) {
+		//			control1 = PointF(currentPoint.X + lastControlPoint.X, currentPoint.Y + lastControlPoint.Y);
+		//		}
+		//		else {
+		//			control1 = currentPoint;
+		//		}
+
+		//		PointF control2(points[i].getX() + currentPoint.X, points[i].getY() + currentPoint.Y);
+		//		PointF endPoint(points[i + 1].getX() + currentPoint.X, points[i + 1].getY() + currentPoint.Y);
+		//		graphicsPath.AddBezier(currentPoint, control1, control2, endPoint);
+		//		currentPoint = endPoint;
+		//		lastControlPoint = control2;
+		//		hasPreviousControlPoint = true;
+		//	}
+		//}
 		else if (command == "S") { // Smooth Cubic Bézier Curve (absolute)
 			if (points.size() < 2) continue;
 			for (size_t i = 0; i + 1 < points.size(); i += 2) {
