@@ -1,9 +1,4 @@
-<<<<<<< HEAD
-﻿
 #include "stdafx.h"
-=======
-﻿#include"stdafx.h"
->>>>>>> a553655137f2b26667350b59ce1a40604bb85795
 #include "FileProcess.h"
 FileProcess::FileProcess() {
 	viewbox = new ViewBox();
