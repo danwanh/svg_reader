@@ -65,8 +65,8 @@ void Draw::renderFillGradient(Graphics& graphics, GraphicsPath* path, gradient* 
 				LinearGradientBrush linearBrush(
 					PointF(startX, startY),
 					PointF(endX, endY),
-					colors[numStops - 1],  // Màu bắt đầu
-					colors[0]  // Màu kết thúc
+					colors[0],  // Màu bắt đầu
+					colors[numStops - 1]  // Màu kết thúc
 				);
 
 
@@ -90,10 +90,10 @@ void Draw::renderFillGradient(Graphics& graphics, GraphicsPath* path, gradient* 
 
 				linearBrush.SetInterpolationColors(colors.data(), positions.data(), numStops);
 				GraphicsState save = graphics.Save();
-				graphics.SetClip(path, CombineModeIntersect);
+				graphics.FillPath(&linearBrush, path);
 
 				// Vẽ gradient trên bounding box
-				graphics.FillRectangle(&linearBrush, RectF(x, y, width, height));
+				//graphics.FillRectangle(&linearBrush, RectF(x, y, width, height));
 
 				// Xóa clip sau khi vẽ
 				graphics.Restore(save);
