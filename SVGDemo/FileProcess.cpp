@@ -318,6 +318,22 @@ vector<TransformCommand> FileProcess::ReadTranCom(string trans) {
 			else if (regex_search(value, valMatch, transVal2)) {
 				temp.setScale(stof(valMatch[1]));
 			}
+			//	Xử lí tạm thời khi gặp scale dạng (a.b.c)
+			if (value.find(",") == string::npos) {
+				int count = 0;
+				int size = value.size();
+				for (int i = 0; i < size; i++) {
+					if (value[i] == '.')
+						count++;
+				}
+				if (count == 2) {
+					stringstream ss(value);
+					float x = 1, y = 1;
+					ss >> x;
+					ss >> y;
+					temp.setScale(x, y);
+				}
+			}
 		}
 		if (name == "scale" || name == "rotate" || name == "translate")
 			transcom.push_back(temp);
@@ -411,10 +427,6 @@ path FileProcess::ReadPath(string d) {
 
 			}
 		}
-<<<<<<< HEAD
-
-=======
->>>>>>> 7268d6a91e642fe318f7025689895c19d3543e86
 		if (command == "M" && pathSegment.second.size() > 1) {
 			vector<point> tmp = pathSegment.second;
 			pathVct.push_back({ "M", { tmp[0] } });
@@ -423,14 +435,7 @@ path FileProcess::ReadPath(string d) {
 			for (size_t i = 1; i < tmp.size(); ++i) {
 				pathVct.push_back({ "L", { tmp[i] } });
 			}
-<<<<<<< HEAD
 		} else pathVct.push_back(pathSegment);
-
-=======
-		}
-		else pathVct.push_back(pathSegment);
->>>>>>> 7268d6a91e642fe318f7025689895c19d3543e86
-
 		it = match[0].second;
 	}
 	path P;
