@@ -1030,7 +1030,7 @@ void Draw::drawPath(Graphics& graphics, path* path, ViewBox* vb) {
 		else if (command == "Z" || command == "z") { // Close path
 			graphicsPath.CloseFigure(); // Khép kín hình
 			currentPoint = startPoint;  // Cập nhật currentPoint về điểm bắt đầu
-			}
+		}
 		else if (command == "Q") { // Quadratic Bézier Curve (absolute)
 			for (size_t i = 0; i + 1 < points.size(); i += 2) {
 				PointF controlPoint(points[i].getX(), points[i].getY());
