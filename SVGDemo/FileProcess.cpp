@@ -708,9 +708,16 @@ void FileProcess::ReadGroupChild(map<string, string>& pAttributes, group* parent
 			return;
 		}
 
-		//set cac thuoc tinh o dong parrent attibutes cho child
+		
 		Shape* shape = this->ReadShape(attributes, name);
+		if (shape) {
+			ReadStrokeAndFill(pAttributes, shape); // bị mẹ đè
+			ReadStrokeAndFill(attributes, shape);
+		}
 
+		if (pAttributes["font-size"] != "" && shape->getName() == "text") {
+			dynamic_cast<text*>(shape)->setFontSize(stof(pAttributes["font-size"]));
+		}
 
 		if (name == "text") {
 			// Đọc content 
